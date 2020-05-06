@@ -8,7 +8,7 @@
 int main() {
     try {
         nafy::init();
-        nafy::context ctx;
+        // nafy::context ctx;
         nafy::deInit();
     } catch (std::exception &e) {
         std::cout << "ERROR: " << e.what() << std::endl;

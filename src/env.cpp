@@ -51,3 +51,12 @@ std::string nafy::getPath(const std::string &path) {
 GLFWwindow *window() {
     return mainWindow;
 }
+
+GLFWwindow *getWindow() {
+    return window;
+}
+
+void setWindow(GLFWwindow *window) {
+    glfwDestroyWindow(mainWindow);
+    mainWindow = window;
+}

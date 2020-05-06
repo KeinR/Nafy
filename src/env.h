@@ -10,7 +10,8 @@ namespace nafy {
     void deInit();
     void setCallPath(const char *path);
     std::string getPath(const std::string &path);
-    GLFWwindow *window();
+    GLFWwindow *getWindow();
+    void setWindow(GLFWwindow *window);
 }
 
 #endif
