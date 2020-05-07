@@ -1,6 +1,9 @@
 #include "story.h"
+#include "context.h"
 
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 #include "error.h"
 
@@ -17,10 +20,12 @@ void nafy::textString::reset() {
     ch = str.begin();
 }
 
-bool nafy::textString::action(context *ctx, scene **current) {
+bool nafy::textString::action(context *ctx) {
     if (ch != str.end()) {
         std::cout << *ch;
+        std::cout.flush();
         ch++;
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
         return false;
     }
     return true;
@@ -55,12 +60,13 @@ void nafy::scene::reset() {
     }
 }
 
-bool nafy::scene::run(context *ctx, scene **current) {
-    if (events[index]->action(ctx, current)) {
+void nafy::scene::run(context *ctx) {
+    if (events[index]->action(ctx)) {
         index++;
-        if (index >= events.size()) {
-            return false;
+        if (index < events.size()) {
+            events[index]->reset();
+        } else {
+            ctx->stopIfCurrent(this);
         }
     }
-    return true;
 }

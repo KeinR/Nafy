@@ -9,14 +9,23 @@
 
 namespace nafy {
     class context {
-        GLFWwindow *window;
+        scene *root;
+        scene *current;
         bool run;
     public:
-        context(int width = 400, int height = 400, const char *title = "Nafy");
-        ~context();
-        void start(scene &source);
+        // Note: root must NOT be nullptr
+        context(scene *root);
+        void setRoot(scene *root);
+        // Sets `this->current` to `current` and resets it
+        void setCurrent(scene *current);
+        // Sets `current` to `root`
+        void revert();
+        // calls revert() and resume()
+        void start();
+        // Start from `current`
+        void resume();
         void stop();
-        void changeTitle(const char *title);
+        void stopIfCurrent(scene *obj);
     };
 }
 

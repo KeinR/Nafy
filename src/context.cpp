@@ -1,30 +1,62 @@
 #include "context.h"
 
+#include <iostream>
+
 #include "error.h"
+#include "env.h"
 
-nafy::context::context(int width, int height, const char *title):
-    window(glfwCreateWindow(width, height, title, NULL, NULL)),
-    run(false) {
+#include "shaders.h"
+#include "Font.h"
+#include "Text.h"
 
-    if (window == NULL) {
-        throw error("nafy::context::context(int, int, const char *): Failed to create GLFW window");
+nafy::context::context(scene *root): root(root), current(root), run(false) {
+}
+
+void nafy::context::setRoot(scene *root) {
+    this->root = root;
+}
+
+void nafy::context::setCurrent(scene *current) {
+    this->current = current;
+    this->current->reset();
+}
+
+void nafy::context::revert() {
+    setCurrent(root);
+}
+
+void nafy::context::start() {
+    revert();
+    resume();
+}
+
+void nafy::context::resume() {
+    if (current == nullptr) {
+        throw error("`current` must NOT be null");
     }
-}
-
-nafy::context::~context() {
-    glfwDestroyWindow(window);
-}
-
-void nafy::context::start(scene &source) {
     run = true;
-    glfwMakeContextCurrent(window);
-    const char *errMsg;
-    if (glfwGetError(&errMsg) != GLFW_NO_ERROR) {
-        throw error(errMsg);
-    }
-    scene *current = &source;
-    while (run && !glfwWindowShouldClose(window)) {
-        current->run(this, &current);
+    std::cout << "Enter?" << std::endl;
+
+    Font font("Arial.ttf");
+    Text text(&font, shaders::sprite);
+    text.setText("Hello gamers");
+    text.setFontSize(15);
+    text.setHexColor(0x704fb8);
+    text.setX(0);
+    text.setY(0);
+
+
+    while (run && engineUp()) {
+        std::cout << "_";
+        current->run(this);
+
+        text.render();
+
+        glfwSwapBuffers(getWindow());
+
+        glfwPollEvents();
+        
+
     }
 }
 
@@ -32,7 +64,8 @@ void nafy::context::stop() {
     run = false;
 }
 
-void nafy::context::changeTitle(const char *title) {
-    glfwSetWindowTitle(window, title);
+void nafy::context::stopIfCurrent(scene *obj) {
+    if (obj == current) {
+        stop();
+    }
 }
-

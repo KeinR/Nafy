@@ -1,9 +1,9 @@
 OBJS_EXT = stb_image.o stb_truetype.o stb_vorbis.o glad.o
-OBJS = context.o env.o error.o story.o
+OBJS = context.o env.o error.o story.o Text.o Font.o shaders.o
 CFLAGS = -Wall
 CC = g++
 INCLUDE = -Iextern
-LIBS = libglfw3dll.a libOpenAL32.dll.a
+LIBS = -lglfw3dll -lOpenAL32.dll -lfreetype
 
 MK := $(CC) $(CFLAGS) $(INCLUDE)
 
