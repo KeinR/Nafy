@@ -124,19 +124,19 @@ int nafy::Font::glyphStrPixelWidth(const fontMetrics *metrics, const std::vector
     if (!glyphs.size()) {
         return 0;
     }
-    int width = 0;
+    float width = 0;
     for (std::vector<int>::const_iterator it = glyphs.cbegin(), end = glyphs.cend();;) {
         int aw;
         stbtt_GetGlyphHMetrics(&info, *it, &aw, nullptr);
 
-        width += std::round(aw * metrics->scale);
+        width += aw * metrics->scale;
         if (it+1 != end) {
-            width += std::round(stbtt_GetGlyphKernAdvance(&info, *it, *(++it)) * metrics->scale);
+            width += stbtt_GetGlyphKernAdvance(&info, *it, *(++it)) * metrics->scale;
         } else {
             break;
         }
     }
-    return width;
+    return std::ceil(width);
 }
 
 void nafy::Font::render(const fontMetrics *metrics,
@@ -147,7 +147,7 @@ void nafy::Font::render(const fontMetrics *metrics,
         return;
     }
 
-    int fx = 0;
+    float fx = 0;
     int debug_count = 0;
     for (;;) {
         debug_count++;
@@ -155,19 +155,25 @@ void nafy::Font::render(const fontMetrics *metrics,
         int lsb;
         stbtt_GetGlyphHMetrics(&info, *it, &aw, &lsb);
 
+        float x_shift = fx - (float) std::floor(fx);
+
         // Get bounding box
         // top-left & bottom right respectively
         int x1, y1, x2, y2;
-        stbtt_GetGlyphBitmapBox(&info, *it, metrics->scale, metrics->scale, &x1, &y1, &x2, &y2);
+        stbtt_GetGlyphBitmapBoxSubpixel(&info, *it, metrics->scale, metrics->scale, x_shift, 0, &x1, &y1, &x2, &y2);
 
         // Get y
         int y = metrics->ascent + y1;
 
         // render font
-        int byteOffset = fx + std::round(lsb * metrics->scale) + (y * outWidth);
+        int byteOffset = std::round(fx + lsb * metrics->scale + y * outWidth);
         // std::cout << "making" << std::endl;
         int wid = x2 - x1;
-        stbtt_MakeGlyphBitmap(&info, out + byteOffset, wid, y2 - y1, outWidth, metrics->scale, metrics->scale, *it);
+        // stbtt_MakeGlyphBitmap(&info, out + byteOffset, wid, y2 - y1, outWidth, metrics->scale, metrics->scale, *it);
+
+        std::cout << "Shift -> " << x_shift << std::endl;
+        stbtt_MakeGlyphBitmapSubpixel(&info, out + byteOffset, wid, y2 - y1, outWidth, metrics->scale, metrics->scale, x_shift, 0, *it);
+
         // if (it+1 >= endExcl) {
         //     std::cout << "BREACH," << std::endl;
         //     std::cout << "byteOffset=" << byteOffset << std::endl;
@@ -179,7 +185,7 @@ void nafy::Font::render(const fontMetrics *metrics,
         std::cout << *it << ": aw=" << std::round(aw * metrics->scale) << ", facto=" << wid << ", lsb=" << lsb;
 
         // fx += aw > wid ? aw : wid;
-        fx += std::round(aw * metrics->scale);
+        fx += aw * metrics->scale;
 
         if (it+1 < endExcl) {
             std::cout << ", kern=" << (stbtt_GetGlyphKernAdvance(&info, *it, *(it+1))) << std::endl;

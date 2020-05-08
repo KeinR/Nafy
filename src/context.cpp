@@ -37,11 +37,14 @@ void nafy::context::resume() {
     run = true;
     std::cout << "Enter?" << std::endl;
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     Font font("Arial.ttf");
     Text text(&font, shaders::sprite);
     text.setText("Hello gamers");
     text.setFontSize(15);
-    text.setHexColor(0x704fb8);
+    text.setHexColor(0);
     text.setX(0);
     text.setY(0);
 
@@ -49,6 +52,11 @@ void nafy::context::resume() {
     while (run && engineUp()) {
         std::cout << "_";
         current->run(this);
+
+        // glClearColor(1, 1, 1, 1.0f);
+        // glClearColor(0, 0, 0, 1.0f);
+        glClearColor(0.69, 0.52, 0.23, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         text.render();
 

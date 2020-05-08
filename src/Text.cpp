@@ -8,6 +8,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 #include "env.h"
 #include "defs.h"
 
@@ -107,6 +110,8 @@ void nafy::Text::generate() {
     // Convert from grayscale to RGBA
 
     unsigned char *bmp = new unsigned char[pixelsCount * 4];
+    int pos = 0;// @TEMP
+    int lastY = -1;// @TEMP
     for (int i = 0; i < pixelsCount; i++) {
         // Need to flip because OpenGL is fucky that way
         const int y = displayHeight - 1 - i / displayWidth;
@@ -114,12 +119,17 @@ void nafy::Text::generate() {
         if (ci >= pixelsCount * 4) { // @TEMP
             std::cout << "OH GOD OH FRICK " << y << std::endl;
         }
+        if (lastY != y) {
+            pos = 0;
+        } else {
+            pos++;
+        }
+        lastY = y;
         if (tmpBmp[i]) {
             bmp[ci] = tmpBmp[i] * red;
             bmp[ci+1] = tmpBmp[i] * green;
             bmp[ci+2] = tmpBmp[i] * blue;
-            bmp[ci+3] = 0xFF;
-            // bmp[ci+3] = tmpBmp[i] * alpha;
+            bmp[ci+3] = tmpBmp[i] * alpha;
         } else {
             bmp[ci] = 0;
             bmp[ci+1] = 0;
@@ -128,10 +138,10 @@ void nafy::Text::generate() {
         }
     }
 
-    // // @TEMP
-    // stbi_write_bmp("test.bmp", displayWidth, displayHeight, 1, tmpBmp);
-    // // @TEMP
-    // stbi_write_png("finale.png", displayWidth, displayHeight, 4, bmp, displayWidth * 4);
+    // @TEMP
+    stbi_write_bmp("test.bmp", displayWidth, displayHeight, 1, tmpBmp);
+    // @TEMP
+    stbi_write_png("finale.png", displayWidth, displayHeight, 4, bmp, displayWidth * 4);
 
     delete[] tmpBmp;
 
