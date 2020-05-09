@@ -6,5 +6,5 @@ error.o: src/error.cpp src/error.h
 Font.o: src/Font.cpp src/Font.h src/env.h src/defs.h
 shaders.o: src/shaders.cpp src/shaders.h src/glfw.h src/env.h
 story.o: src/story.cpp src/story.h src/context.h src/error.h
-Text.o: src/Text.cpp src/Text.h src/glfw.h src/stb_image_write.h src/env.h src/defs.h
+Text.o: src/Text.cpp src/Text.h src/glfw.h src/env.h src/defs.h
 src/Text.h: src/Font.h

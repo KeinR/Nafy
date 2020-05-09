@@ -16,8 +16,6 @@ static GLuint compileShader(GLenum type, const char *data, int length);
 static GLuint linkShaders(GLuint vertObject, GLuint fragObject);
 static bool loadFile(const std::string &path, char *&output, int &length);
 
-
-
 unsigned int nafy::shaders::sprite;
 
 void nafy::shaders::init() {
