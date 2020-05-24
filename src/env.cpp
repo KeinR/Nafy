@@ -1,6 +1,7 @@
 #include "env.h"
 
 #include <iostream>
+#include <fstream>
 
 #include <stb/stb_image.h>
 
@@ -129,22 +130,49 @@ void nafy::setWindowIcon(int width, int height, unsigned char *pixels) {
     glfwSetWindowIcon(window, 1, &image);
 }
 
-int nafy::getWinWidth() {
-    int width;
-    glfwGetWindowSize(window, &width, NULL);
-    return width;
-}
-
-int nafy::getWinHeight() {
-    int height;
-    glfwGetWindowSize(window, NULL, &height);
-    return height;
+void nafy::getWindowSize(int *width, int *height) {
+    glfwGetWindowSize(window, width, height);
 }
 
 float nafy::normX(float x) {
-    return x / getWinWidth() * 2 - 1;
+    int width;
+    getWindowSize(&width, NULL);
+    return x / width * 2 - 1;
 }
 
 float nafy::normY(float y) {
-    return (y / getWinHeight() * 2 - 1) * -1;
+    int height;
+    getWindowSize(NULL, &height);
+    return (y / height * 2 - 1) * -1;
+}
+
+bool nafy::loadFile(const std::string &path, char **output, int &length) {
+    std::ifstream file(path);
+    if (!file.good()) {
+        std::cerr << "ERROR: Failed to open file \"" << path << "\"" << std::endl;
+        file.close();
+        return false;
+    }
+    file.seekg(0, file.end);
+    const int len = file.tellg();
+    file.seekg(0, file.beg);
+
+    length = len;
+    *output = new char[len];
+
+    file.read(*output, len);
+
+    if (!file.good()) {
+        std::cerr << "ERROR: Failed to read from file \"" << path << "\"" << std::endl;
+        file.close();
+        delete[] *output;
+        length = 0;
+        return false;
+    }
+    file.close();
+    if (!file.good()) { // Not a terribly big deal: we got the data, all is good
+        std::cerr << "WARNING: Failed to close file \"" << path << "\"" << std::endl;
+    }
+
+    return true;
 }

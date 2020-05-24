@@ -5,6 +5,7 @@
 namespace nafy {
     namespace shaders {
         extern unsigned int sprite;
+        extern unsigned int text;
         void init();
         void deInit();
     }

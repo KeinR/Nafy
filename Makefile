@@ -1,21 +1,15 @@
 OBJS_EXT = stb_image.o stb_truetype.o stb_vorbis.o stb_image_write.o glad.o
-OBJS = context.o env.o error.o story.o Text.o Font.o shaders.o
-# OBJS = env.o
+OBJS_TEXT = text.Text.o text.TextCrawl.o text.Font.o text.Face.o
+OBJS := context.o env.o error.o story.o shaders.o $(OBJS_TEXT)
 CFLAGS := -Wall `pkg-config --cflags freetype2`
 CC = g++
 INCLUDE = -Iextern
-LIBS = libglfw3dll.a libfreetype.dll.a
+LIBS = -lglfw3dll -lfreetype.dll
 
 MK := $(CC) $(CFLAGS) $(INCLUDE)
 
 
 # TEMP
-
-current:
-	rm -f test.exe
-	make test
-	@printf "Size: "
-	@stat --printf="%s" test.exe
 
 run: test
 	@./test.exe
@@ -38,8 +32,8 @@ $(OBJS_EXT):
 	$(MK) -c $< -o $@
 
 include depconfig.mk
-depconfig.mk: src/*
-	dep src
+depconfig.mk: src/* src/text/*
+	dep ./src
 
 $(OBJS):
 	$(MK) -c $< -o $@

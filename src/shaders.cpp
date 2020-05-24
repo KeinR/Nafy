@@ -17,9 +17,11 @@ static GLuint linkShaders(GLuint vertObject, GLuint fragObject);
 static bool loadFile(const std::string &path, char *&output, int &length);
 
 unsigned int nafy::shaders::sprite;
+unsigned int nafy::shaders::text;
 
 void nafy::shaders::init() {
     sprite = makeProgram("sprite.vert", "sprite.frag");
+    text = makeProgram("text.vert", "text.frag");
 }
 
 void nafy::shaders::deInit() {

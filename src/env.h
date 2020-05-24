@@ -19,14 +19,14 @@ namespace nafy {
     void setWindowIcon(int width, int height, unsigned char *pixels);
 
 
-    int getWinWidth();
-    int getWinHeight();
+    void getWindowSize(int *width, int *height);
 
     // Get based off of the current dir
     std::string getPath(const std::string &path);
     // Convert screen coords to GL coords
     float normX(float x);
     float normY(float y);
+    bool loadFile(const std::string &path, char **output, int &length);
 
     bool engineUp();
     GLFWwindow *getWindow();

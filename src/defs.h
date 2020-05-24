@@ -10,6 +10,7 @@
 
 #define SHADER_MODEL_NAME "model"
 #define SHADER_SPRITE_SAMPLER_NAME "Tex"
+#define SHADER_TEXT_SAMPLER_NAME "Tex"
 
 // Paths, MUST have a slash at end to allow for proper concatenation
 #define PATH_FONTS "resources/fonts/"
