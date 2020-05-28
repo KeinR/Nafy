@@ -3,9 +3,10 @@
 
 
 namespace nafy {
+    typedef unsigned int shader_t;
     namespace shaders {
-        extern unsigned int sprite;
-        extern unsigned int text;
+        extern shader sprite;
+        extern shader text;
         void init();
         void deInit();
     }

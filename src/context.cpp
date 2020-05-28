@@ -6,18 +6,40 @@
 #include "env.h"
 
 #include "shaders.h"
+#include "text/ftype.h"
 #include "text/Font.h"
 #include "text/Text.h"
 
-nafy::context::context(scene *root): root(root), current(root), run(false) {
+inline void nafy::context::makeCurrent() {
+    glfwMakeContextCurrent(window);
 }
 
-void nafy::context::setRoot(scene *root) {
-    this->root = root;
+nafy::context::context(int winWidth, int winHeight, const char *winTitle, scene &root, Font &initCrawlFont, shader_t crawlShader):
+    window(plusContext(winWidth, winHeight, winTitle)), root(&root), current(&root), run(false), textShader(textShader), vsync(0) {
+    FT_Error error = FT_Init_FreeType(&library);
+    if (error) {
+        throw ft_error("Failed to init freetype library", error);
+    }
+    crawlFace = initCrawlFont.mkFace(ftLibrary, error);
+    if (error) {
+        throw ft_error("Failed to make initial crawl face", error);
+    }
+    crawl.setFace(crawlFace);
+    crawl.bindShader(crawlShader);
+
+    setFPS(60);
 }
 
-void nafy::context::setCurrent(scene *current) {
-    this->current = current;
+nafy::context::~context() {
+    minusContext(window);
+}
+
+void nafy::context::setRoot(scene &root) {
+    this->root = &root;
+}
+
+void nafy::context::setCurrent(scene &current) {
+    this->current = &current;
     this->current->reset();
 }
 
@@ -35,53 +57,29 @@ void nafy::context::resume() {
         throw error("`current` must NOT be null");
     }
     run = true;
-    std::cout << "Enter?" << std::endl;
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    makeCurrent();
 
-    Font font("resources/fonts/Arial.ttf");
-
-    FT_Library library;
-    FT_Error error = FT_Init_FreeType(&library);
-    if (error) {
-        std::cerr << "ERROR: Failed to init freetype library" << std::endl;
-        return;
-    }
-
-    Face face = font.mkFace(library, error);
-    if (error) {
-        std::cerr << "ERROR: Failed to make face " << std::hex << error << std::dec << std::endl;
-        return;
-    }
-    face.setSize(15);
-
-    Text text(face, shaders::text);
-    text.setString("The quick brown fox jumped over the lazy dog");
-    text.setWrappingWidth(111);
-    // text.setLineSpacingMod(1.43);
     text.generate();
 
 
     while (run && engineUp()) {
-        std::cout << "_";
-        current->run(this);
-        
-        glUseProgram(shaders::text);
-        text.render();
 
-        // glClearColor(1, 1, 1, 1.0f);
-        // glClearColor(0, 0, 0, 1.0f);
-        glClearColor(0.69, 0.52, 0.23, 1.0f);
+        const float end = glfwGetTime() + frameCooldown;
+
+        glClearColor(0, 0, 0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        text.render();
+        current->run(this);
 
-        glfwSwapBuffers(getWindow());
+        glUseProgram(textShader);
+        crawl.render();
+
+        glfwSwapBuffers(window);
 
         glfwPollEvents();
-        
 
+        while (glfwGetTime() < end);
     }
 }
 
@@ -93,4 +91,32 @@ void nafy::context::stopIfCurrent(scene *obj) {
     if (obj == current) {
         stop();
     }
+}
+
+void nafy::context::setFPS(unsigned int fps) {
+    framesPerSecond = fps;
+    frameCooldown = 1.0f / fps;
+}
+
+unsigned int nafy::context::getFPS() {
+    return framesPerSecond;
+}
+
+void nafy::context::setVSync(int lv) {
+    vsync = lv;
+    makeCurrent();
+    glfwSwapInterval(vsync);
+}
+
+int nafy::context::getVSync() {
+    return vsync;
+}
+
+Face nafy::context::makeFace(Font &font) {
+    FT_Error error;
+    Face face = font.mkFace(ftLibrary, error);
+    if (error) {
+        throw ft_error("Font::mkFace Failed", error);
+    }
+    return face;
 }

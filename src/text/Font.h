@@ -18,6 +18,7 @@ class Font {
 public:
     Font(const std::string &path);
     Font(const Font &other);
+    Font();
     Font(Font &&other);
     Font &operator=(const Font &other);
     Font &operator=(Font &&other);

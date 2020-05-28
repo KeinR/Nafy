@@ -3,12 +3,20 @@
 #include <iostream>
 #include <cstring>
 #include <cmath>
+#include <algorithm>
 
 #include "textdefs.h"
 
 #include GLFW_INCLUDE_HEADER_LOCATION
 
 #define CHANNELS 4
+
+TextCrawl::TextCrawl():
+    Text(),
+    pen(0, 0), bitmap(nullptr),
+    fall(0), start(nullptr),
+    render_c(CHANNELS, color, nullptr, 0, 0) {
+}
 
 TextCrawl::TextCrawl(Face &face, const unsigned int shader):
     Text(face, shader),
@@ -17,11 +25,77 @@ TextCrawl::TextCrawl(Face &face, const unsigned int shader):
     render_c(CHANNELS, color, nullptr, 0, 0) {
 }
 
-TextCrawl::~TextCrawl() {
+// Start mem manegment
+
+void TextCrawl::crawlSteal(TextCrawl &other) {
+
+    crawlCopyIL(other);
+    crawlCopyPOD(other);
+
+    pen = std::move(other.pen);
+
+    delBitmap();
+    bitmap = other.bitmap;
+    other.bitmap = nullptr;
+    render_c = std::move(other.render_c);
+}
+
+void TextCrawl::crawlCopy(TextCrawl &other) {
+
+    crawlCopyIL(other);
+    crawlCopyPOD(other);
+
+    pen = other.pen;
+
+    delBitmap();
+    const std::size_t length = bmpSizeBytes / sizeof(unsigned char);
+    bitmap = new unsigned char[length];
+    std::copy(other.bitmap, other.bitmap + length, bitmap);s
+    render_c = other.render_c;
+}
+
+void TextCrawl::crawlCopyIL(TextCrawl &other) {
+    currentLine = lines.begin() + (currentLine - other.lines.begin());
+    lastLineX = lines.begin() + (lastLineX - other.lines.begin());
+    linePos = currentLine->start + (linePos - other.currentLine->start);
+}
+
+void TextCrawl::crawlCopyPOD(TextCrawl &other) {
+    bmpSizeBytes = other.bmpSizeBytes;
+    fall = other.fall;
+    start = other.start;
+}
+
+void TextCrawl::delBitmap() {
     if (bitmap != nullptr) {
         delete[] bitmap;
     }
 }
+
+TextCrawl::TextCrawl(const TextCrawl &other) {
+    textCopy(other);
+    crawlCopy(other);
+}
+
+TextCrawl::TextCrawl(TextCrawl &&other): Text(std::move(other)) {
+    crawlSteal(other);
+}
+
+TextCrawl &TextCrawl::operator=(const TextCrawl &other) {
+    textCopy(other);
+    crawlCopy(other);
+}
+
+TextCrawl &TextCrawl::operator=(TextCrawl &&other) {
+    this->operator=(std::move((Text)other));
+    crawlSteal(other);
+}
+
+TextCrawl::~TextCrawl() {
+    delBitmap();
+}
+
+// end mem manegment
 
 void TextCrawl::updateTex() {
     glBindTexture(GL_TEXTURE_2D, TX);
@@ -41,9 +115,7 @@ void TextCrawl::loadLines(const Face::line_iterator &begin, const Face::line_ite
 
     bmpSizeBytes = renderedWidth * renderedHeight * CHANNELS;
 
-    if (bitmap != nullptr) {
-        delete[] bitmap;
-    }
+    delBitmap();
     bitmap = new unsigned char[bmpSizeBytes];
 
     // I get a literal 50% performance for these lines

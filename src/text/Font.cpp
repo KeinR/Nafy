@@ -4,6 +4,8 @@
 #include <iostream>
 #include <fstream>
 
+// TODO: Merge this with the parent repo
+
 Font::Font(const std::string &path) {
 
     std::ifstream file(path);
@@ -39,6 +41,9 @@ Font::Font(const std::string &path) {
     error = nullptr;
 }
 
+Font::Font(): buffer(nullptr), size(0), error(nullptr) {
+}
+
 Font::~Font() {
     delBuffer();
 }
@@ -61,6 +66,7 @@ void Font::copy(const Font &other) {
     } else {
         buffer = nullptr;
     }
+    error = other.error;
 }
 
 void Font::steal(Font &other) {
@@ -68,6 +74,7 @@ void Font::steal(Font &other) {
     delBuffer();
     buffer = other.buffer;
     other.buffer = nullptr;
+    error = other.error;
 }
 
 Font::Font(const Font &other) {

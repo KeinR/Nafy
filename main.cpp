@@ -10,10 +10,10 @@
 
 int main() {
     try {
-        nafy::init(400, 400, "das");
+        Font font("resources/fonts/Arial.ttf");
         nafy::scene sc;
         sc.pushText("Hello gamers~");
-        nafy::context ctx(&sc);
+        nafy::context ctx(400, 400, "test", sc, font);
         ctx.start();
         std::cout << "Free!" << std::endl;
         nafy::deInit();

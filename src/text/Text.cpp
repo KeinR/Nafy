@@ -11,15 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
-Text::Text(Face &face, const unsigned int shader):
-    face(&face), modelLocation(glGetUniformLocation(shader, SHADER_MODEL)),
-    renderedWidth(0), renderedHeight(0),
-    color{0, 0, 0, 1}, x(0), y(0),
-    wrappingWidth(0), overflowHeight(0),
-    lineSpacingMod(1.0f), stopsIndex(0) {
-
-
+void Text::generateBuffers() {
     float vertices[] = {
         // positions   // texture coords
         1.0,   1.0,  1.0f, 1.0f, // top right
@@ -62,10 +54,109 @@ Text::Text(Face &face, const unsigned int shader):
     // texture coord attribute
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
+}
+
+Text::Text():
+    face(nullptr), modelLocation(0),
+    renderedWidth(0), renderedHeight(0),
+    color{0, 0, 0, 1}, x(0), y(0),
+    wrappingWidth(0), overflowHeight(0),
+    lineSpacingMod(1.0f), stopsIndex(0) {
+    
+    generateBuffers();
+}
+
+Text::Text(Face &face, const unsigned int shader):
+    face(&face), modelLocation(glGetUniformLocation(shader, SHADER_MODEL)),
+    renderedWidth(0), renderedHeight(0),
+    color{0, 0, 0, 1}, x(0), y(0),
+    wrappingWidth(0), overflowHeight(0),
+    lineSpacingMod(1.0f), stopsIndex(0) {
+
+    generateBuffers();
 
     glUseProgram(shader);
     glUniform1i(glGetUniformLocation(shader, SHADER_TEXT_SAMPLER), 0);
 }
+
+// Memory manegemet
+
+void Text::textSteal(Text &other) {
+    TX = other.TX;
+    // https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glDeleteTextures.xml
+    // "glDeleteTextures silently ignores 0's"
+    other.TX = 0;
+
+    str = std::move(other.str);
+    stops = std::move(other.stops);
+
+    textCopyIL(other);
+    textCopyPOD(other);
+}
+
+void Text::textCopy(Text &other) {
+
+    str = other.str;
+    stops = other.stops;
+
+    textCopyIL(other);
+    textCopyPOD(other);
+}
+
+void Text::textCopyIL(Text &other) {
+    // https://stackoverflow.com/questions/11021764/does-moving-a-vector-invalidate-iterators
+    // Fucking committees
+    index = other.index;
+    lines = other.lines;
+    for (Face::line &ln : lines) {
+        ln.start = index.begin() + (ln.start - other.index.begin());
+        ln.end = index.begin() + (ln.end - other.index.begin());
+    }
+    for (Face::line_iterator &it : stops) {
+        it = lines.begin() + (it - other.lines.begin());
+    }
+}
+
+void Text::textCopyPOD(Text &other) {
+    face = other.face;
+
+    renderedWidth = other.renderedWidth;
+    renderedHeight = other.renderedHeight;
+
+    for (int i = 0; i < 4; i++) {
+        color[i] = other.color[i];
+    }
+
+    x = other.x;
+    y = other.y;
+    wrappingWidth = other.wrappingWidth;
+    overflowHeight = other.overflowHeight;
+    lineSpacingMod = other.lineSpacingMod;
+    stopsIndex = other.stopsIndex;
+}
+
+Text::Text(const Text &other) {
+    textCopy(other);
+    loadStops();
+}
+
+Text::Text(Text &&other) {
+    textSteal(other);
+}
+
+Text &Text::operator=(const Text &other) {
+    textCopy(other);
+    loadStops();
+    return *this;
+}
+
+Text &Text::operator=(Text &&other) {
+    glDeleteTextures(1, &TX);
+    textSteal(other);
+    return *this;
+}
+
+// End memory manegemet
 
 Text::~Text() {
     glDeleteVertexArrays(1, &VA);

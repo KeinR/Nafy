@@ -10,17 +10,20 @@
 #include "shaders.h"
 
 static std::string homeDir;
-static GLFWwindow *window;
+static int contexts = 0; // Enlarge data type for more possible instances
 static bool running = false;
 
-void nafy::init(int width, int height, const char *title) {
+static void deInit();
+static GLFWwindow *init(int width, int height, const char *title);
+
+GLFWwindow *init(int width, int height, const char *title) {
     glfwInit();
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_SAMPLES, MSSA);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    window = glfwCreateWindow(width, height, title, NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (window == NULL) {
         deInit();
         throw error("Failed to make GLFW window");
@@ -30,14 +33,34 @@ void nafy::init(int width, int height, const char *title) {
         deInit();
         throw error("Failed to initialize GLAD");
     }
-    shaders::init();
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    nafy::shaders::init();
     running = true;
+    return window;
 }
 
-void nafy::deInit() {
+void deInit() {
     running = false;
-    shaders::deInit();
+    nafy::shaders::deInit();
     glfwTerminate();
+}
+
+GLFWwindow *nafy::plusContext(int width, int height, const char *title) {
+    contexts++;
+    // We're assuming that the hints will stay in place - which they should...
+    return running ? glfwCreateWindow(width, height, title, NULL, NULL) : init(width, height, title);
+}
+
+void nafy::minusContext(GLFWwindow *window) {
+    contexts--;
+    glfwDestroyWindow(window);
+    if (contexts <= 0) {
+        deInit();
+        contexts = 0;
+    }
 }
 
 void nafy::setCallPath(const char *path) {
@@ -57,13 +80,55 @@ std::string nafy::getPath(const std::string &path) {
     return homeDir + path;
 }
 
-bool nafy::engineUp() {
-    return running && !glfwWindowShouldClose(window);
+void nafy::getWindowSize(int *width, int *height) {
+    glfwGetWindowSize(glfwGetCurrentContext(), width, height);
 }
 
-GLFWwindow *nafy::getWindow() {
-    return window;
+float nafy::normX(float x) {
+    int width;
+    getWindowSize(&width, NULL);
+    return x / width * 2 - 1;
 }
+
+float nafy::normY(float y) {
+    int height;
+    getWindowSize(NULL, &height);
+    return (y / height * 2 - 1) * -1;
+}
+
+bool nafy::loadFile(const std::string &path, char **output, int &length) {
+    std::ifstream file(path);
+    if (!file.good()) {
+        std::cerr << "ERROR: Failed to open file \"" << path << "\"" << std::endl;
+        file.close();
+        return false;
+    }
+    file.seekg(0, file.end);
+    const int len = file.tellg();
+    file.seekg(0, file.beg);
+
+    length = len;
+    *output = new char[len];
+
+    file.read(*output, len);
+
+    if (!file.good()) {
+        std::cerr << "ERROR: Failed to read from file \"" << path << "\"" << std::endl;
+        file.close();
+        delete[] *output;
+        length = 0;
+        return false;
+    }
+    file.close();
+    if (!file.good()) { // Not a terribly big deal: we got the data, all is good
+        std::cerr << "WARNING: Failed to close file \"" << path << "\"" << std::endl;
+    }
+
+    return true;
+}
+
+
+/*
 
 void nafy::resizeWindow(int width, int height) {
     glfwSetWindowSize(window, width, height);
@@ -130,49 +195,4 @@ void nafy::setWindowIcon(int width, int height, unsigned char *pixels) {
     glfwSetWindowIcon(window, 1, &image);
 }
 
-void nafy::getWindowSize(int *width, int *height) {
-    glfwGetWindowSize(window, width, height);
-}
-
-float nafy::normX(float x) {
-    int width;
-    getWindowSize(&width, NULL);
-    return x / width * 2 - 1;
-}
-
-float nafy::normY(float y) {
-    int height;
-    getWindowSize(NULL, &height);
-    return (y / height * 2 - 1) * -1;
-}
-
-bool nafy::loadFile(const std::string &path, char **output, int &length) {
-    std::ifstream file(path);
-    if (!file.good()) {
-        std::cerr << "ERROR: Failed to open file \"" << path << "\"" << std::endl;
-        file.close();
-        return false;
-    }
-    file.seekg(0, file.end);
-    const int len = file.tellg();
-    file.seekg(0, file.beg);
-
-    length = len;
-    *output = new char[len];
-
-    file.read(*output, len);
-
-    if (!file.good()) {
-        std::cerr << "ERROR: Failed to read from file \"" << path << "\"" << std::endl;
-        file.close();
-        delete[] *output;
-        length = 0;
-        return false;
-    }
-    file.close();
-    if (!file.good()) { // Not a terribly big deal: we got the data, all is good
-        std::cerr << "WARNING: Failed to close file \"" << path << "\"" << std::endl;
-    }
-
-    return true;
-}
+*/

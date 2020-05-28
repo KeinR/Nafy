@@ -34,11 +34,25 @@ protected:
     std::vector<Face::line_iterator>::size_type stopsIndex;
     std::vector<Face::line_iterator> stops;
 
+    void generateBuffers();
+
     void setTexture(unsigned char *bitmap);
     virtual void loadLines(const Face::line_iterator &start, const Face::line_iterator &end);
     void loadStops();
+
+    inline void textSteal(Text &other);
+    inline void textCopy(Text &other);
+    inline void textCopyIL(Text &other);
+    inline void textCopyPOD(Text &other);
 public:
+    // If made with this, must be set equal to another or have the face and shader set
+    // before calling ANY other methods, otherwise undefined behavior is invoked
+    Text();
     Text(Face &face, const unsigned int shader);
+    Text(const Text &other);
+    Text(Text &&other);
+    Text &operator=(const Text &other);
+    Text &operator=(Text &&other);
     virtual ~Text();
 
     Face *getFace();
