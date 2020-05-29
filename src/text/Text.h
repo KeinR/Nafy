@@ -40,10 +40,10 @@ protected:
     virtual void loadLines(const Face::line_iterator &start, const Face::line_iterator &end);
     void loadStops();
 
-    inline void textSteal(Text &other);
-    inline void textCopy(Text &other);
-    inline void textCopyIL(Text &other);
-    inline void textCopyPOD(Text &other);
+    void textSteal(Text &other);
+    void textCopy(const Text &other);
+    inline void textCopyIL(const Text &other);
+    inline void textCopyPOD(const Text &other);
 public:
     // If made with this, must be set equal to another or have the face and shader set
     // before calling ANY other methods, otherwise undefined behavior is invoked

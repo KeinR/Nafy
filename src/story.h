@@ -15,8 +15,10 @@ namespace nafy {
     public:
         storyEvent() = default;
         virtual ~storyEvent() = 0;
-        virtual void reset() = 0;
-        virtual bool action(context *ctx) = 0;
+        virtual void init(context *ctx, scene *parent) = 0; // Called once
+        // Return true if parent should move on to next event
+        // Return false to be called again next frame
+        virtual bool action(context *ctx, scene *parent) = 0; // Called every frame
     };
 
     // class textRules {
@@ -28,11 +30,13 @@ namespace nafy {
     class textString: public storyEvent {
         std::string str;
         std::string::iterator ch;
+        float wait;
+        float next;
     public:
-        textString(const std::string &str);
+        textString(const std::string &str, unsigned int cooldownMillis);
         ~textString() override;
-        void reset() override;
-        bool action(context *ctx) override;
+        void init(context *ctx, scene *parent) override;
+        bool action(context *ctx, scene *parent) override;
     };
 
     // class prompt: public storyEvent {
@@ -41,16 +45,21 @@ namespace nafy {
     //     void action() override;
     // };
 
-
     class scene {
-        std::vector<storyEvent*> events;
-        std::vector<storyEvent*>::size_type index;
+        struct event {
+            storyEvent *ptr;
+            bool managed; // That is, managed by this object
+        };
+        std::vector<event> events;
+        std::vector<event>::size_type index;
     public:
         scene();
         ~scene();
-        void pushText(const std::string &str);
-        void pushEvent(const storyEvent &e);
-        void reset();
+        // Don't remove anything if currently running UNLESS you also call reset(),
+        // otherwise undefined behavior gets invoked
+        void pushText(const std::string &str, unsigned int cooldownMillis = 400);
+        void pushEvent(storyEvent &e);
+        void init(context *ctx);
         void run(context *ctx);
     };
 }

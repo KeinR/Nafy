@@ -21,7 +21,7 @@ namespace nafy {
     private:
         const error_code code;
     public:
-        error(const char *message, error_code code) noexcept;
+        ft_error(const char *message, error_code code) noexcept;
         error_code getCode() const noexcept;
     };
 }

@@ -94,7 +94,7 @@ void Text::textSteal(Text &other) {
     textCopyPOD(other);
 }
 
-void Text::textCopy(Text &other) {
+void Text::textCopy(const Text &other) {
 
     str = other.str;
     stops = other.stops;
@@ -103,7 +103,7 @@ void Text::textCopy(Text &other) {
     textCopyPOD(other);
 }
 
-void Text::textCopyIL(Text &other) {
+void Text::textCopyIL(const Text &other) {
     // https://stackoverflow.com/questions/11021764/does-moving-a-vector-invalidate-iterators
     // Fucking committees
     index = other.index;
@@ -117,7 +117,7 @@ void Text::textCopyIL(Text &other) {
     }
 }
 
-void Text::textCopyPOD(Text &other) {
+void Text::textCopyPOD(const Text &other) {
     face = other.face;
 
     renderedWidth = other.renderedWidth;
@@ -163,6 +163,7 @@ Text::~Text() {
     glDeleteBuffers(1, &VB);
     glDeleteBuffers(1, &EB);
     glDeleteTextures(1, &TX);
+    std::cout << "pass TEXT" << std::endl;
 }
 
 void Text::bindShader(const unsigned int shader) {

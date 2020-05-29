@@ -24,10 +24,10 @@ class TextCrawl: public Text {
     inline void updateLineData();
     void loadLines(const Face::line_iterator &start, const Face::line_iterator &end) override;
 
-    inline void crawlSteal(TextCrawl &other);
-    inline void crawlCopy(TextCrawl &other);
-    inline void crawlCopyIL(TextCrawl &other);
-    inline void crawlCopyPOD(TextCrawl &other);
+    void crawlSteal(TextCrawl &other);
+    void crawlCopy(const TextCrawl &other);
+    inline void crawlCopyIL(const TextCrawl &other);
+    inline void crawlCopyPOD(const TextCrawl &other);
     inline void delBitmap();
 public:
     // If made with this, must be set equal to another or have the face and shader set
@@ -38,8 +38,6 @@ public:
     TextCrawl(TextCrawl &&other);
     TextCrawl &operator=(const TextCrawl &other);
     TextCrawl &operator=(TextCrawl &&other);
-    Text(const Text &other) = delete;
-    Text(Text &&other) = delete;
     Text &operator=(const Text &other) = delete;
     Text &operator=(Text &&other) = delete;
     ~TextCrawl();

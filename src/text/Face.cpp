@@ -35,19 +35,31 @@ Face::Face(FT_Face face): face(face),
     setSize(defaultSize);
 }
 
-Face::Face() {
+Face::Face(): face(nullptr) {
 }
 
 Face::~Face() {
+    delFace();
+}
+
+void Face::delFace() {
     if (face != nullptr) {
+        std::cout << "try face..." << std::endl;
         FT_Done_Face(face);
+        std::cout << "Face pass!" << std::endl;
     }
 }
 
 void Face::steal(Face &other) {
-    FT_Done_Face(face);
+    delFace();
     face = other.face;
     other.face = nullptr;
+    copyPOD(other);
+}
+
+void Face::copyPOD(const Face &other) {
+    space = other.space;
+    newline = other.newline;
 }
 
 Face::Face(Face &&other) {

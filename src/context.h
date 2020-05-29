@@ -6,7 +6,8 @@
 #include "glfw.h"
 
 #include "story.h"
-#include "FontLibrary.h"
+#include "shaders.h"
+#include "TextLibrary.h"
 
 #include "text/ftype.h"
 #include "text/TextCrawl.h"
@@ -15,18 +16,16 @@ namespace nafy {
     class context {
         GLFWwindow *window;
 
+        // Text related stuff
+        shader_t textShader;
+        TextLibrary textLib;
+        Face crawlFace;
+        TextCrawl crawl;
+
         scene *root;
         scene *current;
         int currentID;
         bool run;
-
-        // Text related stuff
-        FT_Library ftLibrary;
-
-        Face *crawlFace;
-        TextCrawl crawl;
-
-        shader_t textShader;
 
         // std::vector<Render*> renders;
         float frameCooldown;
@@ -53,6 +52,7 @@ namespace nafy {
         void resume();
         void stop();
 
+
         void setFPS(unsigned int fps);
         unsigned int getFPS();
 
@@ -65,12 +65,12 @@ namespace nafy {
         Face makeFace(Font &font);
 
         /* private */
+        TextCrawl &getCrawl();
+        Face &getCrawlFace();
+        bool shouldStop();
 
         void stopIfCurrent(scene *obj);
     };
-
-    // Please, use the constructor instead
-    context makeContext(int width = 400, int height = 400, const char *title = "Nafy", scene *root);
 }
 
 #endif

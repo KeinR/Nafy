@@ -26,8 +26,46 @@ void nafy::shaders::init() {
 
 void nafy::shaders::deInit() {
     glDeleteProgram(sprite);
+    glDeleteProgram(text);
 }
 
+nafy::ShaderProgram::ShaderProgram(): shader(0) {
+}
+nafy::ShaderProgram::ShaderProgram(shader_t shader): shader(shader) {
+}
+nafy::ShaderProgram::~ShaderProgram() {
+    glDeleteProgram(shader);
+}
+void nafy::ShaderProgram::steal(ShaderProgram &other) {
+    glDeleteProgram(shader); // 0 is silently ignored
+    shader = other.shader;
+    other.shader = 0;
+}
+nafy::ShaderProgram::ShaderProgram(ShaderProgram &&other) {
+    steal(other);
+}
+ShaderProgram &nafy::ShaderProgram::operator=(ShaderProgram &&other) {
+    steal(other);
+}
+shader_t nafy::ShaderProgram::get() const {
+    return shader;
+}
+
+nafy::Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath) {
+    if (!loadFile(vertexPath, vertData, vertLength)) {
+        throw error("Failed to load vertex shader file");
+    }
+    if (!loadFile(fragmentPath, fragData, fragLength)) {
+        throw error("Failed to load fragment shader file");
+    }
+}
+nafy::Shader::~Shader() {
+    delete[] vertData;
+    delete[] fragData;
+}
+ShaderProgram nafy::Shader::make() {
+
+}
 
 
 GLuint makeProgram(const char *vertexFilename, const char *fragmentFilename) {

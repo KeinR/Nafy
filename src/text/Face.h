@@ -59,7 +59,9 @@ private:
         int kern;
         FT_Pos advance;
     };
-    void steal(Face &other);
+    inline void steal(Face &other);
+    inline void copyPOD(const Face &other);
+    inline void delFace();
     std::vector<char_metrics> measureString(glyph_iterator start, const glyph_iterator &end);
     inline line consLine(const glyph_iterator &start, const glyph_iterator &end, const ofs_type horizontalOffset, const map_size width);
 public:

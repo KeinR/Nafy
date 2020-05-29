@@ -21,17 +21,17 @@ GLFWwindow *init(int width, int height, const char *title) {
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_SAMPLES, MSSA);
+    // glfwWindowHint(GLFW_SAMPLES, MSSA);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     GLFWwindow *window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (window == NULL) {
         deInit();
-        throw error("Failed to make GLFW window");
+        throw nafy::error("Failed to make GLFW window");
     }
     glfwMakeContextCurrent(window);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         deInit();
-        throw error("Failed to initialize GLAD");
+        throw nafy::error("Failed to initialize GLAD");
     }
 
     glEnable(GL_BLEND);

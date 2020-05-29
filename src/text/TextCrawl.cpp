@@ -40,7 +40,7 @@ void TextCrawl::crawlSteal(TextCrawl &other) {
     render_c = std::move(other.render_c);
 }
 
-void TextCrawl::crawlCopy(TextCrawl &other) {
+void TextCrawl::crawlCopy(const TextCrawl &other) {
 
     crawlCopyIL(other);
     crawlCopyPOD(other);
@@ -50,17 +50,17 @@ void TextCrawl::crawlCopy(TextCrawl &other) {
     delBitmap();
     const std::size_t length = bmpSizeBytes / sizeof(unsigned char);
     bitmap = new unsigned char[length];
-    std::copy(other.bitmap, other.bitmap + length, bitmap);s
+    std::copy(other.bitmap, other.bitmap + length, bitmap);
     render_c = other.render_c;
 }
 
-void TextCrawl::crawlCopyIL(TextCrawl &other) {
+void TextCrawl::crawlCopyIL(const TextCrawl &other) {
     currentLine = lines.begin() + (currentLine - other.lines.begin());
     lastLineX = lines.begin() + (lastLineX - other.lines.begin());
     linePos = currentLine->start + (linePos - other.currentLine->start);
 }
 
-void TextCrawl::crawlCopyPOD(TextCrawl &other) {
+void TextCrawl::crawlCopyPOD(const TextCrawl &other) {
     bmpSizeBytes = other.bmpSizeBytes;
     fall = other.fall;
     start = other.start;
@@ -84,15 +84,19 @@ TextCrawl::TextCrawl(TextCrawl &&other): Text(std::move(other)) {
 TextCrawl &TextCrawl::operator=(const TextCrawl &other) {
     textCopy(other);
     crawlCopy(other);
+    return *this;
 }
 
 TextCrawl &TextCrawl::operator=(TextCrawl &&other) {
-    this->operator=(std::move((Text)other));
+    glDeleteTextures(1, &TX);
+    textSteal(other);
     crawlSteal(other);
+    return *this;
 }
 
 TextCrawl::~TextCrawl() {
     delBitmap();
+    std::cout << "pass TEXTCRAWL" << std::endl;
 }
 
 // end mem manegment
@@ -112,6 +116,8 @@ void TextCrawl::loadLines(const Face::line_iterator &begin, const Face::line_ite
     int offset;
     face->getLinesRenderData(begin, end, CHANNELS, lineSpacingMod, render_c.lineHeight, renderedWidth, renderedHeight, offset, fall);
     render_c.verticalStride = renderedWidth;
+
+    std::cout << "Height = " << renderedHeight << std::endl;
 
     bmpSizeBytes = renderedWidth * renderedHeight * CHANNELS;
 
