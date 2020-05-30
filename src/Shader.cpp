@@ -1,73 +1,84 @@
-#include "shaders.h"
+#include "Shader.h"
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 #include <string>
 
 #include "glfw.h"
 
 #include "env.h"
+#include "error.h"
 
 // keyword: filename. Searches for file in resources/shaders
 // C-string, std::string, doesn't matter much here I don't think
-static GLuint makeProgram(const char *vertexFilename, const char *fragmentFilename);
+// static GLuint makeProgram(const char *vertexFilename, const char *fragmentFilename);
 static GLuint compileShader(GLenum type, const char *data, int length);
 static GLuint linkShaders(GLuint vertObject, GLuint fragObject);
-static bool loadFile(const std::string &path, char *&output, int &length);
 
-unsigned int nafy::shaders::sprite;
-unsigned int nafy::shaders::text;
-
-void nafy::shaders::init() {
-    sprite = makeProgram("sprite.vert", "sprite.frag");
-    text = makeProgram("text.vert", "text.frag");
+nafy::Shader::Shader(): vertLength(0), fragLength(0), vertData(nullptr), fragData(nullptr) {
 }
-
-void nafy::shaders::deInit() {
-    glDeleteProgram(sprite);
-    glDeleteProgram(text);
-}
-
-nafy::ShaderProgram::ShaderProgram(): shader(0) {
-}
-nafy::ShaderProgram::ShaderProgram(shader_t shader): shader(shader) {
-}
-nafy::ShaderProgram::~ShaderProgram() {
-    glDeleteProgram(shader);
-}
-void nafy::ShaderProgram::steal(ShaderProgram &other) {
-    glDeleteProgram(shader); // 0 is silently ignored
-    shader = other.shader;
-    other.shader = 0;
-}
-nafy::ShaderProgram::ShaderProgram(ShaderProgram &&other) {
-    steal(other);
-}
-ShaderProgram &nafy::ShaderProgram::operator=(ShaderProgram &&other) {
-    steal(other);
-}
-shader_t nafy::ShaderProgram::get() const {
-    return shader;
-}
-
 nafy::Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath) {
-    if (!loadFile(vertexPath, vertData, vertLength)) {
+    if (!loadFile(getPath(vertexPath), &vertData, vertLength)) {
         throw error("Failed to load vertex shader file");
     }
-    if (!loadFile(fragmentPath, fragData, fragLength)) {
+    if (!loadFile(getPath(fragmentPath), &fragData, fragLength)) {
         throw error("Failed to load fragment shader file");
     }
 }
+void nafy::Shader::copy(const Shader &other) {
+    copyPOD(other);
+    dealoc();
+    vertData = new char[vertLength];
+    fragData = new char[fragLength];
+    std::copy(other.vertData, other.vertData + other.vertLength, vertData);
+    std::copy(other.fragData, other.fragData + other.fragLength, fragData);
+}
+void nafy::Shader::steal(Shader &other) {
+    copyPOD(other);
+    dealoc();
+    vertData = other.vertData;
+    fragData = other.fragData;
+    other.vertData = nullptr;
+}
+void nafy::Shader::copyPOD(const Shader &other) {
+    vertLength = other.vertLength;
+    fragLength = other.fragLength;
+}
+void nafy::Shader::dealoc() {
+    if (vertData != nullptr) {
+        delete[] vertData;
+        delete[] fragData;
+    }
+}
 nafy::Shader::~Shader() {
-    delete[] vertData;
-    delete[] fragData;
+    dealoc();
 }
-ShaderProgram nafy::Shader::make() {
-
+nafy::Shader::Shader(const Shader &other) {
+    copy(other);
+}
+nafy::Shader::Shader(Shader &&other) {
+    steal(other);
+}
+nafy::Shader &nafy::Shader::operator=(const Shader &other) {
+    copy(other);
+    return *this;
+}
+nafy::Shader &nafy::Shader::operator=(Shader &&other) {
+    steal(other);
+    return *this;
+}
+nafy::ShaderProgram nafy::Shader::make() {
+    GLuint vertShader = compileShader(GL_VERTEX_SHADER, vertData, vertLength);
+    GLuint fragShader = compileShader(GL_FRAGMENT_SHADER, fragData, fragLength);
+    GLuint shaderProgram = linkShaders(vertShader, fragShader);
+    glDeleteShader(vertShader);
+    glDeleteShader(fragShader);
+    return ShaderProgram(shaderProgram);
 }
 
-
+/*
 GLuint makeProgram(const char *vertexFilename, const char *fragmentFilename) {
     int vertLen;
     int fragLen;
@@ -96,6 +107,7 @@ GLuint makeProgram(const char *vertexFilename, const char *fragmentFilename) {
 
     return shaderProgram;
 }
+*/
 
 GLuint compileShader(GLenum type, const char *data, int length) {
     GLuint shader;
@@ -128,33 +140,3 @@ GLuint linkShaders(GLuint vertObject, GLuint fragObject) {
     return shaderProgram;
 }
 
-bool loadFile(const std::string &path, char *&output, int &length) {
-    std::ifstream file(nafy::getPath(path));
-    if (!file.good()) {
-        std::cerr << "ERROR: Failed to open file \"" << path << "\"" << std::endl;
-        file.close();
-        return false;
-    }
-    file.seekg(0, file.end);
-    const int len = file.tellg();
-    file.seekg(0, file.beg);
-
-    length = len;
-    output = new char[len];
-
-    file.read(output, len);
-
-    if (!file.good()) {
-        std::cerr << "ERROR: Failed to read from file \"" << path << "\"" << std::endl;
-        file.close();
-        delete[] output;
-        length = 0;
-        return false;
-    }
-    file.close();
-    if (!file.good()) { // Not a terribly big deal: we got the data, all is good
-        std::cerr << "WARNING: Failed to close file \"" << path << "\"" << std::endl;
-    }
-
-    return true;
-}

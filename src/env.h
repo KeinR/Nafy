@@ -5,9 +5,13 @@
 
 #include "glfw.h"
 
+#include "context.h"
+
 namespace nafy {
     GLFWwindow *plusContext(int width, int height, const char *title);
     void minusContext(GLFWwindow *window);
+    void setContext(context *ctx);
+    context *getContext();
 
     // Should be called if you run the program from anywhere
     // other than the executable location

@@ -5,7 +5,6 @@
 #include "error.h"
 #include "env.h"
 
-#include "shaders.h"
 #include "text/ftype.h"
 #include "text/Font.h"
 #include "text/Text.h"
@@ -14,13 +13,15 @@ void nafy::context::makeCurrent() {
     glfwMakeContextCurrent(window);
 }
 
-nafy::context::context(int winWidth, int winHeight, const char *winTitle, scene &root, Font &initCrawlFont, shader_t textShader):
+nafy::context::context(int winWidth, int winHeight, const char *winTitle, scene &root, Font &initCrawlFont, Shader &textShaderB):
     window(plusContext(winWidth, winHeight, winTitle)),
-    textShader(textShader), crawlFace(textLib.makeFace(initCrawlFont)), crawl(crawlFace, textShader),
+    crawlFace(textLib.makeFace(initCrawlFont)),
     root(&root), current(&root), run(false), vsync(0) {
-    // crawlFace = textLib.makeFace(initCrawlFont);
-    // crawl.setFace(crawlFace);
-    // crawl.bindShader(textShader);
+
+    makeCurrent();
+    textShader = textShaderB.make();
+    crawl.setFace(crawlFace);
+    crawl.bindShader(textShader.get());
 
     setFPS(60);
 }
@@ -28,6 +29,10 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle, scene 
 nafy::context::~context() {
     minusContext(window);
     std::cout << "Sucs" << std::endl;
+}
+
+void nafy::context::activate() {
+    makeCurrent();
 }
 
 void nafy::context::setRoot(scene &root) {
@@ -50,7 +55,7 @@ void nafy::context::start() {
     resume();
 }
 
-#include <stb/stb_image_write.h>
+// #include <stb/stb_image_write.h>
 
 void nafy::context::resume() {
     if (current == nullptr) {
@@ -61,8 +66,8 @@ void nafy::context::resume() {
 
     makeCurrent();
     
-    shaders::deInit();
-    shaders::init();
+    // shaders::deInit();
+    // shaders::init();
     
     // GLFWwindow *win = nafy::plusContext(400, 400, "foo");
     // glfwMakeContextCurrent(window);
@@ -75,9 +80,16 @@ void nafy::context::resume() {
     // stbi_write_png("dasds.png", tc.renderedWidth, tc.renderedHeight, 4, tc.bitmap, tc.renderedWidth * 4);
     // crawl.advance();
     // crawl.advance();
-    crawl.bindShader(shaders::text);
+    // crawl.bindShader(shaders::text);
     crawl.setString("Sure man");
     crawl.generate();
+
+    Shader rs("resources/shaders/prim.vert", "resources/shaders/prim.frag");
+    ShaderProgram program = rs.make();
+    Rectangle rec(program.get());
+    rec.getColor().setHex(0x1f6b33);
+    rec.setCornerRadius(5);
+    rec.generate();
 
     while (!shouldStop()) {
 
@@ -86,11 +98,12 @@ void nafy::context::resume() {
         glClearColor(0.1, 1, 1, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // current->run(this);
+        current->run(this);
 
-        glUseProgram(shaders::text);
+        glUseProgram(program.get());
+        rec.render();
+        glUseProgram(textShader.get());
         crawl.render();
-        crawl.advance();
         // std::cout << "ads " << (std::size_t)window << std::endl;
 
         glfwSwapBuffers(window);

@@ -6,8 +6,10 @@
 #include "glfw.h"
 
 #include "story.h"
-#include "shaders.h"
+#include "Shader.h"
+#include "ShaderProgram.h"
 #include "TextLibrary.h"
+#include "Rectangle.h"
 
 #include "text/ftype.h"
 #include "text/TextCrawl.h"
@@ -17,7 +19,7 @@ namespace nafy {
         GLFWwindow *window;
 
         // Text related stuff
-        shader_t textShader;
+        ShaderProgram textShader;
         TextLibrary textLib;
         Face crawlFace;
         TextCrawl crawl;
@@ -30,6 +32,9 @@ namespace nafy {
         // std::vector<Render*> renders;
         float frameCooldown;
 
+        Font defaultFont;
+        ShaderProgram defaultShader;
+
         // No purpose being here save to be retrieved by the user
         unsigned int framesPerSecond;
         int vsync;
@@ -39,8 +44,17 @@ namespace nafy {
 
         // Pointers towards `initCrawlFace` and `root` are stored
         // Throws `ft_error` if text setup failed
-        context(int winWidth, int winHeight, const char *winTitle, scene &root, Font &initCrawlFont, shader_t textShader = shaders::text);
+        context(int winWidth, int winHeight, const char *winTitle, scene &root, Font &defaultFont, Shader &defaultShader);
         ~context();
+
+        // Let's not bother with these for now
+        context(const context &other) = delete;
+        context(context &&other) = delete;
+        context &operator=(const context &other) = delete;
+        context &operator=(context &&other) = delete;
+
+        void activate();
+
         void setRoot(scene &root);
         // Sets `this->current` to `current` and resets it
         void setCurrent(scene &current);
@@ -65,6 +79,8 @@ namespace nafy {
         Face makeFace(Font &font);
 
         /* private */
+        ShaderProgram *getDefShader();
+        Font *getDefFont();
         TextCrawl &getCrawl();
         Face &getCrawlFace();
         bool shouldStop();

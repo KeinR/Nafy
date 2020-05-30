@@ -3,15 +3,15 @@
 #include <iostream>
 #include <fstream>
 
-#include <stb/stb_image.h>
+// #include <stb/stb_image.h>
 
 #include "defs.h"
 #include "error.h"
-#include "shaders.h"
 
 static std::string homeDir;
-static int contexts = 0; // Enlarge data type for more possible instances
-static bool running = false;
+static int contextCount = 0; // Enlarge data type for more possible instances
+static bool isInit = false;
+static nafy::context *currentContext = nullptr;
 
 static void deInit();
 static GLFWwindow *init(int width, int height, const char *title);
@@ -37,30 +37,36 @@ GLFWwindow *init(int width, int height, const char *title) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    nafy::shaders::init();
-    running = true;
+    isInit = true;
     return window;
 }
 
 void deInit() {
-    running = false;
-    nafy::shaders::deInit();
+    isInit = false;
     glfwTerminate();
 }
 
 GLFWwindow *nafy::plusContext(int width, int height, const char *title) {
-    contexts++;
+    contextCount++;
     // We're assuming that the hints will stay in place - which they should...
-    return running ? glfwCreateWindow(width, height, title, NULL, NULL) : init(width, height, title);
+    return isInit ? glfwCreateWindow(width, height, title, NULL, NULL) : init(width, height, title);
 }
 
 void nafy::minusContext(GLFWwindow *window) {
-    contexts--;
+    contextCount--;
     glfwDestroyWindow(window);
-    if (contexts <= 0) {
+    if (contextCount <= 0) {
         deInit();
-        contexts = 0;
+        contextCount = 0;
     }
+}
+
+void nafy::setContext(context *ctx) {
+    currentContext = ctx;
+}
+
+nafy::context *nafy::getContext() {
+    return currentContext;
 }
 
 void nafy::setCallPath(const char *path) {
