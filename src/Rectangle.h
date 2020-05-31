@@ -5,6 +5,8 @@
 #include "ShaderProgram.h"
 #include "Color.h"
 
+// TODO: Memory managment
+
 namespace nafy {
     class Rectangle: public renderable {
         unsigned int VA; // Array
@@ -37,6 +39,12 @@ namespace nafy {
         // Heavy function - triggers a buffer re-generation and
         // computation of a bunch of verticies
         void setCornerRadius(unsigned int radius);
+
+        int getX();
+        int getY();
+        unsigned int getWidth();
+        unsigned int getHeight();
+        unsigned int getCornerRadius();
 
         Color &getColor();
     };

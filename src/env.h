@@ -12,6 +12,8 @@ namespace nafy {
     void minusContext(GLFWwindow *window);
     void setContext(context *ctx);
     context *getContext();
+    void registerCallbacks(GLFWwindow *window, context *ctx);
+    void deleteCallbacks(context *ctx);
 
     // Should be called if you run the program from anywhere
     // other than the executable location
@@ -26,8 +28,7 @@ namespace nafy {
     float normY(float y);
     bool loadFile(const std::string &path, char **output, int &length);
 
-    bool engineUp();
-    GLFWwindow *getWindow();
+    const char *getGLErrorStr(GLenum error);
 }
 
 #endif

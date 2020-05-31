@@ -5,24 +5,53 @@
 
 #include "renderable.h"
 #include "ShaderProgram.h"
+#include "context.h"
 
 #include "text/Text.h"
 
+// TODO: Render monitors for shaders
+// TODO: Memory managment
+
 namespace nafy {
-    class Button: public renderable {
+    class Button: public renderable, public mouseMoveCallback, public mouseClickCallback {
+    public:
+        typedef void(*callback_t)();
+    private:
         Text innerText;
-        bool displayText;
+        Rectangle box;
+        bool enabled;
+        unsigned int margin;
+        int x;
+        int y;
+        unsigned int width;
+        unsigned int height;
+        std::function<callback_t> callback;
+
+        // Transient
+        bool hovering;
+        bool pressed;
     public:
         // Takes current context defaults
-        Button();
+        // Button();
         // Alternatively, set the face 
-        Button(Face &font, shader_t shader);
-        void setText(const std::string &str);
-        void setWidth(unsigned int width);
-        void setHeight(unsigned int height);
-        void setTextVisble(bool val);
+        Button(Face &textFace, shader_t textShader, shader_t shapeShader);
+        ~Button();
+        void setCallback(const std::function<callback_t> &cb);
+        void setX(int value);
+        void setY(int value);
+        void setWidth(unsigned int value);
+        void setHeight(unsigned int value);
+        void setMargin(unsigned int value);
+        void setEnabled(bool val);
         void trigger();
+        void generate();
         void render() override;
+    
+        void mouseMoved(double mouseX, double mouseY) override;
+        void mouseClicked(bool isPressed, int button, int mods) override;
+
+        Rectangle &getBox();
+        Text &getText();
     };
 }
 

@@ -1,3 +1,4 @@
+Button.o: src/Button.cpp src/Button.h src/Color.h src/Rectangle.h src/Shader.h src/ShaderProgram.h src/TextLibrary.h src/context.h src/error.h src/glfw.h src/renderable.h src/story.h src/text/Font.h src/text/Text.h src/text/TextCrawl.h src/text/ftype.h
 Color.o: src/Color.cpp src/Color.h
 context.o: src/context.cpp src/Color.h src/Rectangle.h src/Shader.h src/ShaderProgram.h src/TextLibrary.h src/context.h src/env.h src/error.h src/glfw.h src/renderable.h src/story.h src/text/Font.h src/text/Text.h src/text/TextCrawl.h src/text/ftype.h
 env.o: src/env.cpp src/Color.h src/Rectangle.h src/Shader.h src/ShaderProgram.h src/TextLibrary.h src/context.h src/defs.h src/env.h src/error.h src/glfw.h src/renderable.h src/story.h src/text/Font.h src/text/TextCrawl.h src/text/ftype.h

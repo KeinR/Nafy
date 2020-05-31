@@ -1,6 +1,7 @@
 #include "context.h"
 
 #include <iostream>
+#include <vector>
 
 #include "error.h"
 #include "env.h"
@@ -24,11 +25,53 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle, scene 
     crawl.bindShader(textShader.get());
 
     setFPS(60);
+
+    registerCallbacks(window, this);
 }
 
 nafy::context::~context() {
+    deleteCallbacks(this);
     minusContext(window);
     std::cout << "Sucs" << std::endl;
+}
+
+void nafy::context::mousePosCallback(double x, double y) {
+    for (mouseMoveCallback *&callback : cursorPosCallbacks) {
+        callback->mouseMoved(x, y);
+    }
+}
+
+void nafy::context::mouseButtonCallback(int button, int action, int mods) {
+    const bool isPressed = action == GLFW_PRESS;
+    for (mouseClickCallback *&callback : cursorButtonCallbacks) {
+        callback->mouseClicked(isPressed, button, mods);
+    }
+}
+
+void nafy::context::addMousePosCallback(mouseMoveCallback *callback) {
+    cursorPosCallbacks.push_back(callback);
+}
+
+void nafy::context::addMouseButtonCallback(mouseClickCallback *callback) {
+    cursorButtonCallbacks.push_back(callback);
+}
+
+void nafy::context::removeMousePosCallback(mouseMoveCallback *callback) {
+    for (std::list<mouseMoveCallback*>::iterator it = cursorPosCallbacks.begin(); it != cursorPosCallbacks.end(); ++it) {
+        if (*it == callback) {
+            cursorPosCallbacks.erase(it);
+            break;
+        }
+    }
+}
+
+void nafy::context::removeMouseButtonCallback(mouseClickCallback *callback) {
+    for (std::list<mouseClickCallback*>::iterator it = cursorButtonCallbacks.begin(); it != cursorButtonCallbacks.end(); ++it) {
+        if (*it == callback) {
+            cursorButtonCallbacks.erase(it);
+            break;
+        }
+    }
 }
 
 void nafy::context::activate() {
@@ -88,7 +131,7 @@ void nafy::context::resume() {
     ShaderProgram program = rs.make();
     Rectangle rec(program.get());
     rec.getColor().setHex(0x1f6b33);
-    rec.setCornerRadius(5);
+    rec.setCornerRadius(30);
     rec.generate();
 
     while (!shouldStop()) {
@@ -107,9 +150,17 @@ void nafy::context::resume() {
         // std::cout << "ads " << (std::size_t)window << std::endl;
 
         glfwSwapBuffers(window);
-        glfwPollEvents();
 
-        while (glfwGetTime() < end);
+        do {
+            glfwPollEvents();
+        } while (!shouldStop() && glfwGetTime() < end);
+
+        // TEMP
+        GLenum error = glGetError();
+        if (error != GL_NO_ERROR) {
+            std::cerr << "GL ERROR: " << std::hex << error << std::dec << ": " << getGLErrorStr(error) << std::endl;
+            exit(1);
+        }
     }
 
     // {

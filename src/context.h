@@ -2,6 +2,7 @@
 #define CONTEXT_H_INCLUDED
 
 #include <string>
+#include <list>
 
 #include "glfw.h"
 
@@ -14,8 +15,23 @@
 #include "text/ftype.h"
 #include "text/TextCrawl.h"
 
+// TODO: Memory manegement
+
 namespace nafy {
     class context {
+    public:
+        // No virtual deconstructors because these
+        // won't be seeing a delete
+        class mouseMoveCallback {
+        public:
+            virtual void mouseMoved(double mouseX, double mouseY) = 0;
+        };
+        class mouseClickCallback {
+        public:
+            // Misleading I suppose, because it can be released too...
+            virtual void mouseClicked(bool isPressed, int button, int mods) = 0;
+        };
+    private:
         GLFWwindow *window;
 
         // Text related stuff
@@ -39,6 +55,9 @@ namespace nafy {
         unsigned int framesPerSecond;
         int vsync;
 
+        std::list<mouseMoveCallback*> cursorPosCallbacks;
+        std::list<mouseClickCallback*> cursorButtonCallbacks;
+
         inline void makeCurrent();
     public:
 
@@ -52,6 +71,14 @@ namespace nafy {
         context(context &&other) = delete;
         context &operator=(const context &other) = delete;
         context &operator=(context &&other) = delete;
+
+        void mousePosCallback(double x, double y);
+        void mouseButtonCallback(int button, int action, int mods);
+
+        void addMousePosCallback(mouseMoveCallback *callback);
+        void addMouseButtonCallback(mouseClickCallback *callback);
+        void removeMousePosCallback(mouseMoveCallback *callback);
+        void removeMouseButtonCallback(mouseClickCallback *callback);
 
         void activate();
 

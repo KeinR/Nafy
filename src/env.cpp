@@ -13,15 +13,25 @@ static int contextCount = 0; // Enlarge data type for more possible instances
 static bool isInit = false;
 static nafy::context *currentContext = nullptr;
 
+struct call {
+    GLFWwindow *window;
+    nafy::context *parent;
+};
+
+static std::vector<call> callbacks;
+
 static void deInit();
 static GLFWwindow *init(int width, int height, const char *title);
+static void initWindow(GLFWwindow *window);
+static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+static void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
 
 GLFWwindow *init(int width, int height, const char *title) {
     glfwInit();
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    // glfwWindowHint(GLFW_SAMPLES, MSSA);
+    glfwWindowHint(GLFW_SAMPLES, MSSA);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     GLFWwindow *window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (window == NULL) {
@@ -38,6 +48,7 @@ GLFWwindow *init(int width, int height, const char *title) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     isInit = true;
+
     return window;
 }
 
@@ -46,10 +57,35 @@ void deInit() {
     glfwTerminate();
 }
 
+void initWindow(GLFWwindow *window) {
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetCursorPosCallback(window, mouseMoveCallback);
+}
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    for (call &c : callbacks) {
+        if (c.window == window) {
+            c.parent->mouseButtonCallback(button, action, mods);
+            break;
+        }
+    }
+}
+
+void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
+    for (call &c : callbacks) {
+        if (c.window == window) {
+            c.parent->mousePosCallback(xpos, ypos);
+            break;
+        }
+    }
+}
+
 GLFWwindow *nafy::plusContext(int width, int height, const char *title) {
     contextCount++;
     // We're assuming that the hints will stay in place - which they should...
-    return isInit ? glfwCreateWindow(width, height, title, NULL, NULL) : init(width, height, title);
+    GLFWwindow *window = isInit ? glfwCreateWindow(width, height, title, NULL, NULL) : init(width, height, title);
+    initWindow(window);
+    return window;
 }
 
 void nafy::minusContext(GLFWwindow *window) {
@@ -67,6 +103,19 @@ void nafy::setContext(context *ctx) {
 
 nafy::context *nafy::getContext() {
     return currentContext;
+}
+
+void nafy::registerCallbacks(GLFWwindow *window, context *ctx) {
+    callbacks.push_back({window, ctx});
+}
+
+void nafy::deleteCallbacks(context *ctx) {
+    for (std::vector<call>::iterator it = callbacks.begin(); it != callbacks.end(); ++it) {
+        if (it->parent == ctx) {
+            callbacks.erase(it);
+            break;
+        }
+    }
 }
 
 void nafy::setCallPath(const char *path) {
@@ -202,3 +251,15 @@ void nafy::setWindowIcon(int width, int height, unsigned char *pixels) {
 }
 
 */
+
+const char *nafy::getGLErrorStr(GLenum error) {
+    switch (error) {
+        case GL_NO_ERROR: return "GL_NO_ERROR";
+        case GL_INVALID_ENUM: return "GL_INVALID_ENUM";
+        case GL_INVALID_VALUE: return "GL_INVALID_VALUE";
+        case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION";
+        case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
+        case GL_INVALID_FRAMEBUFFER_OPERATION: return "GL_INVALID_FRAMEBUFFER_OPERATION";
+        default: return "Unknown error";
+    }
+}
