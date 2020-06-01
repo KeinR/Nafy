@@ -1,8 +1,18 @@
 #include "Button.h"
 
+#include <iostream> // DEBUG
 #include <cmath>
 
 #include "glfw.h"
+
+#include "env.h"
+
+nafy::Button::Button():
+    innerText(getContext()->getDefaultFace(), getContext()->getDefaultSpriteShader()),
+    enabled(true),
+    margin(5), x(0), y(0),
+    hovering(false), pressed(false) {
+}
 
 nafy::Button::Button(Face &textFace, shader_t textShader, shader_t shapeShader):
     innerText(textFace, textShader), box(shapeShader), enabled(true),
@@ -18,63 +28,121 @@ nafy::Button::~Button() {
     getContext()->removeMousePosCallback(this);
     getContext()->removeMouseButtonCallback(this);
 }
-void nafy::Button::setCallback(const std::function<callback_t> &cb) {
-    callback = cb;
+int nafy::Button::getMove() {
+    constexpr float distBase = 1 - std::sqrt(2) / 2.0f;
+    // Will break with very big numbers, like 2^31 big
+    return margin + box.getCornerRadius() * distBase;
+}
+
+void nafy::Button::setOnClick(const press_callback_func &callback) {
+    onClick = callback;
+}
+void nafy::Button::setOnRelease(const press_callback_func &callback) {
+    onRelease = callback;
+}
+void nafy::Button::setOnEnter(const move_callback_func &callback) {
+    onEnter = callback;
+}
+void nafy::Button::setOnLeave(const move_callback_func &callback) {
+    onLeave = callback;
+}
+
+// It works for now~
+void nafy::Button::calX() {
+    box.setX(x);
+    innerText.setX(x + getMove());
+}
+void nafy::Button::calY() {
+    box.setY(y);
+    innerText.setY(y + getMove());
+}
+void nafy::Button::calWidth() {
+    const int move = getMove();
+    innerText.setWrappingWidth(width);
+    box.setWidth(width + move * 2);
+    innerText.setX(x + move);
+}
+void nafy::Button::calHeight() {
+    const int move = getMove();
+    box.setHeight(height + move * 2);
+    innerText.setY(y + move);
 }
 void nafy::Button::setX(int value) {
     x = value;
+    calX();
 }
 void nafy::Button::setY(int value) {
     y = value;
+    calY();
 }
 void nafy::Button::setWidth(unsigned int value) {
     width = value;
-    constexpr float distBase = 1 - std::sqrt(2) / 2.0f;
-    move = margin + box.getCornerRadius() * distBase;
-    box.setX(x-move);
-    innerText.setWidth(width);
-    box.setWidth(width + move * 2);
+    calWidth();
 }
 void nafy::Button::setHeight(unsigned int value) {
     height = value;
-    box.setY(y-move);
-    box.setHeight(height + move * 2);
-    innerText.setHeight(height);
+    calHeight();
 }
 void nafy::Button::setMargin(unsigned int value) {
-    margin = mgn;
+    margin = value;
+    calX();
+    calY();
+    calWidth();
+    calHeight();
 }
-void nafy::Button::setTextVisble(bool val) {
-
-}
-void nafy::Button::trigger() {
-    if (callback) {
-        callback();
-    }
+void nafy::Button::setEnabled(bool value) {
+    enabled = value;
 }
 void nafy::Button::generate() {
-
+    box.generate();
+    innerText.generate();
 }
 void nafy::Button::render() {
+    box.render();
+    innerText.render();
+}
 
-
-
-    if (displayText) {
-        glUseProgram();
-        innerText.render();
-    }
+bool nafy::Button::containPoint(double xPos, double yPos) {
+    return xPos >= x && xPos <= x + width && yPos >= y && yPos <= y + height;
 }
 
 void nafy::Button::mouseMoved(double mouseX, double mouseY) {
-
+    if (!enabled) return;
+    const bool inside = containPoint(mouseX, mouseY);
+    if (hovering) {
+        if (!inside) {
+            hovering = false;
+            setCursorType(cursorType::DEFAULT);
+            if (onLeave) {
+                onLeave();
+            }
+        }
+    } else if (inside) {
+        hovering = true;
+        setCursorType(cursorType::HAND);
+        if (onEnter) {
+            onEnter();
+        }
+    }
 }
 void nafy::Button::mouseClicked(bool isPressed, int button, int mods) {
-
+    if (!enabled) return;
+    double mouseX, mouseY;
+    glfwGetCursorPos(glfwGetCurrentContext(), &mouseX, &mouseY);
+    if (containPoint(mouseX, mouseY)) {
+        if (isPressed) {
+            if (onClick) {
+                onClick(button, mods);
+            }
+        } else if (onRelease) {
+            onRelease(button, mods);
+        }
+    }
 }
 
-Rectangle &getBox() {
-
+nafy::Rectangle &nafy::Button::getBox() {
+    return box;
 }
-Text &getText() {
-
+Text &nafy::Button::getText() {
+    return innerText;
 }

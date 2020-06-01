@@ -28,16 +28,19 @@ void nafy::Rectangle::generateBuffers() {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 }
+
+nafy::Rectangle::Rectangle(): Rectangle(getContext()->getDefaultPrimShader()) {
+}
+
+nafy::Rectangle::Rectangle(shader_t shader): shader(shader), width(100), height(100), x(0), y(0), cornerRadius(0) {
+    generateBuffers();
+    generateCurveless();
+    bindShader(shader);
+}
 nafy::Rectangle::~Rectangle() {
     glDeleteVertexArrays(1, &VA);
     glDeleteBuffers(1, &VB);
     glDeleteBuffers(1, &EB);
-}
-
-nafy::Rectangle::Rectangle(shader_t shader): width(100), height(100), x(0), y(0), cornerRadius(0) {
-    generateBuffers();
-    generateCurveless();
-    bindShader(shader);
 }
 void nafy::Rectangle::generateCurveless() {
     float vertices[] = {
@@ -244,10 +247,12 @@ void nafy::Rectangle::render() {
     model = glm::translate(model, glm::vec3(xPos, yPos, 0.0f));
     model = glm::scale(model, glm::vec3((float)width / winWidth, (float)height / winHeight, 0.0f));
 
+    glUseProgram(shader);
+
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
     // glGetError();
-    // glUniform4fv(colorLocation, 1, color.get());
-    glUniform4f(colorLocation, 1, 1, 0, 1);
+    glUniform4fv(colorLocation, 1, color.get());
+    // glUniform4f(colorLocation, 1, 1, 0, 1);
 
     glBindVertexArray(VA);
     glBindBuffer(GL_ARRAY_BUFFER, VB);

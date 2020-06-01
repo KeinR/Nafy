@@ -12,6 +12,7 @@ static std::string homeDir;
 static int contextCount = 0; // Enlarge data type for more possible instances
 static bool isInit = false;
 static nafy::context *currentContext = nullptr;
+static GLFWcursor *cursor_hand = nullptr;
 
 struct call {
     GLFWwindow *window;
@@ -44,6 +45,8 @@ GLFWwindow *init(int width, int height, const char *title) {
         throw nafy::error("Failed to initialize GLAD");
     }
 
+    cursor_hand = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -55,6 +58,7 @@ GLFWwindow *init(int width, int height, const char *title) {
 void deInit() {
     isInit = false;
     glfwTerminate();
+    cursor_hand = nullptr;
 }
 
 void initWindow(GLFWwindow *window) {
@@ -261,5 +265,16 @@ const char *nafy::getGLErrorStr(GLenum error) {
         case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
         case GL_INVALID_FRAMEBUFFER_OPERATION: return "GL_INVALID_FRAMEBUFFER_OPERATION";
         default: return "Unknown error";
+    }
+}
+
+void nafy::setCursorType(cursorType type) {
+    switch (type) {
+        case HAND:
+            glfwSetCursor(glfwGetCurrentContext(), cursor_hand);
+            break;
+        case DEFAULT:
+            glfwSetCursor(glfwGetCurrentContext(), NULL);
+            break;
     }
 }

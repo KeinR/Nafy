@@ -10,7 +10,7 @@
 
 class Text {
 protected:
-    Face *face;
+    Face face;
 
     unsigned int VA; // Array
     unsigned int VB; // Buffer
@@ -28,6 +28,7 @@ protected:
     Face::map_size wrappingWidth;
     Face::map_size overflowHeight;
     float lineSpacingMod;
+    unsigned int shader;
 
     Face::glyph_str index;
     Face::line_str lines;
@@ -48,14 +49,14 @@ public:
     // If made with this, must be set equal to another or have the face and shader set
     // before calling ANY other methods, otherwise undefined behavior is invoked
     Text();
-    Text(Face &face, const unsigned int shader);
+    Text(Font &face, const unsigned int shader);
     Text(const Text &other);
     Text(Text &&other);
     Text &operator=(const Text &other);
     Text &operator=(Text &&other);
     virtual ~Text();
 
-    Face *getFace();
+    Face &getFace();
     void setFace(Face &face);
 
     int getX();

@@ -1,30 +1,20 @@
-#ifndef SHADERS_H_INCLUDED
-#define SHADERS_H_INCLUDED
-
-#include <string>
-
-#include "ShaderProgram.h"
+#ifndef SHADER_H_INCLUDED
+#define SHADER_H_INCLUDED
 
 namespace nafy {
+    typedef unsigned int shader_t;
     class Shader {
-        int vertLength;
-        int fragLength;
-        char *vertData;
-        char *fragData;
-        inline void copy(const Shader &other);
+        shader_t shader;
         inline void steal(Shader &other);
-        inline void copyPOD(const Shader &other);
-        inline void dealoc();
     public:
         Shader();
-        // Throws instance of `nafy::error` if file load failed
-        Shader(const std::string &vertexPath, const std::string &fragmentPath);
-        Shader(const Shader &other);
+        Shader(shader_t shader);
+        Shader(const Shader &other) = delete;
         Shader(Shader &&other);
-        Shader &operator=(const Shader &other);
+        Shader &operator=(const Shader &other) = delete;
         Shader &operator=(Shader &&other);
         ~Shader();
-        ShaderProgram make();
+        shader_t get() const;
     };
 }
 

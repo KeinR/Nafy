@@ -2,7 +2,7 @@
 #define RECTANGLE_H_INCLUDED
 
 #include "renderable.h"
-#include "ShaderProgram.h"
+#include "Shader.h"
 #include "Color.h"
 
 // TODO: Memory managment
@@ -15,6 +15,7 @@ namespace nafy {
         unsigned int modelLocation; // In shader
         unsigned int colorLocation; // In shader
         unsigned int countIndices;
+        shader_t shader;
 
         unsigned int width;
         unsigned int height;
@@ -25,6 +26,8 @@ namespace nafy {
         inline void generateBuffers();
         inline void generateCurveless();
     public:
+        // Takes context default prim shader
+        Rectangle();
         Rectangle(shader_t shader);
         ~Rectangle();
         void generate();

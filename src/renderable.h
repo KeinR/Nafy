@@ -4,8 +4,7 @@
 namespace nafy {
     class renderable {
     public:
-        renderable() = default;
-        virtual ~renderable() = 0;
+        // virtual ~renderable() = 0 {} // Should not be needed~
         virtual void render() = 0;
     };
 }

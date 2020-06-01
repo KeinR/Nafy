@@ -3,14 +3,19 @@
 
 #include <string>
 #include <list>
+#include <memory>
 
 #include "glfw.h"
 
 #include "story.h"
 #include "Shader.h"
-#include "ShaderProgram.h"
+#include "ShaderFactory.h"
 #include "TextLibrary.h"
 #include "Rectangle.h"
+#include "Color.h"
+#include "View.h"
+#include "Button.h"
+#include "callback.h"
 
 #include "text/ftype.h"
 #include "text/TextCrawl.h"
@@ -20,36 +25,44 @@
 namespace nafy {
     class context {
     public:
-        // No virtual deconstructors because these
-        // won't be seeing a delete
-        class mouseMoveCallback {
-        public:
-            virtual void mouseMoved(double mouseX, double mouseY) = 0;
-        };
-        class mouseClickCallback {
-        public:
-            // Misleading I suppose, because it can be released too...
-            virtual void mouseClicked(bool isPressed, int button, int mods) = 0;
+        struct views_s {
+            // View 1: The first screen, the home screen
+            struct home_s {
+                View view;
+                Color background;
+                Face titleFace;
+                Text title;
+                Face buttonFace;
+                Button startGame;
+            } home;
+
+            // View 2: The menu screen, brought up mid-game to view options
+            // struct menu_s {
+            //     View view;
+            //     Color background;
+            //     Face titleFace;
+            //     Text topTitle;
+            //     Button resumeGame;
+            //     Button toMenu;
+            //     // Button toConfig;
+            // } menu;
         };
     private:
         GLFWwindow *window;
 
         // Text related stuff
-        ShaderProgram textShader;
         TextLibrary textLib;
-        Face crawlFace;
+        Font defaultFont;
         TextCrawl crawl;
 
         scene *root;
         scene *current;
-        int currentID;
+        // int currentID;
         bool run;
 
         // std::vector<Render*> renders;
         float frameCooldown;
 
-        Font defaultFont;
-        ShaderProgram defaultShader;
 
         // No purpose being here save to be retrieved by the user
         unsigned int framesPerSecond;
@@ -58,12 +71,23 @@ namespace nafy {
         std::list<mouseMoveCallback*> cursorPosCallbacks;
         std::list<mouseClickCallback*> cursorButtonCallbacks;
 
+        struct {
+            shader_t sprite;
+            shader_t prim;
+        } defaultShaders;
+
+        Color *background;
+        View *view;
+
+        // Dynamic because we have a lot of stuff
+        std::shared_ptr<views_s> views;
+
         inline void makeCurrent();
     public:
 
         // Pointers towards `initCrawlFace` and `root` are stored
         // Throws `ft_error` if text setup failed
-        context(int winWidth, int winHeight, const char *winTitle, scene &root, Font &defaultFont, Shader &defaultShader);
+        context(int winWidth, int winHeight, const char *winTitle, scene &root);
         ~context();
 
         // Let's not bother with these for now
@@ -93,10 +117,15 @@ namespace nafy {
         void resume();
         void stop();
 
+        void setView(View &view);
+        void setBackground(Color &color);
 
         void setFPS(unsigned int fps);
         unsigned int getFPS();
 
+        // Can reduce needless CPU utilization when waiting
+        // for next frame.
+        // Dependent on the user's hardware, however.
         // Reccomended to go somewhere between 0-2
         // 1's generally a safe bet
         void setVSync(int lv);
@@ -105,11 +134,18 @@ namespace nafy {
         // Throws `ft_error` if failed
         Face makeFace(Font &font);
 
+        void setDefaultSpriteShader(shader_t shader);
+        void setDefaultPrimShader(shader_t shader);
+
+        std::shared_ptr<views_s> getViews();
+
         /* private */
-        ShaderProgram *getDefShader();
-        Font *getDefFont();
+        shader_t getDefaultSpriteShader();
+        shader_t getDefaultPrimShader();
+        // Face *getDefFace();
         TextCrawl &getCrawl();
         Face &getCrawlFace();
+        Face &getDefaultFace();
         bool shouldStop();
 
         void stopIfCurrent(scene *obj);

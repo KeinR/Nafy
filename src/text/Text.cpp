@@ -61,8 +61,8 @@ Text::Text():
     renderedWidth(0), renderedHeight(0),
     color{0, 0, 0, 1}, x(0), y(0),
     wrappingWidth(0), overflowHeight(0),
-    lineSpacingMod(1.0f), stopsIndex(0) {
-    
+    lineSpacingMod(1.0f), shader(0), stopsIndex(0) {
+
     generateBuffers();
 }
 
@@ -71,7 +71,7 @@ Text::Text(Face &face, const unsigned int shader):
     renderedWidth(0), renderedHeight(0),
     color{0, 0, 0, 1}, x(0), y(0),
     wrappingWidth(0), overflowHeight(0),
-    lineSpacingMod(1.0f), stopsIndex(0) {
+    lineSpacingMod(1.0f), shader(shader), stopsIndex(0) {
 
     generateBuffers();
 
@@ -163,10 +163,10 @@ Text::~Text() {
     glDeleteBuffers(1, &VB);
     glDeleteBuffers(1, &EB);
     glDeleteTextures(1, &TX);
-    std::cout << "pass TEXT" << std::endl;
 }
 
 void Text::bindShader(const unsigned int shader) {
+    this->shader = shader;
     glUseProgram(shader);
     glUniform1i(glGetUniformLocation(shader, SHADER_TEXT_SAMPLER), 0);
     modelLocation = glGetUniformLocation(shader, SHADER_MODEL);
@@ -229,6 +229,8 @@ void Text::render() {
     getWindowSize(&winWidth, &winHeight);
     model = glm::translate(model, glm::vec3(xPos, yPos, 0.0f));
     model = glm::scale(model, glm::vec3((float)renderedWidth / winWidth, (float)renderedHeight / winHeight, 0.0f));
+
+    glUseProgram(shader);
 
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
 

@@ -2,7 +2,7 @@
 #include "src/context.h"
 #include "src/env.h"
 #include "src/error.h"
-#include "src/Shader.h"
+#include "src/ShaderFactory.h"
 
 #include <iostream>
 
@@ -16,9 +16,10 @@ int main() {
         nafy::scene sc;
         sc.pushText("Hello gamers~");
         std::cout << "scene done" << std::endl;
-        nafy::Shader shader("resources/shaders/text.vert", "resources/shaders/text.frag");
+        nafy::ShaderFactory shader("resources/shaders/text.vert", "resources/shaders/text.frag");
+        std::cout << "make context" << std::endl;
         nafy::context ctx(400, 400, "test", sc, font, shader);
-        std::cout << "Make context" << std::endl;
+        std::cout << "done context" << std::endl;
         ctx.start();
         std::cout << "Free!" << std::endl;
     } catch (std::exception &e) {
