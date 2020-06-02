@@ -9,7 +9,6 @@
 
 #include "story.h"
 #include "Shader.h"
-#include "ShaderFactory.h"
 #include "TextLibrary.h"
 #include "Rectangle.h"
 #include "Color.h"
@@ -50,9 +49,15 @@ namespace nafy {
     private:
         GLFWwindow *window;
 
+        struct {
+            Shader sprite;
+            Shader prim;
+        } defaultShaders;
+
         // Text related stuff
         TextLibrary textLib;
         Font defaultFont;
+
         TextCrawl crawl;
 
         scene *root;
@@ -70,11 +75,6 @@ namespace nafy {
 
         std::list<mouseMoveCallback*> cursorPosCallbacks;
         std::list<mouseClickCallback*> cursorButtonCallbacks;
-
-        struct {
-            shader_t sprite;
-            shader_t prim;
-        } defaultShaders;
 
         Color *background;
         View *view;
@@ -99,8 +99,8 @@ namespace nafy {
         void mousePosCallback(double x, double y);
         void mouseButtonCallback(int button, int action, int mods);
 
-        void addMousePosCallback(mouseMoveCallback *callback);
-        void addMouseButtonCallback(mouseClickCallback *callback);
+        void addMousePosCallback(mouseMoveCallback &callback);
+        void addMouseButtonCallback(mouseClickCallback &callback);
         void removeMousePosCallback(mouseMoveCallback *callback);
         void removeMouseButtonCallback(mouseClickCallback *callback);
 
@@ -134,8 +134,9 @@ namespace nafy {
         // Throws `ft_error` if failed
         Face makeFace(Font &font);
 
-        void setDefaultSpriteShader(shader_t shader);
-        void setDefaultPrimShader(shader_t shader);
+        void setDefaultSpriteShader(const Shader &shader);
+        void setDefaultPrimShader(const Shader &shader);
+        void setDefaultFont(const Font &font);
 
         std::shared_ptr<views_s> getViews();
 
@@ -145,7 +146,7 @@ namespace nafy {
         // Face *getDefFace();
         TextCrawl &getCrawl();
         Face &getCrawlFace();
-        Face &getDefaultFace();
+        Face makeDefaultFace();
         bool shouldStop();
 
         void stopIfCurrent(scene *obj);

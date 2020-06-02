@@ -49,7 +49,7 @@ public:
     // If made with this, must be set equal to another or have the face and shader set
     // before calling ANY other methods, otherwise undefined behavior is invoked
     Text();
-    Text(Font &face, const unsigned int shader);
+    Text(Font &font, const unsigned int shader);
     Text(const Text &other);
     Text(Text &&other);
     Text &operator=(const Text &other);

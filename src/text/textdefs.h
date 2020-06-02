@@ -41,4 +41,18 @@ constexpr void(*getWindowSize)(int *width, int *height) = nafy::getWindowSize;
 constexpr float(*normX)(float x) = nafy::normX;
 constexpr float(*normY)(float y) = nafy::normY;
 
+
+// For default initialization
+#include "Face.h"
+#include "../env.h"
+constexpr Face (*makeDefaultFace)() = []() -> Face {
+    return nafy::getContext()->makeDefaultFace();
+};
+
+// So that Font can do that fancy ".make()" function
+#include "ftype.h"
+constexpr Face (*makeFace)() = [](Font &font) -> Face {
+    return nafy::getContext()->getTextLib().makeFace(font);
+};
+
 #endif

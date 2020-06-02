@@ -57,7 +57,7 @@ void Text::generateBuffers() {
 }
 
 Text::Text():
-    face(nullptr), modelLocation(0),
+    face(makeDefaultFace()), modelLocation(0),
     renderedWidth(0), renderedHeight(0),
     color{0, 0, 0, 1}, x(0), y(0),
     wrappingWidth(0), overflowHeight(0),
@@ -66,8 +66,8 @@ Text::Text():
     generateBuffers();
 }
 
-Text::Text(Face &face, const unsigned int shader):
-    face(&face), modelLocation(glGetUniformLocation(shader, SHADER_MODEL)),
+Text::Text(Font &font, const unsigned int shader):
+    face(font.make()), modelLocation(glGetUniformLocation(shader, SHADER_MODEL)),
     renderedWidth(0), renderedHeight(0),
     color{0, 0, 0, 1}, x(0), y(0),
     wrappingWidth(0), overflowHeight(0),
@@ -82,6 +82,8 @@ Text::Text(Face &face, const unsigned int shader):
 // Memory manegemet
 
 void Text::textSteal(Text &other) {
+    face = std::move(other.face);
+
     TX = other.TX;
     // https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glDeleteTextures.xml
     // "glDeleteTextures silently ignores 0's"
@@ -95,6 +97,7 @@ void Text::textSteal(Text &other) {
 }
 
 void Text::textCopy(const Text &other) {
+    face = other.face;
 
     str = other.str;
     stops = other.stops;
@@ -118,8 +121,6 @@ void Text::textCopyIL(const Text &other) {
 }
 
 void Text::textCopyPOD(const Text &other) {
-    face = other.face;
-
     renderedWidth = other.renderedWidth;
     renderedHeight = other.renderedHeight;
 

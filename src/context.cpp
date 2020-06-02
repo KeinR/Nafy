@@ -8,6 +8,7 @@
 
 #include <cmath> // DEBUG
 
+#include "ShaderFactory.h"
 #include "error.h"
 #include "env.h"
 
@@ -22,14 +23,14 @@ void nafy::context::makeCurrent() {
 
 nafy::context::context(int winWidth, int winHeight, const char *winTitle, scene &root):
     window(plusContext(winWidth, winHeight, winTitle)),
-    crawlFace(textLib.makeFace(initCrawlFont)), defaultFace(textLib.makeFace(initCrawlFont)),
+    defaultFont(getPath("resources/fonts/Arial.ttf")), crawlFace(textLib.makeFace(initCrawlFont)),
     root(&root), current(&root), run(false), vsync(0), defaultShaders{0, 0}
     {
 
     std::cout << "Lone 1" << std::endl;
 
     makeCurrent();
-    textShader = textShaderB.make();
+    textShader = ShaderFactory("resources/shaders/sprite.vert", "resources/shaders/sprite.frag").make();
     crawl.setFace(crawlFace);
     crawl.bindShader(textShader.get());
 
@@ -90,12 +91,12 @@ void nafy::context::mouseButtonCallback(int button, int action, int mods) {
     }
 }
 
-void nafy::context::addMousePosCallback(mouseMoveCallback *callback) {
-    cursorPosCallbacks.push_back(callback);
+void nafy::context::addMousePosCallback(mouseMoveCallback &callback) {
+    cursorPosCallbacks.push_back(&callback);
 }
 
-void nafy::context::addMouseButtonCallback(mouseClickCallback *callback) {
-    cursorButtonCallbacks.push_back(callback);
+void nafy::context::addMouseButtonCallback(mouseClickCallback &callback) {
+    cursorButtonCallbacks.push_back(&callback);
 }
 
 void nafy::context::removeMousePosCallback(mouseMoveCallback *callback) {
@@ -276,11 +277,14 @@ Face nafy::context::makeFace(Font &font) {
     return textLib.makeFace(font);
 }
 
-void nafy::context::setDefaultSpriteShader(shader_t shader) {
+void nafy::context::setDefaultSpriteShader(const Shader &shader) {
     defaultShaders.sprite = shader;
 }
-void nafy::context::setDefaultPrimShader(shader_t shader) {
+void nafy::context::setDefaultPrimShader(const Shader &shader) {
     defaultShaders.prim = shader;
+}
+void nafy::context::setDefaultFont(const Font &font) {
+    defaultFont = font;
 }
 
 std::shared_ptr<nafy::context::views_s> nafy::context::getViews() {
@@ -288,10 +292,10 @@ std::shared_ptr<nafy::context::views_s> nafy::context::getViews() {
 }
 
 nafy::shader_t nafy::context::getDefaultSpriteShader() {
-    return defaultShaders.sprite;
+    return defaultShaders.sprite.get();
 }
 nafy::shader_t nafy::context::getDefaultPrimShader() {
-    return defaultShaders.prim;
+    return defaultShaders.prim.get();
 }
 
 TextCrawl &nafy::context::getCrawl() {
@@ -302,8 +306,8 @@ Face &nafy::context::getCrawlFace() {
     return crawlFace;
 }
 
-Face &nafy::context::getDefaultFace() {
-    return defaultFace;
+Face nafy::context::makeDefFace() {
+    return makeFace(defaultFont);
 }
 
 bool nafy::context::shouldStop() {

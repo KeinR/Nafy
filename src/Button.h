@@ -11,6 +11,8 @@
 
 #include "text/Text.h"
 
+// TODO: Memory manegment
+
 namespace nafy {
     class Button: public renderable, public mouseMoveCallback, public mouseClickCallback {
     public:

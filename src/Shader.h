@@ -5,6 +5,9 @@ namespace nafy {
     typedef unsigned int shader_t;
     class Shader {
         shader_t shader;
+        int *refCounter;
+        inline void release();
+        inline void copy(const Shader &other);
         inline void steal(Shader &other);
     public:
         Shader();
@@ -14,6 +17,7 @@ namespace nafy {
         Shader &operator=(const Shader &other) = delete;
         Shader &operator=(Shader &&other);
         ~Shader();
+        void reset(shader_t shader = 0);
         shader_t get() const;
     };
 }

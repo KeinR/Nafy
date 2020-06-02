@@ -18,6 +18,7 @@ namespace nafy {
     public:
         ShaderFactory();
         // Throws instance of `nafy::error` if file load failed
+        // Note: calls getPath on given paths
         ShaderFactory(const std::string &vertexPath, const std::string &fragmentPath);
         ShaderFactory(const ShaderFactory &other);
         ShaderFactory(ShaderFactory &&other);

@@ -21,7 +21,7 @@ Face nafy::TextLibrary::makeFace(Font &font) {
     FT_Error error;
     Face face = font.mkFace(library, error);
     if (error) {
-        throw ft_error("TextLibrary::mkFace failed", error);
+        throw ft_error("TextLibrary::makeFace failed", error);
     }
     return face;
 }
