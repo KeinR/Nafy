@@ -7,7 +7,9 @@
 
 #include "Font.h"
 
-class Text {
+#include "../renderable.h" // DEVIATION
+
+class Text: public nafy::renderable /*DEVIATION*/ { 
 protected:
     Font::type font;
     unsigned int shader;
@@ -108,7 +110,7 @@ public:
 
     void generate();
     // Doesn't set the shader itself; perhaps change that..?
-    void render();
+    void render() override;
 };
 
 #endif

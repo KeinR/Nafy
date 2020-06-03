@@ -53,7 +53,9 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     home.title.setString("NAFY");
     home.title.setX(100);
     home.title.setY(10);
+    home.title.generate();
     home.startGame.getBox().getColor().setHex(0x1a5d6e);
+    home.startGame.getText().setString("Start game!");
     home.startGame.setOnClick([](int button, int mods) -> void {
         std::cout << "Start game~!" << std::endl;
     });
@@ -63,9 +65,13 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     home.startGame.setOnLeave([&home]() -> void {
         home.startGame.getBox().getColor().setHex(0x1a5d6e);
     });
+    home.startGame.generate();
 
     setBackground(home.background);
     setView(home.view);
+
+    home.view.add(&home.title);
+    home.view.add(&home.startGame);
 
 
     // crawl.setFont(defaultFont);

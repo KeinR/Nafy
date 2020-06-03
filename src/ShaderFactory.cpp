@@ -19,6 +19,7 @@ static GLuint linkShaders(GLuint vertObject, GLuint fragObject);
 nafy::ShaderFactory::ShaderFactory(): vertLength(0), fragLength(0) {
 }
 nafy::ShaderFactory::ShaderFactory(const std::string &vertexPath, const std::string &fragmentPath) {
+    std::cout << "Make sf" << std::endl;
     char *vd;
     if (!loadFile(getPath(vertexPath), &vd, vertLength)) {
         throw error("Failed to load vertex shader file");
@@ -28,7 +29,8 @@ nafy::ShaderFactory::ShaderFactory(const std::string &vertexPath, const std::str
         throw error("Failed to load fragment shader file");
     }
     vertData.reset(vd);
-    fragData.reset(vd);
+    fragData.reset(fd);
+    std::cout << "Done make sf" << std::endl;
 }
 nafy::Shader nafy::ShaderFactory::make() {
     GLuint vertShader = compileShader(GL_VERTEX_SHADER, vertData.get(), vertLength);

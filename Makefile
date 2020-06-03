@@ -1,35 +1,32 @@
-OBJS_EXT = stb_image.o stb_truetype.o stb_vorbis.o stb_image_write.o glad.o
-OBJS_TEXT = text.Text.o text.TextCrawl.o text.Font.o text.FontFactory.o
-OBJS := context.o TextLibrary.o View.o Shader.o Node.o Rectangle.o Button.o Color.o ShaderFactory.o env.o error.o story.o $(OBJS_TEXT)
-CFLAGS := -Wall `pkg-config --cflags freetype2`
-CC = g++
-INCLUDE = -Iextern
-LIBS = -lglfw3dll -lfreetype.dll -lstb
+include globals.mk
+DEV_OUT = ./test.exe
+# REL_OUT = ./nafy.a
 
-MK := $(CC) $(CFLAGS) $(INCLUDE)
+DEPS := $(OBJS) $(OBJS_EXT)
+DEV_BUILD := $(MK) -o $(DEV_OUT) main.o $(DEPS) $(LIBS)
+DB_BUILD := $(DEV_BUILD)
+# REL_BUILD := $(MK) -o $(DEV_OUT) main.o $(DEPS) $(LIBS) -02 -s
+# AR = ar crf $(REL_OUT) header.o $(DEPS) $(LIBS)
 
-DEPS := main.o $(OBJS) $(OBJS_EXT)
-BUILD := $(MK) -o $@ main.o $(OBJS) $(OBJS_EXT) $(LIBS)
+build-dev: main.o $(DEPS)
+	$(DEV_BUILD)
 
+build-debug: main.o $(DEPS)
+	$(DB_BUILD) -g
 
-# TEMP
+# build-release: $(DEPS)
+# 	$(REL_BUILD)
 
-test: main.o $(OBJS) $(OBJS_EXT)
-	$(MK) -o $@ main.o $(OBJS) $(OBJS_EXT) $(LIBS)
-
-run: test
+run: build-dev
 	@./test.exe
 
 debug: build-debug
 	gdb ./test.exe -ex run
 
-build-debug: $(DEPS)
-	$(BUILD) -g
-
+# For dev
 main.o: main.cpp src/context.h src/story.h
 	$(MK) -c $< -o $@
 
-# END TEMP
 
 stb_image.o: extern/stb/stb_image.c extern/stb/stb_image.h
 stb_truetype.o: extern/stb/stb_truetype.c extern/stb/stb_truetype.h
@@ -44,8 +41,12 @@ include depconfig.mk
 depconfig.mk: src/* src/text/*
 	dep ./src
 
+globals.mk:
+	@echo "ERROR: globals.mk not found"
+	@exit 1
+
 $(OBJS):
 	$(MK) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(OBJS_EXT) main.o
+	rm -f $(OBJS) $(OBJS_EXT) $(DEV_OUT) main.o

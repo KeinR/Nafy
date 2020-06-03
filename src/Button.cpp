@@ -11,6 +11,11 @@ nafy::Button::Button():
     enabled(true),
     margin(5), x(0), y(0),
     hovering(false), pressed(false) {
+    
+    getContext()->addMousePosCallback(*this);
+    getContext()->addMouseButtonCallback(*this);
+    setWidth(100);
+    setHeight(50);
 }
 
 nafy::Button::Button(const Font::type &textFont, shader_t textShader, shader_t shapeShader):
@@ -46,7 +51,7 @@ void nafy::Button::setOnLeave(const move_callback_func &callback) {
     onLeave = callback;
 }
 
-// It works for now~
+// This works for now
 void nafy::Button::calX() {
     box.setX(x);
     innerText.setX(x + getMove());
@@ -56,15 +61,15 @@ void nafy::Button::calY() {
     innerText.setY(y + getMove());
 }
 void nafy::Button::calWidth() {
-    const int move = getMove();
-    innerText.setWrappingWidth(width);
-    box.setWidth(width + move * 2);
-    innerText.setX(x + move);
+    const int mmove = getMove();
+    innerText.setWrappingWidth(width - mmove * 2);
+    box.setWidth(width);
+    innerText.setX(x + mmove);
 }
 void nafy::Button::calHeight() {
-    const int move = getMove();
-    box.setHeight(height + move * 2);
-    innerText.setY(y + move);
+    const int mmove = getMove();
+    box.setHeight(height);
+    innerText.setY(y + mmove);
 }
 void nafy::Button::setX(int value) {
     x = value;

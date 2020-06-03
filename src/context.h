@@ -35,6 +35,7 @@
 namespace nafy {
     class context {
     public:
+
         struct views_s {
             // View 1: The first screen, the home screen
             struct home_s {
@@ -114,7 +115,8 @@ namespace nafy {
         void mousePosCallback(double x, double y);
         void mouseButtonCallback(int button, int action, int mods);
 
-        // TODO: return list iterators
+        // Returns const iterators to the positions of the callbacks,
+        // which can then later be used for fast removal 
         void addMousePosCallback(mouseMoveCallback &callback);
         void addMouseButtonCallback(mouseClickCallback &callback);
         void removeMousePosCallback(mouseMoveCallback *callback);

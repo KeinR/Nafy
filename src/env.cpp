@@ -85,10 +85,12 @@ void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
 }
 
 GLFWwindow *nafy::plusContext(int width, int height, const char *title) {
+    std::cout << "Add context" << std::endl;
     contextCount++;
     // We're assuming that the hints will stay in place - which they should...
     GLFWwindow *window = isInit ? glfwCreateWindow(width, height, title, NULL, NULL) : init(width, height, title);
     initWindow(window);
+    std::cout << "made context" << std::endl;
     return window;
 }
 

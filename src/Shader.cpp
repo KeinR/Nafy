@@ -6,8 +6,10 @@
 
 // 0 is silently ignored by glDeleteProgram
 nafy::Shader::Shader(): shader(0) {
+    std::cout << "Shader default" << std::endl;
 }
 nafy::Shader::Shader(shader_t shader): shader(shader), refCounter(new int(1)) {
+    std::cout << "Shader init" << std::endl;
 }
 nafy::Shader::~Shader() {
     release();
@@ -22,11 +24,13 @@ void nafy::Shader::release() {
     }
 }
 void nafy::Shader::copy(const Shader &other) {
+    std::cout << "Shader copy" << std::endl;
     shader = other.shader;
     refCounter = other.refCounter;
     ++(*refCounter);
 }
 void nafy::Shader::steal(Shader &other) {
+    std::cout << "Shader steal" << std::endl;
     shader = other.shader;
     refCounter = other.refCounter;
     other.shader = 0;
