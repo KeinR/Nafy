@@ -11,15 +11,13 @@
 
 int main() {
     try {
-        Font font("resources/fonts/Arial.ttf");
-        std::cout << "Start, font good = " << font.good() << std::endl;
+        std::cout << "START" << std::endl;
+        nafy::context ctx(400, 400, "test");
+        std::cout << "Done construction" << std::endl;
         nafy::scene sc;
         sc.pushText("Hello gamers~");
-        std::cout << "scene done" << std::endl;
-        nafy::ShaderFactory shader("resources/shaders/text.vert", "resources/shaders/text.frag");
-        std::cout << "make context" << std::endl;
-        nafy::context ctx(400, 400, "test", sc, font, shader);
-        std::cout << "done context" << std::endl;
+        ctx.setRoot(sc);
+        std::cout << "Go to start..." << std::endl;
         ctx.start();
         std::cout << "Free!" << std::endl;
     } catch (std::exception &e) {

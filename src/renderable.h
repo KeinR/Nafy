@@ -1,5 +1,5 @@
-#ifndef RENDER_H_INCLUDED
-#define RENDER_H_INCLUDED
+#ifndef RENDERABLE_H_INCLUDED
+#define RENDERABLE_H_INCLUDED
 
 namespace nafy {
     class renderable {

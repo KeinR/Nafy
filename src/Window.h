@@ -10,6 +10,7 @@ namespace nafy {
         Window(int width, int height, const char *title);
         ~Window();
         GLFWWindow *get();
+        // void makeCurrent();
     };
 }
 

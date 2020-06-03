@@ -1,16 +1,16 @@
-#ifndef STATIC_TEXT_H_INCLUDED
-#define STATIC_TEXT_H_INCLUDED
+#ifndef TEXT_H_INCLUDED
+#define TEXT_H_INCLUDED
 
 #include <string>
 
 #include "ftype.h"
 
-#include "Face.h"
 #include "Font.h"
 
 class Text {
 protected:
-    Face face;
+    Font::type font;
+    unsigned int shader;
 
     unsigned int VA; // Array
     unsigned int VB; // Buffer
@@ -18,27 +18,26 @@ protected:
     unsigned int TX; // Text texture
     unsigned int modelLocation; // In shader
 
-    Face::map_size renderedWidth;
-    Face::map_size renderedHeight;
+    Font::map_size renderedWidth;
+    Font::map_size renderedHeight;
 
     float color[4];
     int x;
     int y;
     std::string str;
-    Face::map_size wrappingWidth;
-    Face::map_size overflowHeight;
+    Font::map_size wrappingWidth;
+    Font::map_size overflowHeight;
     float lineSpacingMod;
-    unsigned int shader;
 
-    Face::glyph_str index;
-    Face::line_str lines;
-    std::vector<Face::line_iterator>::size_type stopsIndex;
-    std::vector<Face::line_iterator> stops;
+    Font::glyph_str index;
+    Font::line_str lines;
+    std::vector<Font::line_iterator>::size_type stopsIndex;
+    std::vector<Font::line_iterator> stops;
 
     void generateBuffers();
 
     void setTexture(unsigned char *bitmap);
-    virtual void loadLines(const Face::line_iterator &start, const Face::line_iterator &end);
+    virtual void loadLines(const Font::line_iterator &start, const Font::line_iterator &end);
     void loadStops();
 
     void textSteal(Text &other);
@@ -46,18 +45,18 @@ protected:
     inline void textCopyIL(const Text &other);
     inline void textCopyPOD(const Text &other);
 public:
-    // If made with this, must be set equal to another or have the face and shader set
+    // If made with this, must be set equal to another or have the font and shader set
     // before calling ANY other methods, otherwise undefined behavior is invoked
     Text();
-    Text(Font &font, const unsigned int shader);
+    Text(const Font::type &font, const unsigned int shader);
     Text(const Text &other);
     Text(Text &&other);
     Text &operator=(const Text &other);
     Text &operator=(Text &&other);
     virtual ~Text();
 
-    Face &getFace();
-    void setFace(Face &face);
+    Font::type getFont();
+    void setFont(const Font::type &font);
 
     int getX();
     int getY();
@@ -104,8 +103,8 @@ public:
     // Returns false if reached the end of the overflows
     bool nextOverflow();
     // Includes the non-overflowing start
-    Face::line_str::size_type overflowSize();
-    void seekOverflow(Face::line_str::size_type i);
+    Font::line_str::size_type overflowSize();
+    void seekOverflow(Font::line_str::size_type i);
 
     void generate();
     // Doesn't set the shader itself; perhaps change that..?

@@ -16,10 +16,12 @@ TextCrawl::TextCrawl():
     pen(0, 0), bitmap(nullptr),
     fall(0), start(nullptr),
     render_c(CHANNELS, color, nullptr, 0, 0) {
+
+    std::cout << "Make crawl" << std::endl;
 }
 
-TextCrawl::TextCrawl(Face &face, const unsigned int shader):
-    Text(face, shader),
+TextCrawl::TextCrawl(const Font::type &font, const unsigned int shader):
+    Text(font, shader),
     pen(0, 0), bitmap(nullptr),
     fall(0), start(nullptr),
     render_c(CHANNELS, color, nullptr, 0, 0) {
@@ -112,9 +114,9 @@ void TextCrawl::updateLineData() {
     pen.y = 0;
 }
 
-void TextCrawl::loadLines(const Face::line_iterator &begin, const Face::line_iterator &end) {
+void TextCrawl::loadLines(const Font::line_iterator &begin, const Font::line_iterator &end) {
     int offset;
-    face->getLinesRenderData(begin, end, CHANNELS, lineSpacingMod, render_c.lineHeight, renderedWidth, renderedHeight, offset, fall);
+    font->getLinesRenderData(begin, end, CHANNELS, lineSpacingMod, render_c.lineHeight, renderedWidth, renderedHeight, offset, fall);
     render_c.verticalStride = renderedWidth;
 
     bmpSizeBytes = renderedWidth * renderedHeight * CHANNELS;
@@ -163,7 +165,7 @@ bool TextCrawl::advance() {
         updateLineData();
     }
 
-    face->renderGlyphTo(*linePos, linePos + 1 < currentLine->end ? *(linePos + 1) : 0, render_c, pen);
+    font->renderGlyphTo(*linePos, linePos + 1 < currentLine->end ? *(linePos + 1) : 0, render_c, pen);
 
     ++linePos;
     updateTex();

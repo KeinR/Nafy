@@ -1,5 +1,7 @@
 #include "Shader.h"
 
+#include <iostream>
+
 #include "glfw.h"
 
 // 0 is silently ignored by glDeleteProgram
@@ -36,11 +38,13 @@ nafy::Shader::Shader(Shader &&other) {
     steal(other);
 }
 nafy::Shader &nafy::Shader::operator=(const Shader &other) {
+    std::cout << "Shader copy" << std::endl;
     release();
     copy(other);
     return *this;
 }
 nafy::Shader &nafy::Shader::operator=(Shader &&other) {
+    std::cout << "Shader move" << std::endl;
     release();
     steal(other);
     return *this;
@@ -53,5 +57,7 @@ void nafy::Shader::reset(shader_t shader) {
     }
 }
 nafy::shader_t nafy::Shader::get() const {
+    std::cout << "SHADFER EGt" << std::endl;
+    std::cout << "shader get " << shader << std::endl;
     return shader;
 }

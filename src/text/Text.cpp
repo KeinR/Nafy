@@ -56,22 +56,18 @@ void Text::generateBuffers() {
     glEnableVertexAttribArray(1);
 }
 
-Text::Text():
-    face(makeDefaultFace()), modelLocation(0),
-    renderedWidth(0), renderedHeight(0),
-    color{0, 0, 0, 1}, x(0), y(0),
-    wrappingWidth(0), overflowHeight(0),
-    lineSpacingMod(1.0f), shader(0), stopsIndex(0) {
-
-    generateBuffers();
+Text::Text(): Text(getDefaultFont(), getDefaultTextShader()) {
 }
 
-Text::Text(Font &font, const unsigned int shader):
-    face(font.make()), modelLocation(glGetUniformLocation(shader, SHADER_MODEL)),
+Text::Text(const Font::type &font, const unsigned int shader):
+    font(font), shader(shader),
+    modelLocation(glGetUniformLocation(shader, SHADER_MODEL)),
     renderedWidth(0), renderedHeight(0),
     color{0, 0, 0, 1}, x(0), y(0),
     wrappingWidth(0), overflowHeight(0),
-    lineSpacingMod(1.0f), shader(shader), stopsIndex(0) {
+    lineSpacingMod(1.0f), stopsIndex(0) {
+
+    std::cout << "Make text" << std::endl;
 
     generateBuffers();
 
@@ -82,7 +78,7 @@ Text::Text(Font &font, const unsigned int shader):
 // Memory manegemet
 
 void Text::textSteal(Text &other) {
-    face = std::move(other.face);
+    font = std::move(other.font);
 
     TX = other.TX;
     // https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glDeleteTextures.xml
@@ -97,7 +93,7 @@ void Text::textSteal(Text &other) {
 }
 
 void Text::textCopy(const Text &other) {
-    face = other.face;
+    font = other.font;
 
     str = other.str;
     stops = other.stops;
@@ -111,11 +107,11 @@ void Text::textCopyIL(const Text &other) {
     // Fucking committees
     index = other.index;
     lines = other.lines;
-    for (Face::line &ln : lines) {
+    for (Font::line &ln : lines) {
         ln.start = index.begin() + (ln.start - other.index.begin());
         ln.end = index.begin() + (ln.end - other.index.begin());
     }
-    for (Face::line_iterator &it : stops) {
+    for (Font::line_iterator &it : stops) {
         it = lines.begin() + (it - other.lines.begin());
     }
 }
@@ -178,18 +174,18 @@ void Text::generate() {
         return;
     }
 
-    index = face->indexString(str.cbegin(), str.cend());
+    index = font->indexString(str.cbegin(), str.cend());
     if (wrappingWidth) {
-        lines = face->getLines(index.cbegin(), index.cend(), wrappingWidth);
+        lines = font->getLines(index.cbegin(), index.cend(), wrappingWidth);
         if (overflowHeight) {
-            stops = face->breakupLines(lines.cbegin(), lines.cend(), lineSpacingMod, overflowHeight);
+            stops = font->breakupLines(lines.cbegin(), lines.cend(), lineSpacingMod, overflowHeight);
         } else {
             stops.clear();
             stops.push_back(lines.cend());
         }
     } else {
         lines.clear();
-        lines.push_back(face->makeLine(index.cbegin(), index.cend()));
+        lines.push_back(font->makeLine(index.cbegin(), index.cend()));
         stops.clear();
         stops.push_back(lines.cend());
     }
@@ -197,8 +193,8 @@ void Text::generate() {
     loadLines(lines.cbegin(), stops[0]);
 }
 
-void Text::loadLines(const Face::line_iterator &start, const Face::line_iterator &end) {
-    unsigned char *bitmap = face->renderLines(start, end, 4, color, lineSpacingMod, renderedWidth, renderedHeight);
+void Text::loadLines(const Font::line_iterator &start, const Font::line_iterator &end) {
+    unsigned char *bitmap = font->renderLines(start, end, 4, color, lineSpacingMod, renderedWidth, renderedHeight);
 
     setTexture(bitmap);
 
@@ -211,7 +207,7 @@ void Text::setTexture(unsigned char *bitmap) {
 }
 
 void Text::loadStops() {
-    Face::line_iterator start;
+    Font::line_iterator start;
     if (stopsIndex != 0) {
         start = stops[stopsIndex - 1];
     } else {
@@ -252,11 +248,11 @@ bool Text::nextOverflow() {
     return false;
 }
 
-Face::line_str::size_type Text::overflowSize() {
+Font::line_str::size_type Text::overflowSize() {
     return stops.size();
 }
 
-void Text::seekOverflow(Face::line_str::size_type i) {
+void Text::seekOverflow(Font::line_str::size_type i) {
     if (i < overflowSize()) {
         stopsIndex = i;
         loadStops();
@@ -305,12 +301,12 @@ void Text::getColorVal(unsigned char *red, unsigned char *green, unsigned char *
     #undef TRYGET
 }
 
-Face *Text::getFace() {
-    return face;
+Font::type Text::getFont() {
+    return font;
 }
 
-void Text::setFace(Face &face) {
-    this->face = &face;
+void Text::setFont(const Font::type &font) {
+    this->font = font;
 }
 
 int Text::getX() {

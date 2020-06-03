@@ -19,7 +19,18 @@
 #include "text/ftype.h"
 #include "text/TextCrawl.h"
 
+/*
+ * The context class, responsible for managing the entire program.
+ * DO NOTE: Creating a context should be the FIRST thing you do
+ * (aside from perhaps factories, because they're designed to be context-agnostic).
+ * This is because many, many classes and functions operate depending on the _current_
+ * context. This means that undefined behavior is invoked if you try operating one of those
+ * classes or functions when a context isn't active, and that you have to be careful when
+ * you have more than one context (which should be rather unlikely).
+ */
+
 // TODO: Memory manegement
+// TODO: Multible windows in one context
 
 namespace nafy {
     class context {
@@ -29,17 +40,22 @@ namespace nafy {
             struct home_s {
                 View view;
                 Color background;
-                Face titleFace;
                 Text title;
-                Face buttonFace;
                 Button startGame;
             } home;
+
+            // The run of the game itself, this is (hopefully) what the user
+            // most of their time on
+            struct game_s {
+                View view;
+                Color background;
+                Rectangle crawlBG;
+            } game;
 
             // View 2: The menu screen, brought up mid-game to view options
             // struct menu_s {
             //     View view;
             //     Color background;
-            //     Face titleFace;
             //     Text topTitle;
             //     Button resumeGame;
             //     Button toMenu;
@@ -56,22 +72,17 @@ namespace nafy {
 
         // Text related stuff
         TextLibrary textLib;
-        Font defaultFont;
+        Font::type defaultFont;
 
-        TextCrawl crawl;
+        std::shared_ptr<TextCrawl> crawl;
 
         scene *root;
         scene *current;
         // int currentID;
         bool run;
+        bool runGameAction;
 
-        // std::vector<Render*> renders;
         float frameCooldown;
-
-
-        // No purpose being here save to be retrieved by the user
-        unsigned int framesPerSecond;
-        int vsync;
 
         std::list<mouseMoveCallback*> cursorPosCallbacks;
         std::list<mouseClickCallback*> cursorButtonCallbacks;
@@ -82,12 +93,16 @@ namespace nafy {
         // Dynamic because we have a lot of stuff
         std::shared_ptr<views_s> views;
 
+        // No purpose being here save to be retrieved by the user
+        unsigned int framesPerSecond;
+        int vsync;
+
         inline void makeCurrent();
     public:
 
         // Pointers towards `initCrawlFace` and `root` are stored
         // Throws `ft_error` if text setup failed
-        context(int winWidth, int winHeight, const char *winTitle, scene &root);
+        context(int winWidth, int winHeight, const char *winTitle);
         ~context();
 
         // Let's not bother with these for now
@@ -99,11 +114,14 @@ namespace nafy {
         void mousePosCallback(double x, double y);
         void mouseButtonCallback(int button, int action, int mods);
 
+        // TODO: return list iterators
         void addMousePosCallback(mouseMoveCallback &callback);
         void addMouseButtonCallback(mouseClickCallback &callback);
         void removeMousePosCallback(mouseMoveCallback *callback);
         void removeMouseButtonCallback(mouseClickCallback *callback);
 
+        // Sets context to current
+        // IMPORTANT IF YOU ARE USING MORE THAN ONE CONTEXT!!!!
         void activate();
 
         void setRoot(scene &root);
@@ -132,21 +150,19 @@ namespace nafy {
         int getVSync();
 
         // Throws `ft_error` if failed
-        Face makeFace(Font &font);
+        Font::type makeFont(const FontFactory &factory);
 
         void setDefaultSpriteShader(const Shader &shader);
         void setDefaultPrimShader(const Shader &shader);
-        void setDefaultFont(const Font &font);
+        void setDefaultFont(const Font::type &font);
 
         std::shared_ptr<views_s> getViews();
 
         /* private */
         shader_t getDefaultSpriteShader();
         shader_t getDefaultPrimShader();
-        // Face *getDefFace();
+        Font::type getDefaultFont();
         TextCrawl &getCrawl();
-        Face &getCrawlFace();
-        Face makeDefaultFace();
         bool shouldStop();
 
         void stopIfCurrent(scene *obj);

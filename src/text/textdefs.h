@@ -29,7 +29,7 @@
 
 // Alias your functions to the needed ones
 #include "../env.h"
-constexpr void(*getWindowSize)(int *width, int *height) = nafy::getWindowSize;
+static constexpr void(*getWindowSize)(int *width, int *height) = nafy::getWindowSize;
 
 
 // Convert screen coords to GL quads
@@ -38,21 +38,20 @@ constexpr void(*getWindowSize)(int *width, int *height) = nafy::getWindowSize;
 
 // Alias your functions to the needed ones
 // #include "util.h" // Redundant
-constexpr float(*normX)(float x) = nafy::normX;
-constexpr float(*normY)(float y) = nafy::normY;
+static constexpr float(*normX)(float x) = nafy::normX;
+static constexpr float(*normY)(float y) = nafy::normY;
 
 
 // For default initialization
-#include "Face.h"
+
+#include "Font.h"
 #include "../env.h"
-constexpr Face (*makeDefaultFace)() = []() -> Face {
-    return nafy::getContext()->makeDefaultFace();
+static Font::type (*getDefaultFont)() = []() -> Font::type {
+    return nafy::getContext()->getDefaultFont();
 };
 
-// So that Font can do that fancy ".make()" function
-#include "ftype.h"
-constexpr Face (*makeFace)() = [](Font &font) -> Face {
-    return nafy::getContext()->getTextLib().makeFace(font);
+static unsigned int (*getDefaultTextShader)() = []() -> unsigned int {
+    return nafy::getContext()->getDefaultSpriteShader();
 };
 
 #endif

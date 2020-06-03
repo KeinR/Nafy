@@ -8,19 +8,18 @@
 #include "env.h"
 
 nafy::Button::Button():
-    innerText(getContext()->getDefaultFace(), getContext()->getDefaultSpriteShader()),
     enabled(true),
     margin(5), x(0), y(0),
     hovering(false), pressed(false) {
 }
 
-nafy::Button::Button(Face &textFace, shader_t textShader, shader_t shapeShader):
-    innerText(textFace, textShader), box(shapeShader), enabled(true),
+nafy::Button::Button(const Font::type &textFont, shader_t textShader, shader_t shapeShader):
+    innerText(textFont, textShader), box(shapeShader), enabled(true),
     margin(5), x(0), y(0),
     hovering(false), pressed(false) {
 
-    getContext()->addMousePosCallback(this);
-    getContext()->addMouseButtonCallback(this);
+    getContext()->addMousePosCallback(*this);
+    getContext()->addMouseButtonCallback(*this);
     setWidth(100);
     setHeight(50);
 }

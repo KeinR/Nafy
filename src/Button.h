@@ -47,8 +47,8 @@ namespace nafy {
     public:
         // Takes current context defaults
         Button();
-        // Alternatively, set the face 
-        Button(Face &textFace, shader_t textShader, shader_t shapeShader);
+        // Alternatively, set the font and shaders 
+        Button(const Font::type &textFont, shader_t textShader, shader_t shapeShader);
         ~Button();
 
         void setOnClick(const press_callback_func &callback);

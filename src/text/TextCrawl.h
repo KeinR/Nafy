@@ -4,25 +4,24 @@
 #include <vector>
 
 #include "Text.h"
-#include "Face.h"
 
 class TextCrawl: public Text {
-    Face::line_iterator currentLine;
-    Face::line_iterator lastLineX;
+    Font::line_iterator currentLine;
+    Font::line_iterator lastLineX;
 
     // Per-line
-    Face::glyph_iterator linePos;
-    Face::vec2 pen;
+    Font::glyph_iterator linePos;
+    Font::vec2 pen;
 
     unsigned char *bitmap;
     std::size_t bmpSizeBytes;
     int fall;
     unsigned char *start; // Start offset
-    Face::renderConf render_c;
+    Font::renderConf render_c;
 
     inline void updateTex();
     inline void updateLineData();
-    void loadLines(const Face::line_iterator &start, const Face::line_iterator &end) override;
+    void loadLines(const Font::line_iterator &start, const Font::line_iterator &end) override;
 
     void crawlSteal(TextCrawl &other);
     void crawlCopy(const TextCrawl &other);
@@ -33,7 +32,7 @@ public:
     // If made with this, must be set equal to another or have the face and shader set
     // before calling ANY other methods, otherwise undefined behavior is invoked
     TextCrawl();
-    TextCrawl(Face &face, const unsigned int shader);
+    TextCrawl(const Font::type &font, const unsigned int shader);
     TextCrawl(const TextCrawl &other);
     TextCrawl(TextCrawl &&other);
     TextCrawl &operator=(const TextCrawl &other);
