@@ -38,6 +38,7 @@ namespace nafy {
         // Transient
         bool hovering;
         bool pressed;
+        inline void init();
         inline int getMove();
         inline void calX();
         inline void calY();

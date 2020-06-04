@@ -11,17 +11,13 @@
 
 int main() {
     try {
-        std::cout << "START" << std::endl;
         nafy::context ctx(400, 400, "test");
-        std::cout << "Done construction" << std::endl;
         nafy::scene sc;
         sc.pushText("Hello gamers~");
         ctx.setRoot(sc);
-        std::cout << "Go to start..." << std::endl;
         ctx.start();
-        std::cout << "Free!" << std::endl;
     } catch (std::exception &e) {
-        std::cout << "ERROR: " << e.what() << std::endl;
+        std::cerr << "ERROR: " << e.what() << std::endl;
     }
 
     // Font font("resources/fonts/Arial.ttf");

@@ -16,8 +16,6 @@ TextCrawl::TextCrawl():
     pen(0, 0), bitmap(nullptr),
     fall(0), start(nullptr),
     render_c(CHANNELS, color, nullptr, 0, 0) {
-
-    std::cout << "Make crawl" << std::endl;
 }
 
 TextCrawl::TextCrawl(const Font::type &font, const unsigned int shader):
@@ -98,7 +96,6 @@ TextCrawl &TextCrawl::operator=(TextCrawl &&other) {
 
 TextCrawl::~TextCrawl() {
     delBitmap();
-    std::cout << "pass TEXTCRAWL" << std::endl;
 }
 
 // end mem manegment

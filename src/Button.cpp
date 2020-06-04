@@ -7,15 +7,20 @@
 
 #include "env.h"
 
-nafy::Button::Button():
-    enabled(true),
-    margin(5), x(0), y(0),
-    hovering(false), pressed(false) {
-    
+void nafy::Button::init() {
     getContext()->addMousePosCallback(*this);
     getContext()->addMouseButtonCallback(*this);
     setWidth(100);
     setHeight(50);
+    innerText.setAlign(Font::textAlign::center);
+}
+
+nafy::Button::Button():
+    enabled(true),
+    margin(0), x(0), y(0),
+    hovering(false), pressed(false) {
+    
+    init();
 }
 
 nafy::Button::Button(const Font::type &textFont, shader_t textShader, shader_t shapeShader):
@@ -23,10 +28,7 @@ nafy::Button::Button(const Font::type &textFont, shader_t textShader, shader_t s
     margin(5), x(0), y(0),
     hovering(false), pressed(false) {
 
-    getContext()->addMousePosCallback(*this);
-    getContext()->addMouseButtonCallback(*this);
-    setWidth(100);
-    setHeight(50);
+    init();
 }
 nafy::Button::~Button() {
     getContext()->removeMousePosCallback(this);

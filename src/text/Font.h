@@ -54,6 +54,12 @@ public:
         vec2(map_size x, map_size y);
     };
 
+    enum textAlign {
+        left,
+        right,
+        center
+    };
+
 private:
     FT_Face face;
     std::shared_ptr<unsigned char> data;
@@ -85,7 +91,6 @@ public:
     // Set the character pixel size
     FT_Error setSize(unsigned int size);
 
-
     /* end public methods */
 
     /* private methods, use only if you know what you're doing */
@@ -106,7 +111,7 @@ public:
     // Iterators in the resultant vector point to positions in the source `glyph_iterator`
     // NOT the same for `wrappingWidth`, because you can only really wrap to a whole pixel... Although do note that values over 2^26-1
     // are, erm... discouraged, as `wrappingWidth` is shifted 6 left to be compatable with the in-use 26.6 format
-    line_str getLines(const glyph_iterator &start, const glyph_iterator &end, unsigned int wrappingWidth);
+    line_str getLines(const glyph_iterator &start, const glyph_iterator &end, unsigned int wrappingWidth, const textAlign align);
     // NOTE: `horizontalOffset` and `verticalOffset` are in 26.6 fractional pixels
     void stringMetrics(glyph_iterator start, const glyph_iterator &end, map_size *width, map_size *height, ofs_type *horizontalOffset, ofs_type *verticalOffset);
     // Both return their values in 26.6 positive

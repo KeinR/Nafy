@@ -30,6 +30,7 @@ protected:
     Font::map_size wrappingWidth;
     Font::map_size overflowHeight;
     float lineSpacingMod;
+    Font::textAlign textAlign;
 
     Font::glyph_str index;
     Font::line_str lines;
@@ -60,13 +61,16 @@ public:
     Font::type getFont();
     void setFont(const Font::type &font);
 
+
     int getX();
     int getY();
     std::string &getString(); // Let me know if the reference return here is a bad idea
+    Font::textAlign getAlign();
 
     void setX(int x);
     void setY(int y);
     void setString(const std::string &str);
+    void setAlign(Font::textAlign textAlign);
 
     // Hex value for RGBA, with first 8 bytes ignored,
     // next 8 red, then green, blue, and lastly, alpha

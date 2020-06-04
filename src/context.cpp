@@ -31,8 +31,6 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     root(nullptr), current(nullptr), run(false), runGameAction(false), vsync(0)
     {
 
-    std::cout << "Lone 1" << std::endl;
-
     makeCurrent();
     // defaultShaders.sprite = ShaderFactory("resources/shaders/sprite.vert", "resources/shaders/sprite.frag").make();
     // defaultShaders.prim = ShaderFactory("resources/shaders/prim.vert", "resources/shaders/prim.frag").make();
@@ -40,8 +38,6 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     setFPS(60);
 
     registerCallbacks(window, this);
-
-    std::cout << "start construct" << std::endl;
 
     views.reset(new views_s());
     crawl.reset(new TextCrawl());
@@ -54,8 +50,12 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     home.title.setX(100);
     home.title.setY(10);
     home.title.generate();
+    home.startGame.setX(100);
+    home.startGame.setY(50);
     home.startGame.getBox().getColor().setHex(0x1a5d6e);
     home.startGame.getText().setString("Start game!");
+    // home.startGame.getText().getAlign();
+    std::cout << "eq to le " << (home.startGame.getText().getAlign() == Font::textAlign::center) << std::endl;
     home.startGame.setOnClick([](int button, int mods) -> void {
         std::cout << "Start game~!" << std::endl;
     });
@@ -77,14 +77,11 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     // crawl.setFont(defaultFont);
     // crawl.bindShader(textShader.get());
 
-    std::cout << "done construct" << std::endl;
-
 }
 
 nafy::context::~context() {
     deleteCallbacks(this);
     minusContext(window);
-    std::cout << "Sucs" << std::endl;
 }
 
 void nafy::context::mousePosCallback(double x, double y) {
@@ -144,66 +141,17 @@ void nafy::context::revert() {
 }
 
 void nafy::context::start() {
-    std::cout << "do revert" << std::endl;
     revert();
-    std::cout << "done" << std::endl;
     resume();
 }
-
-// #include <stb/stb_image_write.h>
 
 void nafy::context::resume() {
     if (current == nullptr) {
         throw error("`current` must NOT be nullptr. Did you forget to call setRoot(scene&)?");
     }
-    std::cout << "tet" << std::endl;
     run = true;
 
     makeCurrent();
-    
-    // shaders::deInit();
-    // shaders::init();
-    
-    // GLFWwindow *win = nafy::plusContext(400, 400, "foo");
-    // glfwMakeContextCurrent(window);
-
-    // TextCrawl tc(crawlFace, textShader);
-
-    // tc.setString("I like you");
-    // tc.generate();
-    // tc.advance();
-    // stbi_write_png("dasds.png", tc.renderedWidth, tc.renderedHeight, 4, tc.bitmap, tc.renderedWidth * 4);
-    // crawl.advance();
-    // crawl.advance();
-    // crawl.bindShader(shaders::text);
-    // crawl.setString("Sure man");
-    // crawl.generate();
-
-    // if (glGetError() != GL_NO_ERROR) std::cout << "ERROR-0" << std::endl; 
-    // ShaderFactory rs("resources/shaders/prim.vert", "resources/shaders/prim.frag");
-    // Shader program = rs.make();
-    // Rectangle rec(program.get());
-    // rec.getColor().setHex(0x1f6b33);
-    // rec.setCornerRadius(30);
-    // rec.setX(300);
-    // rec.generate();
-
-    // std::cout << "lMake bustton" << std::endl;
-    // Button button(crawlFace, textShader.get(), program.get());
-    // button.setMargin(0);
-    // button.setX(200);
-    // button.getBox().getColor().setHex(0x4287f5);
-    // button.getText().setString("0x4287f5");
-    // button.setOnClick([](int button, int mods)-> void {
-    //     std::cout << "YOOOOOOOOOO" << std::endl;
-    // });
-    // button.setOnEnter([&button]()-> void {
-    //     button.getBox().getColor().setHex(0x6d9eed);
-    // });
-    // button.setOnLeave([&button]()-> void {
-    //     button.getBox().getColor().setHex(0x4287f5);
-    // });
-    // button.generate();
 
     while (!shouldStop()) {
 
@@ -223,12 +171,6 @@ void nafy::context::resume() {
 
         view->render();
 
-        // rec.render();
-        // crawl.render();
-        // // std::cout << "ads " << (std::size_t)window << std::endl;
-
-        // button.render();
-
         glfwSwapBuffers(window);
 
         do {
@@ -236,8 +178,6 @@ void nafy::context::resume() {
             // So that it isn's a total resource hog while waiting
             std::this_thread::sleep_for(std::chrono::nanoseconds(1));
         } while (!shouldStop() && glfwGetTime() < end);
-        // std::cout << "OVERFLOW: " << std::round((glfwGetTime() - end) * 1000) << " ms" << std::endl;
-        // std::cout << "SLEEP TIME: " << std::round(frameCooldown * 1000) << " ms" << std::endl;
 
         // TEMP
         GLenum error = glGetError();
@@ -247,7 +187,6 @@ void nafy::context::resume() {
         }
     }
 
-    std::cout << "exit" << std::endl;
 }
 
 void nafy::context::stop() {
@@ -288,7 +227,6 @@ int nafy::context::getVSync() {
 
 Font::type nafy::context::makeFont(const FontFactory &factory) {
     textLib.makeFont(factory);
-    std::cout << "MAKE FINC" << std::endl;
     return textLib.makeFont(factory);
 }
 
@@ -307,11 +245,9 @@ std::shared_ptr<nafy::context::views_s> nafy::context::getViews() {
 }
 
 nafy::shader_t nafy::context::getDefaultSpriteShader() {
-    std::cout << "get default sprite" << std::endl;
     return defaultShaders.sprite.get();
 }
 nafy::shader_t nafy::context::getDefaultPrimShader() {
-    std::cout << "get default primitive" << std::endl;
     return defaultShaders.prim.get();
 }
 Font::type nafy::context::getDefaultFont() {

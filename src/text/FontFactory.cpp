@@ -13,8 +13,6 @@ FontFactory::FontFactory(): size(0), error(nullptr) {
 
 FontFactory::FontFactory(const std::string &path) {
 
-    std::cout << "PAth" << path << std::endl;
-
     std::ifstream file(path);
     if (!file.good()) {
         error = "Failed to open file";

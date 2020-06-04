@@ -13,6 +13,27 @@ inline static int compXOfs(int lsb) {
     return -lsb << 6;
 }
 
+inline static int compOffset(int lsb, Font::textAlign align, unsigned int &width, unsigned int wrappingWidth) {
+    Font::ofs_type xOffset = compXOfs(lsb);
+    // TODO: The performance impact is negnigable, but is there a better way,
+    // like using function pointers?
+    switch (align) {
+        case Font::textAlign::left:
+            break;
+        case Font::textAlign::center: {
+            Font::ofs_type shift = (wrappingWidth - width) / 2;
+            xOffset += shift;
+            width += shift;
+            break;
+        }
+        case Font::textAlign::right:
+            xOffset += wrappingWidth - width;
+            width = wrappingWidth;
+            break;
+    }
+    return xOffset;
+}
+
 // Struct constructors
 
 Font::renderConf::renderConf() {
@@ -45,9 +66,7 @@ Font::~Font() {
 
 void Font::delFace() {
     if (face != nullptr) {
-        std::cout << "try face..." << std::endl;
         FT_Done_Face(face);
-        std::cout << "Face pass!" << std::endl;
     }
 }
 
@@ -269,7 +288,7 @@ Font::line Font::makeLine(const glyph_iterator &start, const glyph_iterator &end
     return result;
 }
 
-Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator &end, unsigned int wrappingWidth) {
+Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator &end, unsigned int wrappingWidth, const textAlign align) {
     line_str lines;
     if (start >= end) {
         return lines;
@@ -335,7 +354,9 @@ Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator 
                         }
                     }
                 }
-                lines.push_back(consLine(begin, stop, compXOfs(metrics[begin - start].lsb), thisWidth)); // negate to get positive, shift 6 times to obtain 26.6, and shift 7th time to muntiply by 2
+
+                ofs_type xOffset = compOffset(metrics[begin - start].lsb, align, thisWidth, wrappingWidth);
+                lines.push_back(consLine(begin, stop, xOffset, thisWidth)); // negate to get positive, shift 6 times to obtain 26.6, and shift 7th time to muntiply by 2
                 begin = resume;
                 width += compXOfs(metrics[resume - start].lsb);
             } else {
@@ -346,7 +367,8 @@ Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator 
             }
         }
     }
-    lines.push_back(consLine(begin, end, compXOfs(metrics[begin - start].lsb), width));
+    ofs_type xOffset = compOffset(metrics[begin - start].lsb, align, width, wrappingWidth);
+    lines.push_back(consLine(begin, end, xOffset, width));
 
     return lines;
 }

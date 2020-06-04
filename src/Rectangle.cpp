@@ -147,15 +147,6 @@ void nafy::Rectangle::generate() {
     unsigned int ind = 18;
     unsigned int vert = 24;
 
-    #define DO_SET(last)\
-        vertices[vert] = crn[0] + marginY * std::sin(radians);\
-        vertices[vert + 1] = crn[1] + marginX * std::cos(radians);\
-        indices[ind++] = (last);\
-        indices[ind++] = vert / 2;\
-        indices[ind++] = center;\
-        vert += 2;
-    
-
     constexpr float startInc = PI / 2;
     float start = startInc;
     for (unsigned int c = 0; c < 24; c += 6) {
@@ -164,8 +155,6 @@ void nafy::Rectangle::generate() {
         const float rotation = PI / 2 / cornerVerticies;
         float radians = start + rotation;
 
-        // std::cout << crn[0] << ", " << crn[1] << std::endl;
-
         vertices[vert] = crn[0] + marginY * std::cos(radians);
         vertices[vert + 1] = crn[1] + marginX * std::sin(radians);
         indices[ind++] = center + 1 >= 24 ? 0 : center + 1;
@@ -173,16 +162,7 @@ void nafy::Rectangle::generate() {
         indices[ind++] = center;
         vert += 2;
 
-        // std::cout << "rotate this you filthy casual~!" << std::endl;
-        // DO_SET(center + 1 >= 24 ? 0 : center + 1);
         for (unsigned int i = 1; i < cornerVerticies - 1; i++) {
-            // DO_SET(vert / 2 - 1);
-
-            // std::cout <<
-            //     (crn[0] + marginY * std::cos(radians)) <<
-            //     ", " <<
-            //     (crn[1] + marginX * std::sin(radians)) <<
-            //     std::endl;
 
             vertices[vert] = crn[0] + marginY * std::cos(radians);
             vertices[vert + 1] = crn[1] + marginX * std::sin(radians);
@@ -193,35 +173,12 @@ void nafy::Rectangle::generate() {
 
             radians += rotation;
         }
-        // std::cout << "lA" << std::endl;
         indices[ind++] = vert / 2 - 1;
-        // std::cout << "lB" << std::endl;
         indices[ind++] = center - 1 > 11 ? 11 : center - 1;
-        // std::cout << "try1 -> " << std::endl;
-        // std::cout << vertices[indices[ind-1] * 2] << std::endl;
-        // std::cout << "pass -> " << std::endl;
-        // std::cout << "lC" << std::endl;
         indices[ind++] = center;
-        // std::cout << "FREE" << std::endl;
 
         start -= startInc;
     }
-
-    // std::ofstream debug("debug.log");
-
-    // for (unsigned int i = 0; i < countIndices;) {
-    //     for (unsigned int end = i + 3; i < end; i++) {
-    //         debug << (vertices[indices[i] * 2] * 400) << ", " << (vertices[indices[i] * 2 + 1] * 400) << std::endl;
-    //     }
-    //     debug << std::endl;
-    // }
-
-    // debug.close();
-
-    #undef DO_SET
-
-    std::cout << "ind > : " << ((int)indicesLength - (int)ind) << std::endl;
-    std::cout << "vert > : " << ((int)verticesLength - (int)vert) << std::endl;
 
     glBindVertexArray(VA); // Needed?
     glBindBuffer(GL_ARRAY_BUFFER, VB);
@@ -229,12 +186,8 @@ void nafy::Rectangle::generate() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EB);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesLength * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
-    std::cout << "Delete" << std::endl;
-
     delete[] vertices;
     delete[] indices;
-
-    std::cout << "Done" << std::endl;
 }
 void nafy::Rectangle::render() {
     glm::mat4 model(1.0f);

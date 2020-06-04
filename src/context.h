@@ -85,6 +85,7 @@ namespace nafy {
 
         float frameCooldown;
 
+        // TODO: Change to vector for faster iteration
         std::list<mouseMoveCallback*> cursorPosCallbacks;
         std::list<mouseClickCallback*> cursorButtonCallbacks;
 

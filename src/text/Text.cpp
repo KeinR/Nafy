@@ -65,9 +65,7 @@ Text::Text(const Font::type &font, const unsigned int shader):
     renderedWidth(0), renderedHeight(0),
     color{0, 0, 0, 1}, x(0), y(0),
     wrappingWidth(0), overflowHeight(0),
-    lineSpacingMod(1.0f), stopsIndex(0) {
-
-    std::cout << "Make text" << std::endl;
+    lineSpacingMod(1.0f), textAlign(Font::textAlign::left), stopsIndex(0) {
 
     generateBuffers();
 
@@ -175,8 +173,9 @@ void Text::generate() {
     }
 
     index = font->indexString(str.cbegin(), str.cend());
+    std::cout << "GENERATE: textAlign == left -> " << (textAlign == Font::textAlign::center) << std::endl;
     if (wrappingWidth) {
-        lines = font->getLines(index.cbegin(), index.cend(), wrappingWidth);
+        lines = font->getLines(index.cbegin(), index.cend(), wrappingWidth, textAlign);
         if (overflowHeight) {
             stops = font->breakupLines(lines.cbegin(), lines.cend(), lineSpacingMod, overflowHeight);
         } else {
@@ -321,6 +320,10 @@ std::string &Text::getString() {
     return str;
 }
 
+Font::textAlign Text::getAlign() {
+    return textAlign;
+}
+
 void Text::setX(int x) {
     this->x = x;
 }
@@ -331,6 +334,10 @@ void Text::setY(int y) {
 
 void Text::setString(const std::string &str) {
     this->str = str;
+}
+
+void Text::setAlign(Font::textAlign textAlign) {
+    this->textAlign = textAlign;
 }
 
 
