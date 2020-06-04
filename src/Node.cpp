@@ -1,21 +1,30 @@
 #include "Node.h"
 
-nafy::Node::Node(element_t element): element(element), visible(true) {
+template<typename E>
+nafy::NodeBase<E>::NodeBase(E element): element(element), visible(true) {
 }
-void nafy::Node::setVisible(bool value) {
+template<typename E>
+void nafy::NodeBase<E>::setVisible(bool value) {
     visible = value;
 }
-bool nafy::Node::isVisible() const {
+template<typename E>
+bool nafy::NodeBase<E>::isVisible() const {
     return visible;
 }
-void nafy::Node::setElement(element_t value) {
+template<typename E>
+void nafy::NodeBase<E>::setElement(E value) {
     element = value;
 }
-nafy::Node::element_t nafy::Node::getElement() const {
+template<typename E>
+E nafy::NodeBase<E>::getElement() const {
     return element;
 }
-void nafy::Node::render() {
+template<typename E>
+void nafy::NodeBase<E>::render() {
     if (visible) {
         element->render();
     }
 }
+
+template class nafy::NodeBase<nafy::renderable*>;
+template class nafy::NodeBase<std::shared_ptr<nafy::renderable>>;

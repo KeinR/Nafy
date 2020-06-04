@@ -1,23 +1,26 @@
 #ifndef NODE_H_INCLUDED
 #define NODE_H_INCLUDED
 
+#include <memory>
+
 #include "renderable.h"
 
 namespace nafy {
-    class Node: public renderable {
-    public:
-        typedef renderable *element_t;
-    private:
-        element_t element;
+    template<typename E>
+    class NodeBase: public renderable {
+        E element;
         bool visible;
     public:
-        Node(element_t element);
+        NodeBase(E element);
         void setVisible(bool value);
         bool isVisible() const;
-        void setElement(element_t value);
-        element_t getElement() const;
+        void setElement(E value);
+        E getElement() const;
         void render() override;
     };
+
+    typedef NodeBase<renderable*> Node;
+    typedef NodeBase<std::shared_ptr<renderable>> DyNode;
 };
 
 #endif

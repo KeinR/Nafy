@@ -1,7 +1,6 @@
 Button.o: src/Button.cpp src/Button.h src/Color.h src/Node.h src/Rectangle.h src/Shader.h src/TextLibrary.h src/View.h src/callback.h src/context.h src/env.h src/error.h src/glfw.h src/renderable.h src/story.h src/text/Font.h src/text/FontFactory.h src/text/Text.h src/text/TextCrawl.h src/text/ftype.h
 Color.o: src/Color.cpp src/Color.h
 context.o: src/context.cpp src/Button.h src/Color.h src/Node.h src/Rectangle.h src/Shader.h src/ShaderFactory.h src/TextLibrary.h src/View.h src/callback.h src/context.h src/env.h src/error.h src/glfw.h src/renderable.h src/story.h src/text/Font.h src/text/FontFactory.h src/text/Text.h src/text/TextCrawl.h src/text/ftype.h
-DyNode.o: src/DyNode.cpp src/DyNode.h src/renderable.h
 env.o: src/env.cpp src/Button.h src/Color.h src/Node.h src/Rectangle.h src/Shader.h src/TextLibrary.h src/View.h src/callback.h src/context.h src/defs.h src/env.h src/error.h src/glfw.h src/renderable.h src/story.h src/text/Font.h src/text/FontFactory.h src/text/Text.h src/text/TextCrawl.h src/text/ftype.h
 error.o: src/error.cpp src/error.h
 Node.o: src/Node.cpp src/Node.h src/renderable.h

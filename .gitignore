@@ -35,5 +35,7 @@
 #SSSSSSSSSSSSSSSSSSSSSSSS
 *.stackdump
 
+*.log
+
 test.bmp
 finale.png

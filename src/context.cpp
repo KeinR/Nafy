@@ -40,10 +40,11 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     registerCallbacks(window, this);
 
     views.reset(new views_s());
-    crawl.reset(new TextCrawl());
     if (glGetError() != GL_NO_ERROR) std::cout << "ERROR-321" << std::endl; 
 
-    views_s::home_s &home = views->home; // Shortcut, serves no other purpose
+    // Shortcuts, serve no other purpose
+    views_s::home_s &home = views->home;
+    views_s::game_s &game = views->game;
 
     home.background.setHex(0x2f67f5);
     home.title.setString("NAFY");
@@ -54,10 +55,10 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     home.startGame.setY(50);
     home.startGame.getBox().getColor().setHex(0x1a5d6e);
     home.startGame.getText().setString("Start game!");
-    // home.startGame.getText().getAlign();
-    std::cout << "eq to le " << (home.startGame.getText().getAlign() == Font::textAlign::center) << std::endl;
-    home.startGame.setOnClick([](int button, int mods) -> void {
+    home.startGame.setOnClick([this](int button, int mods) -> void {
         std::cout << "Start game~!" << std::endl;
+        this->setView(this->getViewsRef().game.view);
+        this->setBackground(this->getViewsRef().game.background);
     });
     home.startGame.setOnEnter([&home]() -> void {
         home.startGame.getBox().getColor().setHex(0x3e7887);
@@ -65,13 +66,25 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     home.startGame.setOnLeave([&home]() -> void {
         home.startGame.getBox().getColor().setHex(0x1a5d6e);
     });
+    home.startGame.setCornerRadius(20);
     home.startGame.generate();
+
+    home.view.add(&home.title);
+    home.view.add(&home.startGame);
+
+    // Setup game
+
+    // game.crawl.setX();
+    // game.crawl.setY();
+    // game.crawl.setTruncHeight();
+
+
+
 
     setBackground(home.background);
     setView(home.view);
 
-    home.view.add(&home.title);
-    home.view.add(&home.startGame);
+    // Setup game
 
 
     // crawl.setFont(defaultFont);
@@ -106,7 +119,7 @@ void nafy::context::addMouseButtonCallback(mouseClickCallback &callback) {
 }
 
 void nafy::context::removeMousePosCallback(mouseMoveCallback *callback) {
-    for (std::list<mouseMoveCallback*>::iterator it = cursorPosCallbacks.begin(); it != cursorPosCallbacks.end(); ++it) {
+    for (std::vector<mouseMoveCallback*>::const_iterator it = cursorPosCallbacks.cbegin(); it != cursorPosCallbacks.cend(); ++it) {
         if (*it == callback) {
             cursorPosCallbacks.erase(it);
             break;
@@ -115,7 +128,7 @@ void nafy::context::removeMousePosCallback(mouseMoveCallback *callback) {
 }
 
 void nafy::context::removeMouseButtonCallback(mouseClickCallback *callback) {
-    for (std::list<mouseClickCallback*>::iterator it = cursorButtonCallbacks.begin(); it != cursorButtonCallbacks.end(); ++it) {
+    for (std::vector<mouseClickCallback*>::const_iterator it = cursorButtonCallbacks.cbegin(); it != cursorButtonCallbacks.cend(); ++it) {
         if (*it == callback) {
             cursorButtonCallbacks.erase(it);
             break;
@@ -152,6 +165,13 @@ void nafy::context::resume() {
     run = true;
 
     makeCurrent();
+    
+    Rectangle rec;
+    rec.getColor().setHex(0x424325);
+    rec.setCornerRadius(20);
+    rec.setHeight(50);
+    rec.setWidth(80);
+    rec.generate();
 
     while (!shouldStop()) {
 
@@ -170,6 +190,8 @@ void nafy::context::resume() {
         }
 
         view->render();
+
+        rec.render();
 
         glfwSwapBuffers(window);
 
@@ -244,6 +266,10 @@ std::shared_ptr<nafy::context::views_s> nafy::context::getViews() {
     return views;
 }
 
+nafy::context::views_s &nafy::context::getViewsRef() {
+    return *views;
+}
+
 nafy::shader_t nafy::context::getDefaultSpriteShader() {
     return defaultShaders.sprite.get();
 }
@@ -255,7 +281,7 @@ Font::type nafy::context::getDefaultFont() {
 }
 
 TextCrawl &nafy::context::getCrawl() {
-    return *crawl.get();
+    return views->game.crawl;
 }
 
 bool nafy::context::shouldStop() {

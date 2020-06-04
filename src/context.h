@@ -51,6 +51,7 @@ namespace nafy {
                 View view;
                 Color background;
                 Rectangle crawlBG;
+                TextCrawl crawl;
             } game;
 
             // View 2: The menu screen, brought up mid-game to view options
@@ -75,8 +76,6 @@ namespace nafy {
         TextLibrary textLib;
         Font::type defaultFont;
 
-        std::shared_ptr<TextCrawl> crawl;
-
         scene *root;
         scene *current;
         // int currentID;
@@ -86,8 +85,8 @@ namespace nafy {
         float frameCooldown;
 
         // TODO: Change to vector for faster iteration
-        std::list<mouseMoveCallback*> cursorPosCallbacks;
-        std::list<mouseClickCallback*> cursorButtonCallbacks;
+        std::vector<mouseMoveCallback*> cursorPosCallbacks;
+        std::vector<mouseClickCallback*> cursorButtonCallbacks;
 
         Color *background;
         View *view;
@@ -160,6 +159,7 @@ namespace nafy {
         void setDefaultFont(const Font::type &font);
 
         std::shared_ptr<views_s> getViews();
+        views_s &getViewsRef();
 
         /* private */
         shader_t getDefaultSpriteShader();

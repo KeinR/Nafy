@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <cmath>
-// #include <fstream> // DEBUG
+#include <fstream> // DEBUG
 
 #include "glfw.h"
 
@@ -76,14 +76,16 @@ void nafy::Rectangle::generate() {
 
     const unsigned int cornerVerticies = CURVE_SMOOTHNESS * cornerRadius;
 
-    const unsigned int verticesLength = (12 + (cornerVerticies - 1) * 4) * 2;
-    const unsigned int indicesLength = 18 + (cornerVerticies) * 3 * 4;
+    const unsigned int verticesLength = (12 + cornerVerticies * 4) * 2;
+    const unsigned int indicesLength = 18 + (cornerVerticies + 1) * 3 * 4;
     countIndices = indicesLength;
     float *vertices = new float[verticesLength];
     unsigned int *indices = new unsigned int[indicesLength];
 
-    const float marginX = (float)cornerRadius / width;
-    const float marginY = (float)cornerRadius / height;
+    int winWidth, winHeight;
+    getWindowSize(&winWidth, &winHeight);
+    const float marginX = (float)cornerRadius / width * 2;
+    const float marginY = (float)cornerRadius / height * 2;
 
     // Going from the top-left inner-corner, moving clockwise...
 
@@ -155,23 +157,25 @@ void nafy::Rectangle::generate() {
         const float rotation = PI / 2 / cornerVerticies;
         float radians = start + rotation;
 
-        vertices[vert] = crn[0] + marginY * std::cos(radians);
-        vertices[vert + 1] = crn[1] + marginX * std::sin(radians);
+        vertices[vert] = crn[0] + marginX * std::cos(radians);
+        vertices[vert + 1] = crn[1] + marginY * std::sin(radians);
         indices[ind++] = center + 1 >= 24 ? 0 : center + 1;
         indices[ind++] = vert / 2;
         indices[ind++] = center;
         vert += 2;
 
-        for (unsigned int i = 1; i < cornerVerticies - 1; i++) {
+        int count = 0;
+        for (unsigned int i = 1; i < cornerVerticies; i++) {
 
-            vertices[vert] = crn[0] + marginY * std::cos(radians);
-            vertices[vert + 1] = crn[1] + marginX * std::sin(radians);
+            vertices[vert] = crn[0] + marginX * std::cos(radians);
+            vertices[vert + 1] = crn[1] + marginY * std::sin(radians);
             indices[ind++] = vert / 2 - 1;
             indices[ind++] = vert / 2;
             indices[ind++] = center;
             vert += 2;
 
             radians += rotation;
+            count++;
         }
         indices[ind++] = vert / 2 - 1;
         indices[ind++] = center - 1 > 11 ? 11 : center - 1;
@@ -179,6 +183,17 @@ void nafy::Rectangle::generate() {
 
         start -= startInc;
     }
+
+
+    std::ofstream debug("rec.log");
+    for (int i = 0; i < indicesLength; i++) {
+        #define fef(x) ((std::abs((x)) * 2 - 1) * 400)
+        debug << std::round(fef(vertices[indices[i] * 2]) * width / winWidth) << ", " << std::round(fef(vertices[indices[i] * 2 + 1]) * height / winHeight) << std::endl;
+        #undef fef
+    }
+
+
+    debug.close();
 
     glBindVertexArray(VA); // Needed?
     glBindBuffer(GL_ARRAY_BUFFER, VB);

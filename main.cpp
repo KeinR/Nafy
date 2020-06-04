@@ -11,7 +11,7 @@
 
 int main() {
     try {
-        nafy::context ctx(400, 400, "test");
+        nafy::context ctx(800, 400, "test");
         nafy::scene sc;
         sc.pushText("Hello gamers~");
         ctx.setRoot(sc);
