@@ -53,18 +53,18 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     home.title.generate();
     home.startGame.setX(100);
     home.startGame.setY(50);
-    home.startGame.getBox().getColor().setHex(0x1a5d6e);
-    home.startGame.getText().setString("Start game!");
+    home.startGame.getDisplay().getBox().getColor().setHex(0x1a5d6e);
+    home.startGame.getDisplay().getText().setString("Start game!");
     home.startGame.setOnClick([this](int button, int mods) -> void {
         std::cout << "Start game~!" << std::endl;
         this->setView(this->getViewsRef().game.view);
         this->setBackground(this->getViewsRef().game.background);
     });
     home.startGame.setOnEnter([&home]() -> void {
-        home.startGame.getBox().getColor().setHex(0x3e7887);
+        home.startGame.getDisplay().getBox().getColor().setHex(0x3e7887);
     });
     home.startGame.setOnLeave([&home]() -> void {
-        home.startGame.getBox().getColor().setHex(0x1a5d6e);
+        home.startGame.getDisplay().getBox().getColor().setHex(0x1a5d6e);
     });
     home.startGame.setCornerRadius(20);
     home.startGame.generate();
@@ -74,9 +74,9 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
 
     // Setup game
 
-    // game.crawl.setX();
-    // game.crawl.setY();
-    // game.crawl.setTruncHeight();
+    game.crawl.setX(0.1 * winWidth);
+    game.crawl.setY(winHeight - 50);
+    game.crawl.setOverflowHeight(45);
 
 
 
@@ -165,13 +165,6 @@ void nafy::context::resume() {
     run = true;
 
     makeCurrent();
-    
-    Rectangle rec;
-    rec.getColor().setHex(0x424325);
-    rec.setCornerRadius(20);
-    rec.setHeight(50);
-    rec.setWidth(80);
-    rec.generate();
 
     while (!shouldStop()) {
 
@@ -190,8 +183,6 @@ void nafy::context::resume() {
         }
 
         view->render();
-
-        rec.render();
 
         glfwSwapBuffers(window);
 

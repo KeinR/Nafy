@@ -7,23 +7,37 @@
 
 #include "env.h"
 
+// TODO: This class is a fucking mess and needs serious work
+
+// So that different buttons can communicate about the proper status of the cursor
+static int mouseLock = 0;
+static void grabHand() {
+    if (mouseLock == 0) {
+        nafy::setCursorType(nafy::cursorType::HAND);
+    }
+    mouseLock++;
+}
+static void releaseHand() {
+    mouseLock--;
+    if (mouseLock <= 0) {
+        mouseLock = 0;
+        nafy::setCursorType(nafy::cursorType::DEFAULT);
+    }
+}
+
 template<class T>
 void nafy::ButtonBase<T>::init() {
     enabled = true;
-    margin = 5;
-    x = 0;
-    y = 0;
     hovering = false;
-    pressed = true;
+    pressed = false;
     setCornerRadius(0);
-    updateMove();
     getContext()->addMousePosCallback(*this);
     getContext()->addMouseButtonCallback(*this);
     setWidth(100);
     setHeight(50);
     updateNodesX();
     updateNodesY();
-    innerText.setAlign(Font::textAlign::center);
+    display.getText().setAlign(Font::textAlign::center);
 }
 
 template<class T>
@@ -33,7 +47,7 @@ nafy::ButtonBase<T>::ButtonBase() {
 
 template<class T>
 nafy::ButtonBase<T>::ButtonBase(const Font::type &textFont, shader_t textShader, shader_t shapeShader):
-    innerText(textFont, textShader), box(shapeShader) {
+    display(TextCrawl(textFont, textShader), Rectangle(shapeShader)) {
 
     init();
 }
@@ -42,45 +56,39 @@ nafy::ButtonBase<T>::~ButtonBase() {
     getContext()->removeMousePosCallback(this);
     getContext()->removeMouseButtonCallback(this);
 }
-template<class T>
-void nafy::ButtonBase<T>::updateMove() {
-    constexpr float distBase = 1 - std::sqrt(2) / 2.0f;
-    // Will break with very big numbers, like 2^31 big
-    move = margin + cornerRadius * distBase;
-}
 
 template<class T>
 void nafy::ButtonBase<T>::updateNodesY() {
     // Top left
-    nodes[0].y = y + cornerRadius;
+    nodes[0].y = display.getY() + display.getCornerRadius();
 
-    downmost = y + height;
+    downmost = display.getY() + display.getHeight();
 
     // Bottom left
-    nodes[1].y = downmost - cornerRadius;
+    nodes[1].y = downmost - display.getCornerRadius();
 
     // Top right
-    nodes[2].y = y + cornerRadius;
+    nodes[2].y = display.getY() + display.getCornerRadius();
 
     // Bottom right
-    nodes[3].y = downmost - cornerRadius;
+    nodes[3].y = downmost - display.getCornerRadius();
 }
 
 template<class T>
 void nafy::ButtonBase<T>::updateNodesX() {
     // Top left
-    nodes[0].x = x + cornerRadius;
+    nodes[0].x = display.getX() + display.getCornerRadius();
 
     // Bottom left
-    nodes[1].x = x + cornerRadius;
+    nodes[1].x = display.getX() + display.getCornerRadius();
 
-    rightmost = x + width;
+    rightmost = display.getX() + display.getWidth();
 
     // Top right
-    nodes[2].x = rightmost - cornerRadius;
+    nodes[2].x = rightmost - display.getCornerRadius();
 
     // Bottom right
-    nodes[3].x = x + width - cornerRadius;
+    nodes[3].x = display.getX() + display.getWidth() - display.getCornerRadius();
 
 }
 
@@ -101,78 +109,42 @@ void nafy::ButtonBase<T>::setOnLeave(const move_callback_func &callback) {
     onLeave = callback;
 }
 
-// This works for now
-template<class T>
-void nafy::ButtonBase<T>::calX() {
-    box.setX(x);
-    innerText.setX(x + move);
-}
-template<class T>
-void nafy::ButtonBase<T>::calY() {
-    box.setY(y);
-    innerText.setY(y + move);
-}
-template<class T>
-void nafy::ButtonBase<T>::calWidth() {
-    innerText.setWrappingWidth(width - move * 2);
-    box.setWidth(width);
-    innerText.setX(x + move);
-}
-template<class T>
-void nafy::ButtonBase<T>::calHeight() {
-    box.setHeight(height);
-    innerText.setY(y + move);
-}
-template<class T>
-void nafy::ButtonBase<T>::calAll() {
-    calX();
-    calY();
-    calWidth();
-    calHeight();
-    updateNodesX();
-    updateNodesY();
-}
 template<class T>
 void nafy::ButtonBase<T>::setX(int value) {
-    x = value;
-    calX();
+    display.setX(value);
     updateNodesX();
 }
 template<class T>
 void nafy::ButtonBase<T>::setY(int value) {
-    y = value;
-    calY();
+    display.setX(value);
     updateNodesY();
 }
 template<class T>
 void nafy::ButtonBase<T>::setWidth(unsigned int value) {
-    width = value;
-    calWidth();
+    display.setWidth(value);
     updateNodesX();
 }
 template<class T>
 void nafy::ButtonBase<T>::setHeight(unsigned int value) {
-    height = value;
-    calHeight();
+    display.setHeight(value);
     updateNodesY();
 }
 template<class T>
 void nafy::ButtonBase<T>::setMargin(unsigned int value) {
-    margin = value;
-    calAll();
+    display.setMargin(value);
+    updateNodesX();
+    updateNodesY();
 }
 template<class T>
-void nafy::ButtonBase<T>::setEnabled(bool value) {
-    enabled = value;
+void nafy::ButtonBase<T>::setCornerRadius(unsigned int value) {
+    display.setCornerRadius(value);
+    updateNodesX();
+    updateNodesY();
 }
 
 template<class T>
-void nafy::ButtonBase<T>::setCornerRadius(unsigned int value) {
-    cornerRadius = value;
-    box.setCornerRadius(value);
-    updateMove();
-    updateNodesX();
-    updateNodesY();
+void nafy::ButtonBase<T>::setEnabled(bool value) {
+    enabled = value;
 }
 
 template<class T>
@@ -187,27 +159,23 @@ void nafy::ButtonBase<T>::trigger() {
 
 template<class T>
 void nafy::ButtonBase<T>::generate() {
-    updateMove();
-    calAll();
-    box.generate();
-    innerText.generate();
+    display.generate();
 }
 template<class T>
 void nafy::ButtonBase<T>::render() {
-    box.render();
-    innerText.render();
+    display.render();
 }
 
 template<class T>
 bool nafy::ButtonBase<T>::containPoint(double xPos, double yPos) {
     // More likely the mouse is somewhere here
-    if ((xPos >= nodes[0].x && xPos <= nodes[3].x && yPos >= y && yPos <= downmost) || // Big center
-        (xPos >= x && xPos <= rightmost && yPos >= nodes[0].y && yPos <= nodes[3].y) // Rotate that center
+    if ((xPos >= nodes[0].x && xPos <= nodes[3].x && yPos >= display.getY() && yPos <= downmost) || // Big center
+        (xPos >= display.getX() && xPos <= rightmost && yPos >= nodes[0].y && yPos <= nodes[3].y) // Rotate that center
         ) {
         return true;
     }
     for (int i = 0; i < 4; i++) {
-        if (std::hypot(xPos - nodes[i].x, yPos - nodes[i].y) < cornerRadius) {
+        if (std::hypot(xPos - nodes[i].x, yPos - nodes[i].y) < display.getCornerRadius()) {
             return true;
         }
     }
@@ -221,14 +189,14 @@ void nafy::ButtonBase<T>::mouseMoved(double mouseX, double mouseY) {
     if (hovering) {
         if (!inside) {
             hovering = false;
-            setCursorType(cursorType::DEFAULT);
+            releaseHand();
             if (onLeave) {
                 onLeave();
             }
         }
     } else if (inside) {
         hovering = true;
-        setCursorType(cursorType::HAND);
+        grabHand();
         if (onEnter) {
             onEnter();
         }
@@ -251,16 +219,11 @@ void nafy::ButtonBase<T>::mouseClicked(bool isPressed, int button, int mods) {
 }
 
 template<class T>
-nafy::Rectangle &nafy::ButtonBase<T>::getBox() {
-    return box;
-}
-
-template<class T>
-T &nafy::ButtonBase<T>::getText() {
-    return innerText;
+T &nafy::ButtonBase<T>::getDisplay() {
+    return display;
 }
 
 
 
-template class nafy::ButtonBase<Text>;
-template class nafy::ButtonBase<TextCrawl>;
+template class nafy::ButtonBase<nafy::TextRec>;
+template class nafy::ButtonBase<nafy::TextRecCrawl>;

@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <cmath>
-#include <fstream> // DEBUG
 
 #include "glfw.h"
 
@@ -82,8 +81,6 @@ void nafy::Rectangle::generate() {
     float *vertices = new float[verticesLength];
     unsigned int *indices = new unsigned int[indicesLength];
 
-    int winWidth, winHeight;
-    getWindowSize(&winWidth, &winHeight);
     const float marginX = (float)cornerRadius / width * 2;
     const float marginY = (float)cornerRadius / height * 2;
 
@@ -184,18 +181,6 @@ void nafy::Rectangle::generate() {
         start -= startInc;
     }
 
-
-    std::ofstream debug("rec.log");
-    for (int i = 0; i < indicesLength; i++) {
-        #define fef(x) ((std::abs((x)) * 2 - 1) * 400)
-        debug << std::round(fef(vertices[indices[i] * 2]) * width / winWidth) << ", " << std::round(fef(vertices[indices[i] * 2 + 1]) * height / winHeight) << std::endl;
-        #undef fef
-    }
-
-
-    debug.close();
-
-    glBindVertexArray(VA); // Needed?
     glBindBuffer(GL_ARRAY_BUFFER, VB);
     glBufferData(GL_ARRAY_BUFFER, verticesLength * sizeof(float), vertices, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EB);
@@ -243,12 +228,14 @@ void nafy::Rectangle::setY(int y) {
 }
 void nafy::Rectangle::setWidth(unsigned int width) {
     this->width = width;
+    setCornerRadius(cornerRadius);
 }
 void nafy::Rectangle::setHeight(unsigned int height) {
     this->height = height;
+    setCornerRadius(cornerRadius);
 }
 void nafy::Rectangle::setCornerRadius(unsigned int radius) {
-    cornerRadius = radius;
+    cornerRadius = std::min(radius, std::min(width, height) / 2);
 }
 
 int nafy::Rectangle::getX() {

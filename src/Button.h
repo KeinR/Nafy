@@ -8,6 +8,7 @@
 #include "Shader.h"
 #include "Rectangle.h"
 #include "callback.h"
+#include "TextRec.h"
 
 #include "text/Text.h"
 #include "text/TextCrawl.h"
@@ -23,22 +24,14 @@ namespace nafy {
         typedef void(press_callback_t)(int button, int mods);
         typedef std::function<press_callback_t> press_callback_func;
     private:
-        T innerText;
-        Rectangle box;
+        T display;
+
         bool enabled;
-        unsigned int margin;
-        int x;
-        int y;
-        unsigned int width;
-        unsigned int height;
 
         struct vec2 {
             int x;
             int y;
         };
-
-        int move;
-        int cornerRadius;
         vec2 nodes[4];
         int rightmost;
         int downmost;
@@ -51,15 +44,10 @@ namespace nafy {
         // Transient
         bool hovering;
         bool pressed;
+
         inline void init();
-        inline void updateMove();
         inline void updateNodesX();
         inline void updateNodesY();
-        inline void calX();
-        inline void calY();
-        inline void calWidth();
-        inline void calHeight();
-        inline void calAll();
         inline bool containPoint(double xPos, double yPos);
     public:
         // Takes current context defaults
@@ -78,11 +66,10 @@ namespace nafy {
         void setWidth(unsigned int value);
         void setHeight(unsigned int value);
         void setMargin(unsigned int value);
-        void setEnabled(bool value);
-        // Please call this on the button class instead of
-        // on the wrapped rectangle - it's necessary to cache
-        // important calculations...
         void setCornerRadius(unsigned int value);
+
+        void setEnabled(bool value);
+
         void trigger();
         void generate();
         void render() override;
@@ -90,12 +77,11 @@ namespace nafy {
         void mouseMoved(double mouseX, double mouseY) override;
         void mouseClicked(bool isPressed, int button, int mods) override;
 
-        Rectangle &getBox();
-        T &getText();
+        T &getDisplay();
     };
 
-    typedef ButtonBase<Text> Button;
-    typedef ButtonBase<TextCrawl> CrawlButton;
+    typedef ButtonBase<TextRec> Button;
+    typedef ButtonBase<TextRecCrawl> CrawlButton;
 }
 
 #endif
