@@ -2,7 +2,7 @@
 #define RECTANGLE_H_INCLUDED
 
 #include "renderable.h"
-#include "Shader.h"
+#include "../shaders/Shader.h"
 #include "Color.h"
 
 // TODO: Memory managment

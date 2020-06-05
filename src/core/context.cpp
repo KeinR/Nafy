@@ -8,13 +8,13 @@
 
 #include <cmath> // DEBUG
 
-#include "ShaderFactory.h"
+#include "../shaders/ShaderFactory.h"
 #include "error.h"
-#include "env.h"
+#include "../env/env.h"
 
-#include "text/ftype.h"
-#include "text/Font.h"
-#include "text/Text.h"
+#include "../text/ftype.h"
+#include "../text/Font.h"
+#include "../text/Text.h"
 
 void nafy::context::makeCurrent() {
     glfwMakeContextCurrent(window);

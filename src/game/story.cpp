@@ -1,13 +1,12 @@
 #include "story.h"
-#include "context.h"
 
 #include <iostream>
 #include <thread>
 #include <chrono>
 
-#include "glfw.h"
-
-#include "error.h"
+#include "../core/context.h"
+#include "../core/glfw.h"
+#include "../core/error.h"
 
 nafy::storyEvent::~storyEvent() {
 }

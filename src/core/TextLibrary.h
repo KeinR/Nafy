@@ -7,9 +7,9 @@
 
 #include "error.h"
 
-#include "text/ftype.h"
-#include "text/FontFactory.h"
-#include "text/Font.h"
+#include "../text/ftype.h"
+#include "../text/FontFactory.h"
+#include "../text/Font.h"
 
 namespace nafy {
     class TextLibrary {

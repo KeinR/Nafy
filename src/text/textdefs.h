@@ -20,7 +20,7 @@
 #define SHADER_TEXT_SAMPLER "Tex"
 
 // glfw include header
-#define GLFW_INCLUDE_HEADER_LOCATION "../glfw.h"
+#define GLFW_INCLUDE_HEADER_LOCATION "../core/glfw.h"
 
 // Functions that you yourself must define
 
@@ -28,7 +28,7 @@
 // void getWindowSize(int *width, int *height);
 
 // Alias your functions to the needed ones
-#include "../env.h"
+#include "../env/env.h"
 static constexpr void(*getWindowSize)(int *width, int *height) = nafy::getWindowSize;
 
 
@@ -45,7 +45,7 @@ static constexpr float(*normY)(float y) = nafy::normY;
 // For default initialization
 
 #include "Font.h"
-#include "../env.h"
+// #include "../env/env.h" // Redundant
 static Font::type (*getDefaultFont)() = []() -> Font::type {
     return nafy::getContext()->getDefaultFont();
 };

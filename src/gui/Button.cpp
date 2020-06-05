@@ -3,9 +3,9 @@
 #include <iostream> // DEBUG
 #include <cmath>
 
-#include "glfw.h"
+#include "../core/glfw.h"
 
-#include "env.h"
+#include "../env/env.h"
 
 // TODO: This class is a fucking mess and needs serious work
 

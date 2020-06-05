@@ -7,17 +7,17 @@
 
 #include "glfw.h"
 
-#include "story.h"
-#include "Shader.h"
+#include "../game/story.h"
+#include "../shaders/Shader.h"
 #include "TextLibrary.h"
-#include "Rectangle.h"
-#include "Color.h"
-#include "View.h"
-#include "Button.h"
+#include "../gui/Rectangle.h"
+#include "../gui/Color.h"
+#include "../gui/View.h"
+#include "../gui/Button.h"
 #include "callback.h"
 
-#include "text/ftype.h"
-#include "text/TextCrawl.h"
+#include "../text/ftype.h"
+#include "../text/TextCrawl.h"
 
 /*
  * The context class, responsible for managing the entire program.

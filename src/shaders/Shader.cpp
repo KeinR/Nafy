@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "glfw.h"
+#include "../core/glfw.h"
 
 // 0 is silently ignored by glDeleteProgram
 nafy::Shader::Shader(): shader(0) {

@@ -7,7 +7,7 @@
 
 #include "Font.h"
 
-#include "../renderable.h" // DEVIATION
+#include "../gui/renderable.h" // DEVIATION
 
 class Text: public nafy::renderable /*DEVIATION*/ { 
 protected:

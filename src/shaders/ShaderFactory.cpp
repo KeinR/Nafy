@@ -5,10 +5,10 @@
 
 #include <string>
 
-#include "glfw.h"
+#include "../core/glfw.h"
 
-#include "env.h"
-#include "error.h"
+#include "../env/env.h"
+#include "../core/error.h"
 
 // keyword: filename. Searches for file in resources/shaders
 // C-string, std::string, doesn't matter much here I don't think

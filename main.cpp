@@ -1,8 +1,8 @@
-#include "src/story.h"
-#include "src/context.h"
-#include "src/env.h"
-#include "src/error.h"
-#include "src/ShaderFactory.h"
+#include "src/game/story.h"
+#include "src/core/context.h"
+#include "src/env/env.h"
+#include "src/core/error.h"
+#include "src/shaders/ShaderFactory.h"
 
 #include <iostream>
 

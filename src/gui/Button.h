@@ -5,13 +5,13 @@
 #include <functional>
 
 #include "renderable.h"
-#include "Shader.h"
+#include "../shaders/Shader.h"
 #include "Rectangle.h"
-#include "callback.h"
+#include "../core/callback.h"
 #include "TextRec.h"
 
-#include "text/Text.h"
-#include "text/TextCrawl.h"
+#include "../text/Text.h"
+#include "../text/TextCrawl.h"
 
 // TODO: Memory manegment
 

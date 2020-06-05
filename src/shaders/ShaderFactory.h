@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-#include "Shader.h"
+#include "../shaders/Shader.h"
 
 namespace nafy {
     class ShaderFactory {

@@ -161,9 +161,6 @@ int Font::stringDescent(glyph_iterator start, const glyph_iterator &end) {
             if (lower > max) {
                 max = lower;
             }
-            if (lower < 0) {
-                std::cout << "NEGATIVE: " << lower << ", " << (end - start) << std::endl;
-            }
         } else {
             std::cerr << "Failed to load char: 0x" << std::hex << error << std::dec << std::endl;
         }
@@ -457,10 +454,6 @@ void Font::getLinesRenderData(const line_iterator &start, const line_iterator &e
     // Eh, best to be on the safe side. 
     Font::map_size descent = std::round(face->size->metrics.height * lineSpacingMod); // 26.6
 
-    std::cout << "descent = " << (descent >> 6) << std::endl;
-    std::cout << "cap = " << cap << std::endl;
-    std::cout << "stringDescent((end-1)->start, (end-1)->end)) = " << stringDescent((end-1)->start, (end-1)->end) << std::endl;
-
     // Hight per line
     lineHeight = rto32(descent);
     // bitmap width
@@ -471,6 +464,4 @@ void Font::getLinesRenderData(const line_iterator &start, const line_iterator &e
     offset = (height - rto32(descent + cap)) * width * channels;
     // Offset deduction per line
     fall = width * channels * lineHeight;
-
-    std::cout << "height = " << height << std::endl;
 }

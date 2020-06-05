@@ -3,9 +3,9 @@
 
 #include <string>
 
-#include "glfw.h"
+#include "../core/glfw.h"
 
-#include "context.h"
+#include "../core/context.h"
 
 namespace nafy {
     GLFWwindow *plusContext(int width, int height, const char *title);

@@ -1,13 +1,15 @@
 #include "Window.h"
 
+#include "../env/env.h"
+
 nafy::Window::Window(int width, int height, const char *title) {
-    plusContext(handle);
+    handle = plusContext(width, height, title);
 }
 
 nafy::Window::~Window() {
     minusContext(handle);
 }
 
-GLFWWindow *get() {
+GLFWwindow *nafy::Window::get() {
     return handle;
 }

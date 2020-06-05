@@ -5,11 +5,11 @@
 
 namespace nafy {
     class Window {
-        GLFWWindow *handle;
+        GLFWwindow *handle;
     public:
         Window(int width, int height, const char *title);
         ~Window();
-        GLFWWindow *get();
+        GLFWwindow *get();
         // void makeCurrent();
     };
 }

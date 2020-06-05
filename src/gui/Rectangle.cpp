@@ -3,14 +3,14 @@
 #include <iostream>
 #include <cmath>
 
-#include "glfw.h"
+#include "../core/glfw.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "env.h"
-#include "defs.h"
+#include "../env/env.h"
+#include "../env/defs.h"
 
 // Number of verticies per unit of circumference, floored
 #define CURVE_SMOOTHNESS 3

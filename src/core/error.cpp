@@ -1,6 +1,6 @@
 #include "error.h"
 
-#include "env.h"
+#include "../env/env.h"
 
 nafy::error::error(const std::string &message) noexcept: message(message) {
 }

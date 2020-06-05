@@ -6,7 +6,7 @@
 // #include <stb/stb_image.h>
 
 #include "defs.h"
-#include "error.h"
+#include "../core/error.h"
 
 static std::string homeDir;
 static int contextCount = 0; // Enlarge data type for more possible instances

@@ -1,8 +1,8 @@
 #ifndef TEXTREC_H_INCLUDED
 #define TEXTREC_H_INCLUDED
 
-#include "text/Text.h"
-#include "text/TextCrawl.h"
+#include "../text/Text.h"
+#include "../text/TextCrawl.h"
 
 #include "Rectangle.h"
 #include "renderable.h"
