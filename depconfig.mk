@@ -9,6 +9,7 @@ bin/gui.Color.o: src/gui/Color.cpp src/gui/Color.h
 bin/gui.Node.o: src/gui/Node.cpp src/gui/Node.h
 bin/gui.Rectangle.o: src/gui/Rectangle.cpp src/core/glfw.h src/env/defs.h src/env/env.h src/gui/Rectangle.h
 bin/gui.TextRec.o: src/gui/TextRec.cpp src/gui/TextRec.h
+bin/gui.Texture.o: src/gui/Texture.cpp src/gui/Texture.h
 bin/gui.View.o: src/gui/View.cpp src/gui/View.h
 bin/shaders.Shader.o: src/shaders/Shader.cpp src/core/glfw.h src/shaders/Shader.h
 bin/shaders.ShaderFactory.o: src/shaders/ShaderFactory.cpp src/core/error.h src/core/glfw.h src/env/env.h src/shaders/ShaderFactory.h
