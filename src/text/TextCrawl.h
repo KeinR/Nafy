@@ -28,6 +28,8 @@ class TextCrawl: public Text {
     inline void crawlCopyIL(const TextCrawl &other);
     inline void crawlCopyPOD(const TextCrawl &other);
     inline void delBitmap();
+
+    bool doAdvance();
 public:
     // If made with this, must be set equal to another or have the face and shader set
     // before calling ANY other methods, otherwise undefined behavior is invoked
@@ -44,9 +46,12 @@ public:
     // void generate();
     // Resets to the start
     void reset();
-    // Moves forward one char
+    // Moves forward one char.
+    // Invokes undefined behavior if `generate()` hasn't been called yet.
     // returns `true` if reached the end
     bool advance();
+    // Effectively calls `advance()` `count` times, same return
+    bool advance(int count);
 };
 
 #endif

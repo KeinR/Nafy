@@ -57,7 +57,7 @@ GLuint compileShader(GLenum type, const char *data, int length) {
             log
         );
         delete[] log;
-        throw nafy::dy_error(errMsg);
+        throw nafy::gl_error(errMsg);
     }
     return shader;
 }
@@ -75,7 +75,7 @@ GLuint linkShaders(GLuint vertObject, GLuint fragObject) {
         std::string errMsg("ShaderFactory::make::linkShaders::SHADER_PROGRAM::COMPILATION_FAILED:\n");
         errMsg += log;
         delete[] log;
-        throw nafy::dy_error(errMsg);
+        throw nafy::gl_error(errMsg);
     }
     return shaderProgram;
 }

@@ -114,8 +114,9 @@ public:
     line_str getLines(const glyph_iterator &start, const glyph_iterator &end, unsigned int wrappingWidth, const textAlign align);
     // NOTE: `horizontalOffset` and `verticalOffset` are in 26.6 fractional pixels
     void stringMetrics(glyph_iterator start, const glyph_iterator &end, map_size *width, map_size *height, ofs_type *horizontalOffset, ofs_type *verticalOffset);
-    // Both return their values in 26.6 positive
-    map_size stringDescent(glyph_iterator start, const glyph_iterator &end);
+    // Both return value in 26.6 positive or negative
+    int stringDescent(glyph_iterator start, const glyph_iterator &end);
+    // Both return value in 26.6 positive
     map_size stringAscent(glyph_iterator start, const glyph_iterator &end);
     // Convert character string to glyph string for faster rendering
     glyph_str indexString(std::string::const_iterator start, const std::string::const_iterator &end);

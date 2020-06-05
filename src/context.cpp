@@ -46,6 +46,8 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     views_s::home_s &home = views->home;
     views_s::game_s &game = views->game;
 
+    // Init home screen
+
     home.background.setHex(0x2f67f5);
     home.title.setString("NAFY");
     home.title.setX(100);
@@ -59,6 +61,8 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
         std::cout << "Start game~!" << std::endl;
         this->setView(this->getViewsRef().game.view);
         this->setBackground(this->getViewsRef().game.background);
+        this->getViewsRef().home.startGame.setEnabled(false);
+        this->setGameRunning(true);
     });
     home.startGame.setOnEnter([&home]() -> void {
         home.startGame.getDisplay().getBox().getColor().setHex(0x3e7887);
@@ -72,29 +76,36 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     home.view.add(&home.title);
     home.view.add(&home.startGame);
 
-    // Setup game
+    // Setup game screen
 
-    game.crawl.setX(0.1 * winWidth);
-    game.crawl.setY(winHeight - 50);
-    game.crawl.setOverflowHeight(45);
+    game.background.setHex(0x00c465);
+    game.crawl.setX(10);
+    game.crawl.setY(winHeight - 60);
+    game.crawl.setHeight(50);
+    game.crawl.setWidth(winWidth - 10 * 2);
+    game.crawl.getBox().getColor().setHex(0x7d7fff);
+    game.crawl2.setString("4234");
+    game.crawl2.generate();
+    game.crawl2.advance(1);
 
-
+    game.view.add(&game.crawl);
+    game.view.add(&game.crawl2);
 
 
     setBackground(home.background);
     setView(home.view);
-
-    // Setup game
-
-
-    // crawl.setFont(defaultFont);
-    // crawl.bindShader(textShader.get());
 
 }
 
 nafy::context::~context() {
     deleteCallbacks(this);
     minusContext(window);
+}
+
+void nafy::context::runFrame() {
+    if (runGameAction) {
+        current->run(this);
+    }
 }
 
 void nafy::context::mousePosCallback(double x, double y) {
@@ -178,25 +189,22 @@ void nafy::context::resume() {
         );
         glClear(GL_COLOR_BUFFER_BIT);
 
-        if (runGameAction) {
-            current->run(this);
-        }
-
         view->render();
 
         glfwSwapBuffers(window);
+        
+        runFrame();
 
         do {
             glfwPollEvents();
-            // So that it isn's a total resource hog while waiting
+            // So that it isn's a total resource hog while waiting.
+            // For some reason, this works... At least on my machine
             std::this_thread::sleep_for(std::chrono::nanoseconds(1));
         } while (!shouldStop() && glfwGetTime() < end);
 
-        // TEMP
         GLenum error = glGetError();
         if (error != GL_NO_ERROR) {
-            std::cerr << "GL ERROR: " << std::hex << error << std::dec << ": " << getGLErrorStr(error) << std::endl;
-            exit(1);
+            throw gl_error(error);
         }
     }
 
@@ -208,8 +216,12 @@ void nafy::context::stop() {
 
 void nafy::context::stopIfCurrent(scene *obj) {
     if (obj == current) {
-        stop();
+        setGameRunning(false);
     }
+}
+
+void nafy::context::setGameRunning(bool value) {
+    runGameAction = value;
 }
 
 void nafy::context::setView(View &view) {
@@ -272,7 +284,7 @@ Font::type nafy::context::getDefaultFont() {
 }
 
 TextCrawl &nafy::context::getCrawl() {
-    return views->game.crawl;
+    return views->game.crawl.getText();
 }
 
 bool nafy::context::shouldStop() {

@@ -31,6 +31,7 @@ protected:
     Font::map_size overflowHeight;
     float lineSpacingMod;
     Font::textAlign textAlign;
+    unsigned int fontSize;
 
     Font::glyph_str index;
     Font::line_str lines;
@@ -45,6 +46,9 @@ protected:
 
     void textSteal(Text &other);
     void textCopy(const Text &other);
+    // Configures the font so that it renders according
+    // to this object's settings. Should be done before most every function call
+    void configureFont();
     inline void textCopyIL(const Text &other);
     inline void textCopyPOD(const Text &other);
 public:
@@ -99,6 +103,9 @@ public:
     unsigned int getWrappingWidth();
     unsigned int getOverflowHeight();
     float getLineSpacingMod();
+
+    void setFontSize(unsigned int size);
+    unsigned int getFontSize();
 
     // The width and height of the current texture
     int getWidth();

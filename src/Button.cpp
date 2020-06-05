@@ -29,7 +29,6 @@ template<class T>
 void nafy::ButtonBase<T>::init() {
     enabled = true;
     hovering = false;
-    pressed = false;
     setCornerRadius(0);
     getContext()->addMousePosCallback(*this);
     getContext()->addMouseButtonCallback(*this);
@@ -144,6 +143,10 @@ void nafy::ButtonBase<T>::setCornerRadius(unsigned int value) {
 
 template<class T>
 void nafy::ButtonBase<T>::setEnabled(bool value) {
+    if (enabled && !value && hovering) {
+        hovering = false;
+        releaseHand();
+    }
     enabled = value;
 }
 

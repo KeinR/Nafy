@@ -65,7 +65,8 @@ Text::Text(const Font::type &font, const unsigned int shader):
     renderedWidth(0), renderedHeight(0),
     color{0, 0, 0, 1}, x(0), y(0),
     wrappingWidth(0), overflowHeight(0),
-    lineSpacingMod(1.0f), textAlign(Font::textAlign::left), stopsIndex(0) {
+    lineSpacingMod(1.0f), textAlign(Font::textAlign::left),
+    fontSize(Font::defaultSize), stopsIndex(0) {
 
     generateBuffers();
 
@@ -160,6 +161,10 @@ Text::~Text() {
     glDeleteTextures(1, &TX);
 }
 
+void Text::configureFont() {
+    font->setSize(fontSize);
+}
+
 void Text::bindShader(const unsigned int shader) {
     this->shader = shader;
     glUseProgram(shader);
@@ -172,6 +177,7 @@ void Text::generate() {
         return;
     }
 
+    configureFont();
     index = font->indexString(str.cbegin(), str.cend());
     std::cout << "GENERATE: textAlign == left -> " << (textAlign == Font::textAlign::center) << std::endl;
     if (wrappingWidth) {
@@ -193,6 +199,7 @@ void Text::generate() {
 }
 
 void Text::loadLines(const Font::line_iterator &start, const Font::line_iterator &end) {
+    configureFont();
     unsigned char *bitmap = font->renderLines(start, end, 4, color, lineSpacingMod, renderedWidth, renderedHeight);
 
     setTexture(bitmap);
@@ -359,6 +366,13 @@ unsigned int Text::getWrappingWidth() {
 
 float Text::getLineSpacingMod() {
     return lineSpacingMod;
+}
+
+void Text::setFontSize(unsigned int size) {
+    fontSize = size;
+}
+unsigned int Text::getFontSize() {
+    return fontSize;
 }
 
 int Text::getWidth() {

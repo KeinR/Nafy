@@ -1,6 +1,8 @@
 #ifndef COLOR_H_INCLUDED
 #define COLOR_H_INCLUDED
 
+// TODO: Color constants
+
 namespace nafy {
     class Color {
         // rgba

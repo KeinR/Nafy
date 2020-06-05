@@ -113,8 +113,11 @@ void TextCrawl::updateLineData() {
 
 void TextCrawl::loadLines(const Font::line_iterator &begin, const Font::line_iterator &end) {
     int offset;
+    configureFont();
     font->getLinesRenderData(begin, end, CHANNELS, lineSpacingMod, render_c.lineHeight, renderedWidth, renderedHeight, offset, fall);
     render_c.verticalStride = renderedWidth;
+
+    std::cout << "height -> " << renderedHeight << std::endl;
 
     bmpSizeBytes = renderedWidth * renderedHeight * CHANNELS;
 
@@ -152,7 +155,7 @@ void TextCrawl::reset() {
     updateLineData();
 }
 
-bool TextCrawl::advance() {
+bool TextCrawl::doAdvance() {
     if (linePos >= currentLine->end) {
         if (currentLine + 1 >= lastLineX) {
             return true;
@@ -166,5 +169,21 @@ bool TextCrawl::advance() {
 
     ++linePos;
     updateTex();
+    return false;
+}
+
+bool TextCrawl::advance() {
+    configureFont();
+    return doAdvance();
+}
+
+bool TextCrawl::advance(int count) {
+    configureFont();
+    // The legendary arrow operator
+    while (count --> 0) {
+        if (doAdvance()) {
+            return true;
+        }
+    }
     return false;
 }

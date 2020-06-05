@@ -50,8 +50,8 @@ namespace nafy {
             struct game_s {
                 View view;
                 Color background;
-                Rectangle crawlBG;
-                TextCrawl crawl;
+                TextCrawl crawl2;
+                TextRecCrawl crawl;
             } game;
 
             // View 2: The menu screen, brought up mid-game to view options
@@ -99,6 +99,7 @@ namespace nafy {
         int vsync;
 
         inline void makeCurrent();
+        void runFrame();
     public:
 
         // Pointers towards `initCrawlFace` and `root` are stored
@@ -168,6 +169,7 @@ namespace nafy {
         TextCrawl &getCrawl();
         bool shouldStop();
 
+        void setGameRunning(bool value);
         void stopIfCurrent(scene *obj);
     };
 }

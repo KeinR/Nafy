@@ -11,19 +11,10 @@ namespace nafy {
         virtual const char *what() const noexcept = 0;
     };
 
-    // Normal error with a predefined message
     class error: public nafy_error {
-        const char *message;
-    public:
-        error(const char *message) noexcept;
-        const char *what() const noexcept override;
-    };
-
-    // Error with a dynamic error message
-    class dy_error: public nafy_error {
         const std::string message;
     public:
-        dy_error(const std::string &message) noexcept;
+        error(const std::string &message) noexcept;
         const char *what() const noexcept override;
     };
 
@@ -38,6 +29,22 @@ namespace nafy {
         const error_code code;
     public:
         ft_error(const char *message, error_code code) noexcept;
+        error_code getCode() const noexcept;
+    };
+
+    // OpenGL error, thrown when, as you might expect, there was some
+    // problem rendering something.
+    // The errors that cause this to be thrown are generally rather serious.
+    // ShaderFactories will throw these if they fail
+    class gl_error: public error  {
+    public:
+        // GLenum is 32 bit, so...
+        typedef int error_code;
+    private:
+        error_code code;
+    public:
+        gl_error(error_code code) noexcept;
+        gl_error(const std::string &message) noexcept;
         error_code getCode() const noexcept;
     };
 }

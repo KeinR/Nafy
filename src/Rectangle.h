@@ -6,6 +6,7 @@
 #include "Color.h"
 
 // TODO: Memory managment
+// TODO: Set image as opposed to uniform background color. Perhaps utilize shaders? Seperate buffers?
 
 namespace nafy {
     class Rectangle: public renderable {

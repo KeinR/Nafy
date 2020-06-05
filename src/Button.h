@@ -19,10 +19,8 @@ namespace nafy {
     template<class T>
     class ButtonBase: public renderable, public mouseMoveCallback, public mouseClickCallback {
     public:
-        typedef void(move_callback_t)();
-        typedef std::function<move_callback_t> move_callback_func;
-        typedef void(press_callback_t)(int button, int mods);
-        typedef std::function<press_callback_t> press_callback_func;
+        typedef std::function<void()> move_callback_func;
+        typedef std::function<void(int button, int mods)> press_callback_func;
     private:
         T display;
 
@@ -43,7 +41,6 @@ namespace nafy {
 
         // Transient
         bool hovering;
-        bool pressed;
 
         inline void init();
         inline void updateNodesX();
