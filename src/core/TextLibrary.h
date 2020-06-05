@@ -18,10 +18,8 @@ namespace nafy {
         inline void steal(TextLibrary &other);
     public:
         TextLibrary();
-        TextLibrary(const TextLibrary &other) = delete;
         TextLibrary(TextLibrary &&other);
         ~TextLibrary();
-        TextLibrary &operator=(const TextLibrary &other) = delete;
         TextLibrary &operator=(TextLibrary &&other);
         // Throws `ft_error` on failure
         Font::type makeFont(const FontFactory &factory) const;

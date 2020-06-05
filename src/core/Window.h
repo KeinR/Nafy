@@ -3,6 +3,9 @@
 
 #include "glfw.h"
 
+// TODO: Use this for something
+// TODO: Memory management
+
 namespace nafy {
     class Window {
         GLFWwindow *handle;

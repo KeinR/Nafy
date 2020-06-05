@@ -79,10 +79,8 @@ public:
     static constexpr unsigned int defaultSize = 16;
     Font();
     Font(FT_Face face, const std::shared_ptr<unsigned char> &data);
-    Font(const Font &other) = delete;
     Font(Font &&other);
     ~Font();
-    Font &operator=(const Font &) = delete;
     Font &operator=(Font &&other);
 
 
