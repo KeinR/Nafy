@@ -38,7 +38,7 @@ $(OBJ):
 	$(MK) -c $< -o $@
 
 include depconfig.mk
-depconfig.mk: src/**
+depconfig.mk: $(shell ./depdep)
 	./confdeps
 
 globals.mk:

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+dire=($(find src -maxdepth 3 -type d))
+for i in ${dire[@]:1}; do
+    printf "${i}/* "
+done

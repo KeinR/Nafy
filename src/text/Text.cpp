@@ -152,14 +152,14 @@ Text &Text::operator=(Text &&other) {
     return *this;
 }
 
-// End memory manegemet
-
 Text::~Text() {
     glDeleteVertexArrays(1, &VA);
     glDeleteBuffers(1, &VB);
     glDeleteBuffers(1, &EB);
     glDeleteTextures(1, &TX);
 }
+
+// End memory manegemet
 
 void Text::configureFont() {
     font->setSize(fontSize);

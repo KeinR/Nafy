@@ -32,15 +32,12 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     {
 
     makeCurrent();
-    // defaultShaders.sprite = ShaderFactory("resources/shaders/sprite.vert", "resources/shaders/sprite.frag").make();
-    // defaultShaders.prim = ShaderFactory("resources/shaders/prim.vert", "resources/shaders/prim.frag").make();
 
     setFPS(60);
 
     registerCallbacks(window, this);
 
     views.reset(new views_s());
-    if (glGetError() != GL_NO_ERROR) std::cout << "ERROR-321" << std::endl; 
 
     // Shortcuts, serve no other purpose
     views_s::home_s &home = views->home;

@@ -1,6 +1,6 @@
 include objects.mk
 
-objects.mk: src/**
+objects.mk: $(shell ./depdep)
 	./confobjs
 
 CFLAGS = -Wall `pkg-config --cflags freetype2`
