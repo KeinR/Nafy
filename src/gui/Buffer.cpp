@@ -1,13 +1,16 @@
 #include "Buffer.h"
 
+#include <iostream> // DEBUG
+#include "../env/env.h" // DEBUG
+
 #include "../core/glfw.h"
 
 nafy::Buffer::Buffer() {
     init();
 }
 
-nafy::Buffer::Buffer(unsigned int array, unsigned int vertices, unsigned int indices):
-    array(array), vertices(vertices), indices(indices) {
+nafy::Buffer::Buffer(unsigned int array, unsigned int vertices, unsigned int indices, unsigned int countIndices):
+    array(array), vertices(vertices), indices(indices), countIndices(countIndices) {
 }
 
 nafy::Buffer::~Buffer() {
@@ -27,13 +30,16 @@ void nafy::Buffer::steal(Buffer &other) {
     array = other.array;
     vertices = other.vertices;
     indices = other.indices;
+    countIndices = other.countIndices;
     other.array = 0;
+    other.countIndices = 0;
 }
 
 void nafy::Buffer::init() {
     glGenVertexArrays(1, &array);
     glGenBuffers(1, &vertices);
     glGenBuffers(1, &indices);
+    countIndices = 0;
 }
 
 void nafy::Buffer::deInit() {
@@ -42,6 +48,7 @@ void nafy::Buffer::deInit() {
         glDeleteTextures(1, &vertices);
         glDeleteTextures(1, &indices);
     }
+    countIndices = 0;
 }
 
 void nafy::Buffer::bindArr() {
@@ -51,7 +58,7 @@ void nafy::Buffer::bindVert() {
     glBindBuffer(GL_ARRAY_BUFFER, vertices);
 }
 void nafy::Buffer::bindElem() {
-    glBindBuffer(GL_ARRAY_BUFFER, indices);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices);
 }
 void nafy::Buffer::bind() {
     bindArr();
@@ -59,13 +66,19 @@ void nafy::Buffer::bind() {
     bindElem();
 }
 
-void nafy::Buffer::setVerticies(std::size_t size, float *data) {
+void nafy::Buffer::setVerticies(int count, float *data) {
     bindVert();
-    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, count * sizeof(float), data, GL_STATIC_DRAW);
 }
-void nafy::Buffer::setIndices(std::size_t size, unsigned int *data) {
+void nafy::Buffer::setIndices(int count, unsigned int *data) {
+    countIndices = count;
     bindElem();
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
+}
+
+void nafy::Buffer::render() {
+    bind();
+    glDrawElements(GL_TRIANGLES, countIndices, GL_UNSIGNED_INT, 0);
 }
 
 nafy::Buffer nafy::Buffer::derive() {
@@ -88,6 +101,8 @@ nafy::Buffer nafy::Buffer::derive() {
     glBindBuffer(GL_COPY_READ_BUFFER, indices);
     glBindBuffer(GL_COPY_WRITE_BUFFER, other.indices);
     glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, elemSize);
+    
+    other.countIndices = countIndices;
 
     return other;
 }

@@ -3,18 +3,22 @@
 
 #include <cstddef>
 
+#include "renderable.h"
+
 namespace nafy {
-    class Buffer {
+    class Buffer: public renderable {
         unsigned int array;
         unsigned int vertices;
         unsigned int indices;
+
+        int countIndices;
 
         void steal(Buffer &other);
         void init();
         void deInit();
     public:
         Buffer();
-        Buffer(unsigned int array, unsigned int vertices, unsigned int indices);
+        Buffer(unsigned int array, unsigned int vertices, unsigned int indices, unsigned int countIndices);
         ~Buffer();
         Buffer(Buffer &&other);
         Buffer &operator=(Buffer &&other);
@@ -24,8 +28,10 @@ namespace nafy {
         void bindElem();
         void bind();
 
-        void setVerticies(std::size_t size, float *data);
-        void setIndices(std::size_t size, unsigned int *data);
+        void setVerticies(int count, float *data);
+        void setIndices(int count, unsigned int *data);
+
+        void render() override;
 
         // Copies element and vertex data into a new Buffer object - nothing more
         Buffer derive();
