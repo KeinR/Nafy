@@ -6,6 +6,9 @@ nafy::View::position_t nafy::View::add(renderable *rend) {
     nodes.emplace_back(rend);
     return nodes.size() - 1;
 }
+void nafy::View::addAt(renderable *rend, position_t index) {
+    nodes.insert(nodes.cbegin() + index, Node(rend));
+}
 void nafy::View::remove(position_t pos) {
     nodes.erase(nodes.cbegin() + pos);
 }

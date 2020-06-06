@@ -7,18 +7,24 @@
 
 #include <iostream>
 
-// #include <freetype2/ft2build.h>
-// #include FT_FREETYPE_H
+using namespace nafy;
 
 int main() {
     try {
-        nafy::context ctx(800, 400, "test");
-        nafy::scene sc;
+        context ctx(600, 400, "test");
+        scene sc;
         sc.pushText("Hello gamers~");
         ctx.setRoot(sc);
-        // Image img("img.jpg");
-        // std::vector<Node> &nodes = ctx.getViewsRef().home..getNodes();
-        // nodes.insert(nodes.begin(), )
+
+        Image img;
+        img.loadImage("img.jpg");
+        img.setX(0);
+        img.setY(0);
+        img.setWidth(600);
+        img.setHeight(400);
+        View &game = ctx.getViewsRef().game.view;
+        game.addAt(&img, 0);
+
         ctx.start();
     } catch (std::exception &e) {
         std::cerr << "ERROR: " << e.what() << std::endl;

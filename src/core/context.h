@@ -51,8 +51,6 @@ namespace nafy {
             struct game_s {
                 View view;
                 Color background;
-                Image backgroundImage;
-                TextCrawl crawl2;
                 TextRecCrawl crawl;
             } game;
 

@@ -83,12 +83,9 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     game.crawl.setHeight(50);
     game.crawl.setWidth(winWidth - 10 * 2);
     game.crawl.getBox().getColor().setHex(0x7d7fff);
-    game.crawl2.setString("4234");
-    game.crawl2.generate();
-    game.crawl2.advance(1);
+    game.crawl.setMargin(5);
 
     game.view.add(&game.crawl);
-    game.view.add(&game.crawl2);
 
 
     setBackground(home.background);
@@ -176,11 +173,6 @@ void nafy::context::resume() {
 
     makeCurrent();
 
-    Image img;
-    img.loadImage("img.jpg");
-    img.setWidth(400);
-    img.setHeight(400);
-
     while (!shouldStop()) {
 
         const float end = glfwGetTime() + frameCooldown;
@@ -194,7 +186,6 @@ void nafy::context::resume() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         view->render();
-        img.render();
 
         glfwSwapBuffers(window);
         

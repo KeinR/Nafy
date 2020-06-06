@@ -22,6 +22,8 @@ namespace nafy {
         // an addition or removal at any index less than or equal to it
         // which would change the actual index of the element.
         position_t add(renderable *rend);
+        // Inserts renderable at `index`
+        void addAt(renderable *rend, position_t index);
         // Remove using the iterator returned from the add() function
         // (fast, O(vectorSize - 1 - pos + erased))
         void remove(position_t pos);
