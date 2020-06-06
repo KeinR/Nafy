@@ -1,9 +1,7 @@
 #ifndef BUFFER_H_INCLUDED
 #define BUFFER_H_INCLUDED
 
-#include <cstddef>
-
-#include "renderable.h"
+#include "../gui/renderable.h"
 
 namespace nafy {
     class Buffer: public renderable {

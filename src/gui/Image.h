@@ -4,9 +4,9 @@
 #include <string>
 
 #include "../shaders/Shader.h"
-#include "Buffer.h"
-#include "Texture.h"
-#include "Model.h"
+#include "../render/Buffer.h"
+#include "../render/Texture.h"
+#include "../render/Model.h"
 
 #include "renderable.h"
 

@@ -16,6 +16,8 @@
 #include "../text/Font.h"
 #include "../text/Text.h"
 
+#include "../gui/Image.h"
+
 void nafy::context::makeCurrent() {
     glfwMakeContextCurrent(window);
     setContext(this);
@@ -174,6 +176,11 @@ void nafy::context::resume() {
 
     makeCurrent();
 
+    Image img;
+    img.loadImage("img.jpg");
+    img.setWidth(400);
+    img.setHeight(400);
+
     while (!shouldStop()) {
 
         const float end = glfwGetTime() + frameCooldown;
@@ -187,6 +194,7 @@ void nafy::context::resume() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         view->render();
+        img.render();
 
         glfwSwapBuffers(window);
         

@@ -5,6 +5,8 @@
 // Honestly, I think this solution is the cleanest, because we're not dealing with
 // the pointers themselves, rather just ...
 
+// TODO: This is a fucking mess
+
 namespace nafy {
     typedef unsigned int shader_t;
     class Shader {
