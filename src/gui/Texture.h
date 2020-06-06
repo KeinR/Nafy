@@ -20,14 +20,15 @@ namespace nafy {
     public:
         // Takes default tparam
         Texture();
-        Texture(const tparam &ftl);
+        Texture(const tparam &params);
         ~Texture();
         Texture(Texture &&other);
         Texture &operator=(Texture &&other);
         void bind();
         void setData(int format, unsigned int width, unsigned int height, const unsigned char *data);
 
-        // void reInit(const tparam &ftl); // Don't do this unless you really messed up
+        void setDefaultParams();
+        void setParams(const tparam &params);
     };
 };
 

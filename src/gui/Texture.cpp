@@ -2,7 +2,7 @@
 
 #include "../core/glfw.h"
 
-constexpr nafy::Texture::tparam defaultParam{
+constexpr nafy::Texture::tparam defaultParams{
     GL_CLAMP_TO_BORDER,
     GL_CLAMP_TO_BORDER,
     GL_NEAREST,
@@ -10,7 +10,7 @@ constexpr nafy::Texture::tparam defaultParam{
 };
 
 nafy::Texture::Texture() {
-    init(defaultParam);
+    init(defaultParams);
 }
 
 nafy::Texture::Texture(const tparam &param) {
@@ -21,16 +21,10 @@ nafy::Texture::~Texture() {
     deInit();
 }
 
-void nafy::Texture::init(const tparam &param) {
+void nafy::Texture::init(const tparam &params) {
     glGenTextures(1, &buffer);
 
-    bind();
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, param.xWrap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, param.yWrap);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, param.minFilter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, param.maxFilter);
+    setParams(params);
 }
 
 void nafy::Texture::deInit() {
@@ -54,10 +48,19 @@ void nafy::Texture::bind() {
     glBindTexture(GL_TEXTURE_2D, buffer);
 }
 
-// DEBUG
-#include <iostream>
-#include "../env/env.h"
-
 void nafy::Texture::setData(int format, unsigned int width, unsigned int height, const unsigned char *data) {
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+}
+
+void nafy::Texture::setDefaultParams() {
+    setParams(defaultParams);
+}
+void nafy::Texture::setParams(const tparam &params) {
+    bind();
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, params.xWrap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, params.yWrap);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, params.minFilter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, params.maxFilter);
 }
