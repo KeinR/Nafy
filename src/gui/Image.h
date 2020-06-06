@@ -2,6 +2,7 @@
 #define IMAGE_H_INCLUDED
 
 #include <string>
+#include <memory>
 
 #include "../shaders/Shader.h"
 #include "../render/Buffer.h"
@@ -11,6 +12,26 @@
 #include "renderable.h"
 
 namespace nafy {
+
+    // Returns 0 if unsupported format
+    int getImageFormat(int channels);
+
+    struct imageData {
+        int format;
+        int width;
+        int height;
+        unsigned char *data;
+    };
+
+    typedef std::shared_ptr<imageData> man_image;
+
+    // Throws an instance of `error` if failed to load image,
+    // Either because of an i/o problem, or the channel # is unsupported
+    // ALL images from loadImage MUST be deallocated with freeImage
+    unsigned char *loadImagePath(const std::string &path, int &width, int &height, int &format);
+    man_image loadImageStr(const std::string &path);
+    void freeImage(unsigned char *data);
+
     class Image: public renderable {
         Buffer buffer;
         Texture texture;
@@ -28,7 +49,9 @@ namespace nafy {
         // Throws an instance of `error` if failed to load image,
         // Either because of an i/o problem, or the channel # is unsupported
         void loadImage(const std::string &path);
-        void setImage(int format, unsigned int width, unsigned int height, const unsigned char *imageData);
+        void setImage(const imageData &image);
+        void setImage(const man_image &image);
+        void setImage(int format, int width, int height, unsigned char *data);
 
         void bindShader(shader_t shader);
 
@@ -46,9 +69,6 @@ namespace nafy {
 
         void render() override;
     };
-
-    // Returns 0 if unsupported format
-    int getImageFormat(int channels);
 };
 
 #endif

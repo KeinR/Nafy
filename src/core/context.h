@@ -14,6 +14,7 @@
 #include "../gui/Color.h"
 #include "../gui/View.h"
 #include "../gui/Button.h"
+#include "../gui/Image.h"
 #include "callback.h"
 
 #include "../text/ftype.h"
@@ -50,6 +51,7 @@ namespace nafy {
             struct game_s {
                 View view;
                 Color background;
+                Image backgroundImage;
                 TextCrawl crawl2;
                 TextRecCrawl crawl;
             } game;

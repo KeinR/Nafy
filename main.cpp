@@ -3,6 +3,7 @@
 #include "src/env/env.h"
 #include "src/core/error.h"
 #include "src/shaders/ShaderFactory.h"
+#include "src/gui/Image.h"
 
 #include <iostream>
 
@@ -15,6 +16,9 @@ int main() {
         nafy::scene sc;
         sc.pushText("Hello gamers~");
         ctx.setRoot(sc);
+        // Image img("img.jpg");
+        // std::vector<Node> &nodes = ctx.getViewsRef().home..getNodes();
+        // nodes.insert(nodes.begin(), )
         ctx.start();
     } catch (std::exception &e) {
         std::cerr << "ERROR: " << e.what() << std::endl;

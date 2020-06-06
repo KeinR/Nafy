@@ -17,6 +17,35 @@ int nafy::getImageFormat(int channels) {
         default: return 0;
     }
 }
+unsigned char *nafy::loadImagePath(const std::string &path, int &width, int &height, int &format) {
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char *data = stbi_load(path.c_str(), &width, &height, &format, 0);
+    if (data == NULL) {
+        throw error("Failed to load image");
+    }
+
+    format = getImageFormat(format);
+    if (!format) {
+        stbi_image_free(data);
+        throw error("Image has bad number of channels; getImageFormat() returns 0");
+    }
+
+    return data;
+}
+nafy::man_image nafy::loadImageStr(const std::string &path) {
+
+    int width, height, format;
+    unsigned char *data = loadImagePath(path, width, height, format);
+
+    return std::shared_ptr<imageData>(new imageData{format, width, height, data}, [](imageData *image) -> void {
+        stbi_image_free(image->data);
+        delete image;
+    });
+}
+void nafy::freeImage(unsigned char *data) {
+    stbi_image_free(data);
+}
+
 
 nafy::Image::Image() {
     init(getContext()->getDefaultSpriteShader());
@@ -69,28 +98,19 @@ void nafy::Image::initBuffer() {
 }
 
 void nafy::Image::loadImage(const std::string &path) {
-    stbi_set_flip_vertically_on_load(true);
-    int width, height, channels;
-    unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-    if (data == NULL) {
-        throw error("Failed to load image");
-    }
-
-    const int format = getImageFormat(channels);
-    if (!format) {
-        stbi_image_free(data);
-        throw error("Image has bad number of channels; getImageFormat() returns 0");
-    }
-
-    std::cout << "Channels = " << channels << std::endl;
-
-    texture.setData(format, width, height, data);
-
-    stbi_image_free(data);
+    setImage(loadImageStr(path));
 }
 
-void nafy::Image::setImage(int format, unsigned int width, unsigned int height, const unsigned char *imageData) {
-    texture.setData(format, width, height, imageData);
+void nafy::Image::setImage(const imageData &image) {
+    texture.setData(image.format, image.width, image.height, image.data);
+}
+
+void nafy::Image::setImage(const man_image &image) {
+    texture.setData(image->format, image->width, image->height, image->data);
+}
+
+void nafy::Image::setImage(int format, int width, int height, unsigned char *data) {
+    texture.setData(format, width, height, data);
 }
 
 void nafy::Image::bindShader(shader_t shader) {
