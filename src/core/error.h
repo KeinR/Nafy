@@ -47,6 +47,18 @@ namespace nafy {
         gl_error(const std::string &message) noexcept;
         error_code getCode() const noexcept;
     };
+
+    class al_error: public error {
+    public:
+        // GLenum is 32 bit, so...
+        typedef int error_code;
+    private:
+        error_code code;
+    public:
+        al_error(error_code code) noexcept;
+        al_error(const std::string &message) noexcept;
+        error_code getCode() const noexcept;
+    };
 }
 
 #endif

@@ -1,3 +1,8 @@
+bin/audio.AudioContext.o: src/audio/AudioContext.cpp src/audio/AudioContext.h src/audio/oal.h
+bin/audio.Device.o: src/audio/Device.cpp src/audio/AudioContext.h src/audio/Device.h src/audio/oal.h
+bin/audio.SoundBuffer.o: src/audio/SoundBuffer.cpp src/audio/SoundBuffer.h src/audio/SoundData.h src/audio/oal.h
+bin/audio.SoundData.o: src/audio/SoundData.cpp src/audio/SoundData.h src/audio/oal.h src/core/error.h
+bin/audio.Speaker.o: src/audio/Speaker.cpp src/audio/SoundBuffer.h src/audio/SoundData.h src/audio/Speaker.h src/audio/oal.h
 bin/core.context.o: src/core/context.cpp src/core/TextLibrary.h src/core/callback.h src/core/context.h src/core/error.h src/core/glfw.h src/env/env.h src/game/story.h src/gui/Button.h src/gui/Color.h src/gui/Image.h src/gui/Node.h src/gui/Rectangle.h src/gui/TextRec.h src/gui/View.h src/gui/renderable.h src/render/Buffer.h src/render/Model.h src/render/Texture.h src/shaders/Shader.h src/shaders/ShaderFactory.h src/text/Font.h src/text/FontFactory.h src/text/Text.h src/text/TextCrawl.h src/text/ftype.h
 bin/core.error.o: src/core/error.cpp src/core/TextLibrary.h src/core/callback.h src/core/context.h src/core/error.h src/core/glfw.h src/env/env.h src/game/story.h src/gui/Button.h src/gui/Color.h src/gui/Image.h src/gui/Node.h src/gui/Rectangle.h src/gui/TextRec.h src/gui/View.h src/gui/renderable.h src/render/Buffer.h src/render/Model.h src/render/Texture.h src/shaders/Shader.h src/text/Font.h src/text/FontFactory.h src/text/Text.h src/text/TextCrawl.h src/text/ftype.h
 bin/core.TextLibrary.o: src/core/TextLibrary.cpp src/core/TextLibrary.h src/core/error.h src/text/Font.h src/text/FontFactory.h src/text/ftype.h

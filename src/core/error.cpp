@@ -21,3 +21,11 @@ nafy::gl_error::gl_error(const std::string &message) noexcept: error(message), c
 nafy::gl_error::error_code nafy::gl_error::getCode() const noexcept {
     return code;
 }
+
+nafy::al_error::al_error(error_code code) noexcept: error(getGLErrorStr(code)), code(code) {
+}
+nafy::al_error::al_error(const std::string &message) noexcept: error(message), code(0) {
+}
+nafy::al_error::error_code nafy::al_error::getCode() const noexcept {
+    return code;
+}

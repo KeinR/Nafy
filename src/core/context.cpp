@@ -165,6 +165,12 @@ void nafy::context::start() {
     resume();
 }
 
+#include "../audio/Device.h"
+#include "../audio/AudioContext.h"
+#include "../audio/SoundData.h"
+#include "../audio/SoundBuffer.h"
+#include "../audio/Speaker.h"
+
 void nafy::context::resume() {
     if (current == nullptr) {
         throw error("`current` must NOT be nullptr. Did you forget to call setRoot(scene&)?");
@@ -172,6 +178,24 @@ void nafy::context::resume() {
     run = true;
 
     makeCurrent();
+
+    std::cout << "Initializing OpenAL... ";
+    Device device;
+    AudioContext ctx = device.makeContext();
+    ctx.bind();
+    std::cout << "done." << std::endl;
+    std::cout << "Loading... ";
+    SoundData testMusic = loadOggVorbisFile("test.ogg");
+    std::cout << "done." << std::endl;
+    SoundBuffer buffer(testMusic);
+    Speaker speaker;
+    speaker.setGain(1);
+    speaker.setPitch(1);
+    speaker.setBuffer(buffer);
+    speaker.play();
+
+    testMusic.data.reset();
+
 
     while (!shouldStop()) {
 

@@ -6,6 +6,6 @@ objects.mk: $(shell ./depdep)
 CFLAGS = -Wall `pkg-config --cflags freetype2`
 CC = g++
 INCLUDE = -Iextern
-LIBS = -lglfw3dll -lfreetype.dll -lstb
+LIBS = -lglfw3dll -lfreetype.dll -lOpenAL32.dll
 
 MK = $(CC) $(CFLAGS) $(INCLUDE)
