@@ -1,8 +1,11 @@
 #include "SoundBuffer.h"
 
-nafy::SoundBuffer::SoundBuffer(const SoundData &data) {
+nafy::SoundBuffer::SoundBuffer(const SoundData &data):
+    SoundBuffer(data.data.get(), data.dataBytes, data.frequency, data.format) {
+}
+nafy::SoundBuffer::SoundBuffer(const void *data, ALsizei dataBytes, ALsizei frequency, ALenum format) {
     alGenBuffers(1, &buffer);
-	alBufferData(buffer, data.format, data.data.get(), data.dataBytes, data.frequency);
+	alBufferData(buffer, format, data, dataBytes, frequency);
 }
 nafy::SoundBuffer::~SoundBuffer() {
     close();

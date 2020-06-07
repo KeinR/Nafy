@@ -3,6 +3,8 @@
 
 #include "oal.h"
 
+#include "Device.h"
+
 // NOTE THAT NOTHING WILL WORK IF YOU HAVEN'T BOUND THE CONTEXT!!!
 
 namespace nafy {
@@ -13,7 +15,7 @@ namespace nafy {
         void steal(AudioContext &other);
         void copy(const AudioContext &other);
     public:
-        AudioContext(ALCcontext *handle);
+        AudioContext(const Device &parent);
         AudioContext(AudioContext &&other);
         AudioContext(const AudioContext &other);
         ~AudioContext();

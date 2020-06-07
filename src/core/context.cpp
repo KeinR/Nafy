@@ -181,20 +181,25 @@ void nafy::context::resume() {
 
     std::cout << "Initializing OpenAL... ";
     Device device;
-    AudioContext ctx = device.makeContext();
+    AudioContext ctx(device);
     ctx.bind();
     std::cout << "done." << std::endl;
     std::cout << "Loading... ";
-    SoundData testMusic = loadOggVorbisFile("test.ogg");
+    // SoundData testMusic = loadOggVorbisFile("test.ogg");
     std::cout << "done." << std::endl;
-    SoundBuffer buffer(testMusic);
+    std::cout << "Load ogg" << std::endl;
+    SoundBuffer buffer(loadVorbisFile("test.ogg"));
+    std::cout << "done" << std::endl;
     Speaker speaker;
     speaker.setGain(1);
     speaker.setPitch(1);
     speaker.setBuffer(buffer);
+    speaker.setTime(120);
+    std::cout << "Start play" << std::endl;
     speaker.play();
+    std::cout << "done" << std::endl;
 
-    testMusic.data.reset();
+    // testMusic.data.reset();
 
 
     while (!shouldStop()) {

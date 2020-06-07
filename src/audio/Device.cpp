@@ -39,6 +39,6 @@ nafy::Device &nafy::Device::operator=(const Device &other) {
     return *this;
 }
 
-nafy::AudioContext nafy::Device::makeContext() {
-    return AudioContext(alcCreateContext(handle, NULL));
+ALCdevice *nafy::Device::get() const {
+    return handle;
 }

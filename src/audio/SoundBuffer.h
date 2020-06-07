@@ -13,7 +13,10 @@ namespace nafy {
         void close();
         void steal(SoundBuffer &other);
     public:
+        // Note: OpenAL buffers copy the data given to them
+        // Feel free to... _free_ the data afterwards
         SoundBuffer(const SoundData &data);
+        SoundBuffer(const void *data, ALsizei dataBytes, ALsizei frequency, ALenum format);
         SoundBuffer(SoundBuffer &&other);
         ~SoundBuffer();
         SoundBuffer &operator=(SoundBuffer &&other);

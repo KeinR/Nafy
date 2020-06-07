@@ -1,5 +1,5 @@
-bin/audio.AudioContext.o: src/audio/AudioContext.cpp src/audio/AudioContext.h src/audio/oal.h
-bin/audio.Device.o: src/audio/Device.cpp src/audio/AudioContext.h src/audio/Device.h src/audio/oal.h
+bin/audio.AudioContext.o: src/audio/AudioContext.cpp src/audio/AudioContext.h src/audio/Device.h src/audio/oal.h
+bin/audio.Device.o: src/audio/Device.cpp src/audio/Device.h src/audio/oal.h
 bin/audio.SoundBuffer.o: src/audio/SoundBuffer.cpp src/audio/SoundBuffer.h src/audio/SoundData.h src/audio/oal.h
 bin/audio.SoundData.o: src/audio/SoundData.cpp src/audio/SoundData.h src/audio/oal.h src/core/error.h
 bin/audio.Speaker.o: src/audio/Speaker.cpp src/audio/SoundBuffer.h src/audio/SoundData.h src/audio/Speaker.h src/audio/oal.h

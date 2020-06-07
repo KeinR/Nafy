@@ -27,8 +27,8 @@ namespace nafy {
 
     SoundData loadWavFile(const std::string &path);
     SoundData loadWavMemory(const unsigned char *data, int length);
-    SoundData loadOggVorbisFile(const std::string &path);
-    SoundData loadOggVorbisMemory(const unsigned char *data, int length);
+    SoundData loadVorbisFile(const std::string &path);
+    SoundData loadVorbisMemory(const unsigned char *data, int length);
 };
 
 #endif

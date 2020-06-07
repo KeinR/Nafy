@@ -3,8 +3,6 @@
 
 #include "oal.h"
 
-#include "AudioContext.h"
-
 #include <cstddef>
 
 // Device - the actual (usually physical) speaker... I think...
@@ -12,11 +10,11 @@
 namespace nafy {
     class Device {
         ALCdevice *handle;
-        
+
         void close();
         void steal(Device &other);
         // I have no idea why you would WANT to copy, but
-        // I'll just assume the best
+        // I'll just assume you have good reasons
         void copy(const Device &other);
     public:
         // NULL selects the default, "preferred" device
@@ -27,7 +25,9 @@ namespace nafy {
         Device &operator=(Device &&other);
         Device &operator=(const Device &other);
 
-        AudioContext makeContext();
+        /* private */
+
+        ALCdevice *get() const;
     };
 };
 

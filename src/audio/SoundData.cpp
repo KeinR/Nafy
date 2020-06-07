@@ -75,7 +75,7 @@ static unsigned char *loadSoundFile(const std::string &path, int &length) {
 }
 
 
-static nafy::SoundData doLoadOggVorbis(stb_vorbis *handle) {
+static nafy::SoundData doLoadVorbis(stb_vorbis *handle) {
     if (handle == NULL) {
         throw nafy::al_error("Failed to load ogg data");
     }
@@ -160,11 +160,11 @@ nafy::SoundData nafy::loadWavMemory(const unsigned char *data, int length) {
         getALFormat(channels, bits_per_sample)
     );
 }
-nafy::SoundData nafy::loadOggVorbisFile(const std::string &path) {
-    return doLoadOggVorbis(stb_vorbis_open_filename(path.c_str(), NULL, NULL));
+nafy::SoundData nafy::loadVorbisFile(const std::string &path) {
+    return doLoadVorbis(stb_vorbis_open_filename(path.c_str(), NULL, NULL));
 }
-nafy::SoundData nafy::loadOggVorbisMemory(const unsigned char *data, int length) {
-    return doLoadOggVorbis(stb_vorbis_open_memory(data, length, NULL, NULL));
+nafy::SoundData nafy::loadVorbisMemory(const unsigned char *data, int length) {
+    return doLoadVorbis(stb_vorbis_open_memory(data, length, NULL, NULL));
 }
 
 

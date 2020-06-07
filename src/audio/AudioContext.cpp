@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-nafy::AudioContext::AudioContext(ALCcontext *handle): handle(handle) {
+nafy::AudioContext::AudioContext(const Device &device): handle(alcCreateContext(device.get(), NULL)) {
 }
 
 nafy::AudioContext::~AudioContext() {
