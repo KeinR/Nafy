@@ -5,10 +5,6 @@
 
 #include "../core/glfw.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include "../env/env.h"
 #include "../env/defs.h"
 
@@ -16,14 +12,12 @@
 #define CURVE_SMOOTHNESS 3
 
 void nafy::Rectangle::generateBuffers() {
-    glGenVertexArrays(1, &VA);
-    glGenBuffers(1, &VB);
-    glGenBuffers(1, &EB);
-
     generateCurveless();
+    initVA();
+}
 
-    glBindVertexArray(VA);
-
+void nafy::Rectangle::initVA() {
+    buffer.bindArr();
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 }
@@ -31,16 +25,31 @@ void nafy::Rectangle::generateBuffers() {
 nafy::Rectangle::Rectangle(): Rectangle(getContext()->getDefaultPrimShader()) {
 }
 
-nafy::Rectangle::Rectangle(shader_t shader): shader(shader), width(100), height(100), x(0), y(0), cornerRadius(0) {
+nafy::Rectangle::Rectangle(shader_t shader): model(0, 0, 100, 100), cornerRadius(0) {
     generateBuffers();
     generateCurveless();
     bindShader(shader);
 }
-nafy::Rectangle::~Rectangle() {
-    glDeleteVertexArrays(1, &VA);
-    glDeleteBuffers(1, &VB);
-    glDeleteBuffers(1, &EB);
+
+void nafy::Rectangle::copy(const Rectangle &other) {
+    model = other.model;
+    buffer = other.buffer.derive();
+    initVA();
+    colorLocation = other.colorLocation;
+    shader = other.shader;
+    cornerRadius = other.cornerRadius;
+    color = other.color;
 }
+
+nafy::Rectangle::Rectangle(const Rectangle &other) {
+    copy(other);
+}
+
+nafy::Rectangle &nafy::Rectangle::operator=(const Rectangle &other) {
+    copy(other);
+    return *this;
+}
+
 void nafy::Rectangle::generateCurveless() {
     float vertices[] = {
         // positions
@@ -55,14 +64,8 @@ void nafy::Rectangle::generateCurveless() {
         1, 2, 3  // second triangle
     };
 
-
-    glBindBuffer(GL_ARRAY_BUFFER, VB);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EB);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    countIndices = 6;
+    buffer.setVerticies(sizeof(vertices) / sizeof(float), vertices);
+    buffer.setIndices(sizeof(indices) / sizeof(unsigned int), indices);
 }
 
 // TODO: render curves as their own seperate entity so that width
@@ -77,12 +80,11 @@ void nafy::Rectangle::generate() {
 
     const unsigned int verticesLength = (12 + cornerVerticies * 4) * 2;
     const unsigned int indicesLength = 18 + (cornerVerticies + 1) * 3 * 4;
-    countIndices = indicesLength;
     float *vertices = new float[verticesLength];
     unsigned int *indices = new unsigned int[indicesLength];
 
-    const float marginX = (float)cornerRadius / width * 2;
-    const float marginY = (float)cornerRadius / height * 2;
+    const float marginX = (float)cornerRadius / model.width * 2;
+    const float marginY = (float)cornerRadius / model.height * 2;
 
     // Going from the top-left inner-corner, moving clockwise...
 
@@ -181,74 +183,57 @@ void nafy::Rectangle::generate() {
         start -= startInc;
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, VB);
-    glBufferData(GL_ARRAY_BUFFER, verticesLength * sizeof(float), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EB);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesLength * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+    buffer.setVerticies(verticesLength, vertices);
+    buffer.setIndices(indicesLength, indices);
 
     delete[] vertices;
     delete[] indices;
 }
 void nafy::Rectangle::render() {
-    glm::mat4 model(1.0f);
-
-    const float xPos = normX(x + 0.375f + (float)width / 2);
-    const float yPos = normY(y + 0.375f + (float)height / 2);
-
-    int winWidth, winHeight;
-    getWindowSize(&winWidth, &winHeight);
-    model = glm::translate(model, glm::vec3(xPos, yPos, 0.0f));
-    model = glm::scale(model, glm::vec3((float)width / winWidth, (float)height / winHeight, 0.0f));
-
     glUseProgram(shader);
 
-    glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
-    // glGetError();
+    model.set();
+
     glUniform4fv(colorLocation, 1, color.get());
-    // glUniform4f(colorLocation, 1, 1, 0, 1);
 
-    glBindVertexArray(VA);
-    glBindBuffer(GL_ARRAY_BUFFER, VB);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EB);
-
-    glDrawElements(GL_TRIANGLES, countIndices, GL_UNSIGNED_INT, 0);
-    // glDrawElements(GL_LINES, countIndices, GL_UNSIGNED_INT, 0);
+    buffer.render();
 }
 
 void nafy::Rectangle::bindShader(shader_t shader) {
-    modelLocation = glGetUniformLocation(shader, SHADER_MODEL_NAME);
+    this->shader = shader;
+    model.bindShader(shader);
     colorLocation = glGetUniformLocation(shader, SHADER_COLOR_NAME);
 }
 
 void nafy::Rectangle::setX(int x) {
-    this->x = x;
+    model.x = x;
 }
 void nafy::Rectangle::setY(int y) {
-    this->y = y;
+    model.y = y;
 }
 void nafy::Rectangle::setWidth(unsigned int width) {
-    this->width = width;
+    model.width = width;
     setCornerRadius(cornerRadius);
 }
 void nafy::Rectangle::setHeight(unsigned int height) {
-    this->height = height;
+    model.height = height;
     setCornerRadius(cornerRadius);
 }
 void nafy::Rectangle::setCornerRadius(unsigned int radius) {
-    cornerRadius = std::min(radius, std::min(width, height) / 2);
+    cornerRadius = std::min(radius, std::min(model.width, model.height) / 2);
 }
 
 int nafy::Rectangle::getX() {
-    return x;
+    return model.x;
 }
 int nafy::Rectangle::getY() {
-    return y;
+    return model.y;
 }
 unsigned int nafy::Rectangle::getWidth() {
-    return width;
+    return model.width;
 }
 unsigned int nafy::Rectangle::getHeight() {
-    return height;
+    return model.height;
 }
 unsigned int nafy::Rectangle::getCornerRadius() {
     return cornerRadius;

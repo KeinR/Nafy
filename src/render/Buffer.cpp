@@ -51,16 +51,16 @@ void nafy::Buffer::deInit() {
     countIndices = 0;
 }
 
-void nafy::Buffer::bindArr() {
+void nafy::Buffer::bindArr() const {
     glBindVertexArray(array);
 }
-void nafy::Buffer::bindVert() {
+void nafy::Buffer::bindVert() const {
     glBindBuffer(GL_ARRAY_BUFFER, vertices);
 }
-void nafy::Buffer::bindElem() {
+void nafy::Buffer::bindElem() const {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices);
 }
-void nafy::Buffer::bind() {
+void nafy::Buffer::bind() const {
     bindArr();
     bindVert();
     bindElem();
@@ -81,7 +81,7 @@ void nafy::Buffer::render() {
     glDrawElements(GL_TRIANGLES, countIndices, GL_UNSIGNED_INT, 0);
 }
 
-nafy::Buffer nafy::Buffer::derive() {
+nafy::Buffer nafy::Buffer::derive() const {
     Buffer other;
 
     // Vertex buffer

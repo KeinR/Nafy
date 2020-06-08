@@ -21,10 +21,10 @@ namespace nafy {
         Buffer(Buffer &&other);
         Buffer &operator=(Buffer &&other);
 
-        void bindArr();
-        void bindVert();
-        void bindElem();
-        void bind();
+        void bindArr() const;
+        void bindVert() const;
+        void bindElem() const;
+        void bind() const;
 
         void setVerticies(int count, float *data);
         void setIndices(int count, unsigned int *data);
@@ -32,7 +32,7 @@ namespace nafy {
         void render() override;
 
         // Copies element and vertex data into a new Buffer object - nothing more
-        Buffer derive();
+        Buffer derive() const;
     };
 }
 

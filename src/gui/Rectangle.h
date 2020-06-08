@@ -4,33 +4,34 @@
 #include "renderable.h"
 #include "../shaders/Shader.h"
 #include "Color.h"
+#include "../render/Buffer.h"
+#include "../render/Model.h"
 
 // TODO: Memory managment
 // TODO: Set image as opposed to uniform background color. Perhaps utilize shaders? Seperate buffers?
 
 namespace nafy {
     class Rectangle: public renderable {
-        unsigned int VA; // Array
-        unsigned int VB; // Buffer
-        unsigned int EB; // Elem. buffer
-        unsigned int modelLocation; // In shader
+        Model model;
+        Buffer buffer;
         unsigned int colorLocation; // In shader
-        unsigned int countIndices;
         shader_t shader;
 
-        unsigned int width;
-        unsigned int height;
-        int x;
-        int y;
         unsigned int cornerRadius;
         Color color;
-        inline void generateBuffers();
-        inline void generateCurveless();
+        void generateBuffers();
+        void generateCurveless();
+        void initVA();
+        void copy(const Rectangle &other);
     public:
         // Takes context default prim shader
         Rectangle();
         Rectangle(shader_t shader);
-        ~Rectangle();
+        Rectangle(Rectangle &&other) = default;
+        Rectangle(const Rectangle &other);
+        ~Rectangle() = default;
+        Rectangle &operator=(Rectangle &&other) = default;
+        Rectangle &operator=(const Rectangle &other);
         void generate();
         void render() override;
 
