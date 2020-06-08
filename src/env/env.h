@@ -29,6 +29,7 @@ namespace nafy {
     bool loadFile(const std::string &path, char **output, int &length);
 
     const char *getGLErrorStr(GLenum error);
+    const char *getALErrorStr(int error);
 
     enum cursorType {
         DEFAULT,

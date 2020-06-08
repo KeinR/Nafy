@@ -220,6 +220,16 @@ void nafy::context::resume() {
         
         runFrame();
 
+        GLenum glerror = glGetError();
+        if (glerror != GL_NO_ERROR) {
+            throw gl_error(glerror);
+        }
+
+        // ALenum alerror = alGetError();
+        // if (alerror != AL_NO_ERROR) {
+
+        // }
+
         do {
             glfwPollEvents();
             // So that it isn's a total resource hog while waiting.
@@ -227,10 +237,19 @@ void nafy::context::resume() {
             std::this_thread::sleep_for(std::chrono::nanoseconds(1));
         } while (!shouldStop() && glfwGetTime() < end);
 
-        GLenum error = glGetError();
-        if (error != GL_NO_ERROR) {
-            throw gl_error(error);
-        }
+        // throw al_error(alerror);
+        // if (err != AL_NO_ERROR) {
+        //     std::cout << "Fuck " << err << std::endl;
+        //     switch (err) {
+        //         case AL_INVALID_NAME: std::cout << "Bad name" << std::endl; break;
+        //         case AL_INVALID_OPERATION: std::cout << "Bad operation" << std::endl; break;
+        //         case ALC_INVALID_CONTEXT: std::cout << "ALC_INVALID_CONTEXT"; break;
+        //         case AL_INVALID_VALUE: std::cout << "AL_INVALID_VALUE"; break;
+        //         case AL_OUT_OF_MEMORY: std::cout << "AL_OUT_OF_MEMORY"; break;
+        //         default: std::cout << "Dunno'" << std::endl;
+        //     }
+        //     std::cout << std::endl;
+        // }
     }
 
 }

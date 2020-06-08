@@ -7,6 +7,7 @@
 
 #include "defs.h"
 #include "../core/error.h"
+#include "../audio/oal.h"
 
 static std::string homeDir;
 static int contextCount = 0; // Enlarge data type for more possible instances
@@ -264,6 +265,18 @@ const char *nafy::getGLErrorStr(GLenum error) {
         case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION";
         case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
         case GL_INVALID_FRAMEBUFFER_OPERATION: return "GL_INVALID_FRAMEBUFFER_OPERATION";
+        default: return "-Unknown error-";
+    }
+}
+
+const char *nafy::getALErrorStr(int error) {
+    switch (error) {
+        case AL_NO_ERROR: return "AL_NO_ERROR";
+        case AL_INVALID_NAME: return "AL_INVALID_NAME";
+        case AL_INVALID_ENUM: return "AL_INVALID_ENUM";
+        case AL_INVALID_VALUE: return "AL_INVALID_VALUE";
+        case AL_INVALID_OPERATION: return "AL_INVALID_OPERATION";
+        case AL_OUT_OF_MEMORY: return "AL_OUT_OF_MEMORY";
         default: return "-Unknown error-";
     }
 }
