@@ -30,13 +30,13 @@ nafy::ShaderFactory::ShaderFactory(const std::string &vertexPath, const std::str
     vertData.reset(vd);
     fragData.reset(fd);
 }
-nafy::Shader nafy::ShaderFactory::make() {
+nafy::shader_t nafy::ShaderFactory::make(Shader::uni_t uniforms) {
     GLuint vertShader = compileShader(GL_VERTEX_SHADER, vertData.get(), vertLength);
     GLuint fragShader = compileShader(GL_FRAGMENT_SHADER, fragData.get(), fragLength);
     GLuint shaderProgram = linkShaders(vertShader, fragShader);
     glDeleteShader(vertShader);
     glDeleteShader(fragShader);
-    return Shader(shaderProgram);
+    return std::make_shared<Shader>(shaderProgram, uniforms);
 }
 
 GLuint compileShader(GLenum type, const char *data, int length) {

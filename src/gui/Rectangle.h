@@ -14,7 +14,7 @@ namespace nafy {
     class Rectangle: public renderable {
         Model model;
         Buffer buffer;
-        unsigned int colorLocation; // In shader
+        uniform_t colorLocation; // In shader
         shader_t shader;
 
         unsigned int cornerRadius;
@@ -26,7 +26,7 @@ namespace nafy {
     public:
         // Takes context default prim shader
         Rectangle();
-        Rectangle(shader_t shader);
+        Rectangle(const shader_t &shader);
         Rectangle(Rectangle &&other) = default;
         Rectangle(const Rectangle &other);
         ~Rectangle() = default;
@@ -35,7 +35,7 @@ namespace nafy {
         void generate();
         void render() override;
 
-        void bindShader(shader_t shader);
+        void bindShader(const shader_t &shader);
 
         void setX(int x);
         void setY(int y);

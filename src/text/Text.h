@@ -7,12 +7,13 @@
 
 #include "Font.h"
 
+#include "../shaders/Shader.h" // DEVIATION
 #include "../gui/renderable.h" // DEVIATION
 
 class Text: public nafy::renderable /*DEVIATION*/ { 
 protected:
     Font::type font;
-    unsigned int shader;
+    nafy::shader_t shader;
 
     unsigned int VA; // Array
     unsigned int VB; // Buffer
@@ -55,7 +56,7 @@ public:
     // If made with this, must be set equal to another or have the font and shader set
     // before calling ANY other methods, otherwise undefined behavior is invoked
     Text();
-    Text(const Font::type &font, const unsigned int shader);
+    Text(const Font::type &font, const nafy::shader_t &shader);
     Text(const Text &other);
     Text(Text &&other);
     Text &operator=(const Text &other);
@@ -111,7 +112,7 @@ public:
     int getWidth();
     int getHeight();
 
-    void bindShader(const unsigned int shader);
+    void bindShader(const nafy::shader_t &shader);
 
     // Returns false if reached the end of the overflows
     bool nextOverflow();

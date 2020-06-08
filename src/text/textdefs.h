@@ -16,8 +16,8 @@
 // I suppose it satisfies some OO princibles or something, but it's just extra
 // bloat...
 // This'll do for now. Can always change in the future ;)
-#define SHADER_MODEL "model"
-#define SHADER_TEXT_SAMPLER "Tex"
+// #define SHADER_MODEL "model"
+// #define SHADER_TEXT_SAMPLER "Tex"
 
 // glfw include header
 #define GLFW_INCLUDE_HEADER_LOCATION "../core/glfw.h"
@@ -50,7 +50,8 @@ static Font::type (*getDefaultFont)() = []() -> Font::type {
     return nafy::getContext()->getDefaultFont();
 };
 
-static unsigned int (*getDefaultTextShader)() = []() -> unsigned int {
+#include "../shaders/Shader.h"
+static nafy::shader_t (*getDefaultTextShader)() = []() -> nafy::shader_t {
     return nafy::getContext()->getDefaultSpriteShader();
 };
 

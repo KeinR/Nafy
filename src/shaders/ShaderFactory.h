@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-#include "../shaders/Shader.h"
+#include "Shader.h"
 
 namespace nafy {
     class ShaderFactory {
@@ -18,7 +18,8 @@ namespace nafy {
         // Note: calls getPath on given paths
         ShaderFactory(const std::string &vertexPath, const std::string &fragmentPath);
         // Throws instance of `nafy::gl_error` if shader link/compilation failed
-        Shader make();
+        // `uniforms` are parameters for how to initialize the shader
+        shader_t make(Shader::uni_t uniforms = Shader::uni::NONE);
     };
 }
 

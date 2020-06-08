@@ -1,6 +1,8 @@
 #ifndef SHADER_H_INCLUDED
 #define SHADER_H_INCLUDED
 
+#include <memory>
+
 // This or shared pointer.
 // Honestly, I think this solution is the cleanest, because we're not dealing with
 // the pointers themselves, rather just ...
@@ -8,24 +10,42 @@
 // TODO: This is a fucking mess
 
 namespace nafy {
-    typedef unsigned int shader_t;
+    typedef unsigned int shader_program_t;
+    typedef int uniform_t;
     class Shader {
-        shader_t shader;
-        int *refCounter;
-        inline void release();
-        inline void copy(const Shader &other);
-        inline void steal(Shader &other);
     public:
-        Shader();
-        Shader(shader_t shader);
-        Shader(const Shader &other);
+        typedef int uni_t;
+        struct uni {
+            static constexpr uni_t NONE = 0;
+            static constexpr uni_t sampler0 = 1 << 0;
+            static constexpr uni_t model = 1 << 1;
+            static constexpr uni_t color = 1 << 2;
+        };
+    private:
+        shader_program_t shader;
+        void free();
+        void steal(Shader &other);
+        bool has(uni_t uniforms, uni_t val);
+    public:
+        Shader(shader_program_t shader, uni_t uniforms);
         Shader(Shader &&other);
-        Shader &operator=(const Shader &other);
         Shader &operator=(Shader &&other);
         ~Shader();
-        void reset(shader_t shader = 0);
-        shader_t get() const;
+
+        void use() const;
+        shader_program_t get() const;
+
+        // Uniform gets, if fail return -1
+        uniform_t uniNxSampler0() const noexcept;
+        uniform_t uniNxModel() const noexcept;
+        uniform_t uniNxColor() const noexcept;
+
+        // Uniform gets, if fail throw an instance of `gl_error`
+        uniform_t uniSampler0() const;
+        uniform_t uniModel() const;
+        uniform_t uniColor() const;
     };
+    typedef std::shared_ptr<Shader> shader_t;
 }
 
 #endif

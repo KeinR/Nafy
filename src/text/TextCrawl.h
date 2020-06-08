@@ -34,7 +34,7 @@ public:
     // If made with this, must be set equal to another or have the face and shader set
     // before calling ANY other methods, otherwise undefined behavior is invoked
     TextCrawl();
-    TextCrawl(const Font::type &font, const unsigned int shader);
+    TextCrawl(const Font::type &font, const nafy::shader_t &shader);
     TextCrawl(const TextCrawl &other);
     TextCrawl(TextCrawl &&other);
     TextCrawl &operator=(const TextCrawl &other);

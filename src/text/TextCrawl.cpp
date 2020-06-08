@@ -18,7 +18,7 @@ TextCrawl::TextCrawl():
     render_c(CHANNELS, color, nullptr, 0, 0) {
 }
 
-TextCrawl::TextCrawl(const Font::type &font, const unsigned int shader):
+TextCrawl::TextCrawl(const Font::type &font, const nafy::shader_t &shader):
     Text(font, shader),
     pen(0, 0), bitmap(nullptr),
     fall(0), start(nullptr),

@@ -12,8 +12,8 @@ nafy::Model::Model(int x, int y, int width, int height):
     x(x), y(y), width(width), height(height) {
 }
 
-void nafy::Model::bindShader(shader_t shader, const char *modelName) {
-    modelLocation = glGetUniformLocation(shader, modelName);   
+void nafy::Model::bindShader(const shader_t &shader) {
+    modelLocation = shader->uniModel();   
 }
 
 void nafy::Model::set() {

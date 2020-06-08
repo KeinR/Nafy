@@ -38,13 +38,13 @@ namespace nafy {
         Model model;
         shader_t shader;
 
-        void init(shader_t initShader);
+        void init(const shader_t &initShader);
         void initBuffer();
     public:
         Image();
         Image(const Texture::tparam &texParams);
-        Image(shader_t shader);
-        Image(const Texture::tparam &texParams, shader_t shader);
+        Image(const shader_t &shader);
+        Image(const Texture::tparam &texParams, const shader_t &shader);
 
         // Throws an instance of `error` if failed to load image,
         // Either because of an i/o problem, or the channel # is unsupported
@@ -53,7 +53,7 @@ namespace nafy {
         void setImage(const man_image &image);
         void setImage(int format, int width, int height, unsigned char *data);
 
-        void bindShader(shader_t shader);
+        void bindShader(const shader_t &shader);
 
         void setX(int x);
         void setY(int y);

@@ -59,9 +59,9 @@ void Text::generateBuffers() {
 Text::Text(): Text(getDefaultFont(), getDefaultTextShader()) {
 }
 
-Text::Text(const Font::type &font, const unsigned int shader):
+Text::Text(const Font::type &font, const nafy::shader_t &shader):
     font(font), shader(shader),
-    modelLocation(glGetUniformLocation(shader, SHADER_MODEL)),
+    modelLocation(shader->uniModel()),
     renderedWidth(0), renderedHeight(0),
     color{0, 0, 0, 1}, x(0), y(0),
     wrappingWidth(0), overflowHeight(0),
@@ -70,8 +70,8 @@ Text::Text(const Font::type &font, const unsigned int shader):
 
     generateBuffers();
 
-    glUseProgram(shader);
-    glUniform1i(glGetUniformLocation(shader, SHADER_TEXT_SAMPLER), 0);
+    // glUseProgram(shader);
+    // glUniform1i(glGetUniformLocation(shader, SHADER_TEXT_SAMPLER), 0);
 }
 
 // Memory manegemet
@@ -165,11 +165,10 @@ void Text::configureFont() {
     font->setSize(fontSize);
 }
 
-void Text::bindShader(const unsigned int shader) {
+void Text::bindShader(const nafy::shader_t &shader) {
     this->shader = shader;
-    glUseProgram(shader);
-    glUniform1i(glGetUniformLocation(shader, SHADER_TEXT_SAMPLER), 0);
-    modelLocation = glGetUniformLocation(shader, SHADER_MODEL);
+    modelLocation = shader->uniModel();
+    shader->uniSampler0();
 }
 
 void Text::generate() {
@@ -233,7 +232,7 @@ void Text::render() {
     model = glm::translate(model, glm::vec3(xPos, yPos, 0.0f));
     model = glm::scale(model, glm::vec3((float)renderedWidth / winWidth, (float)renderedHeight / winHeight, 0.0f));
 
-    glUseProgram(shader);
+    shader->use();
 
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
 

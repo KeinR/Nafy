@@ -32,8 +32,12 @@ void nafy::context::makeCurrent() {
 nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     window(plusContext(winWidth, winHeight, winTitle)),
     defaultShaders{
-        ShaderFactory("resources/shaders/sprite.vert", "resources/shaders/sprite.frag").make(),
-        ShaderFactory("resources/shaders/prim.vert", "resources/shaders/prim.frag").make()
+        ShaderFactory("resources/shaders/sprite.vert", "resources/shaders/sprite.frag").make(
+            Shader::uni::sampler0 | Shader::uni::model
+        ),
+        ShaderFactory("resources/shaders/prim.vert", "resources/shaders/prim.frag").make(
+            Shader::uni::color | Shader::uni::model
+        )
     },
     defaultFont(makeFont(FontFactory(getPath("resources/fonts/Arial.ttf")))),
     root(nullptr), current(nullptr), run(false), runGameAction(false), vsync(0)
@@ -299,10 +303,10 @@ Font::type nafy::context::makeFont(const FontFactory &factory) {
     return textLib.makeFont(factory);
 }
 
-void nafy::context::setDefaultSpriteShader(const Shader &shader) {
+void nafy::context::setDefaultSpriteShader(const shader_t &shader) {
     defaultShaders.sprite = shader;
 }
-void nafy::context::setDefaultPrimShader(const Shader &shader) {
+void nafy::context::setDefaultPrimShader(const shader_t &shader) {
     defaultShaders.prim = shader;
 }
 void nafy::context::setDefaultFont(const Font::type &font) {
@@ -318,10 +322,10 @@ nafy::context::views_s &nafy::context::getViewsRef() {
 }
 
 nafy::shader_t nafy::context::getDefaultSpriteShader() {
-    return defaultShaders.sprite.get();
+    return defaultShaders.sprite;
 }
 nafy::shader_t nafy::context::getDefaultPrimShader() {
-    return defaultShaders.prim.get();
+    return defaultShaders.prim;
 }
 Font::type nafy::context::getDefaultFont() {
     return defaultFont;

@@ -50,7 +50,7 @@ namespace nafy {
         // Takes current context defaults
         ButtonBase();
         // Alternatively, set the font and shaders 
-        ButtonBase(const Font::type &textFont, shader_t textShader, shader_t shapeShader);
+        ButtonBase(const Font::type &textFont, const shader_t &textShader, const shader_t &shapeShader);
         ~ButtonBase();
 
         void setOnClick(const press_callback_func &callback);

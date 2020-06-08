@@ -45,7 +45,7 @@ nafy::ButtonBase<T>::ButtonBase() {
 }
 
 template<class T>
-nafy::ButtonBase<T>::ButtonBase(const Font::type &textFont, shader_t textShader, shader_t shapeShader):
+nafy::ButtonBase<T>::ButtonBase(const Font::type &textFont, const shader_t &textShader, const shader_t &shapeShader):
     display(TextCrawl(textFont, textShader), Rectangle(shapeShader)) {
 
     init();

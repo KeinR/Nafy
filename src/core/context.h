@@ -68,8 +68,8 @@ namespace nafy {
         GLFWwindow *window;
 
         struct {
-            Shader sprite;
-            Shader prim;
+            shader_t sprite;
+            shader_t prim;
         } defaultShaders;
 
         // Text related stuff
@@ -155,8 +155,8 @@ namespace nafy {
         // Throws `ft_error` if failed
         Font::type makeFont(const FontFactory &factory);
 
-        void setDefaultSpriteShader(const Shader &shader);
-        void setDefaultPrimShader(const Shader &shader);
+        void setDefaultSpriteShader(const shader_t &shader);
+        void setDefaultPrimShader(const shader_t &shader);
         void setDefaultFont(const Font::type &font);
 
         std::shared_ptr<views_s> getViews();

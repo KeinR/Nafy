@@ -25,7 +25,7 @@ void nafy::Rectangle::initVA() {
 nafy::Rectangle::Rectangle(): Rectangle(getContext()->getDefaultPrimShader()) {
 }
 
-nafy::Rectangle::Rectangle(shader_t shader): model(0, 0, 100, 100), cornerRadius(0) {
+nafy::Rectangle::Rectangle(const shader_t &shader): model(0, 0, 100, 100), cornerRadius(0) {
     generateBuffers();
     generateCurveless();
     bindShader(shader);
@@ -190,7 +190,7 @@ void nafy::Rectangle::generate() {
     delete[] indices;
 }
 void nafy::Rectangle::render() {
-    glUseProgram(shader);
+    shader->use();
 
     model.set();
 
@@ -199,10 +199,10 @@ void nafy::Rectangle::render() {
     buffer.render();
 }
 
-void nafy::Rectangle::bindShader(shader_t shader) {
+void nafy::Rectangle::bindShader(const shader_t &shader) {
     this->shader = shader;
     model.bindShader(shader);
-    colorLocation = glGetUniformLocation(shader, SHADER_COLOR_NAME);
+    colorLocation = shader->uniColor();
 }
 
 void nafy::Rectangle::setX(int x) {

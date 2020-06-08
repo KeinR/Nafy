@@ -53,14 +53,14 @@ nafy::Image::Image() {
 nafy::Image::Image(const Texture::tparam &texParams): texture(texParams) {
     init(getContext()->getDefaultSpriteShader());
 }
-nafy::Image::Image(shader_t shader) {
+nafy::Image::Image(const shader_t &shader) {
     init(shader);
 }
-nafy::Image::Image(const Texture::tparam &texParams, shader_t shader): texture(texParams) {
+nafy::Image::Image(const Texture::tparam &texParams, const shader_t &shader): texture(texParams) {
     init(shader);
 }
 
-void nafy::Image::init(shader_t initShader) {
+void nafy::Image::init(const shader_t &initShader) {
     bindShader(initShader);
     initBuffer();
 }
@@ -92,9 +92,6 @@ void nafy::Image::initBuffer() {
     // texture coord attribute
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
-
-    glUseProgram(shader);
-    glUniform1i(glGetUniformLocation(shader, SHADER_TEXT_SAMPLER_NAME), 0);
 }
 
 void nafy::Image::loadImage(const std::string &path) {
@@ -113,9 +110,10 @@ void nafy::Image::setImage(int format, int width, int height, unsigned char *dat
     texture.setData(format, width, height, data);
 }
 
-void nafy::Image::bindShader(shader_t shader) {
+void nafy::Image::bindShader(const shader_t &shader) {
     this->shader = shader;
     model.bindShader(shader);
+    shader->uniSampler0();
 }
 
 void nafy::Image::setX(int x) {
@@ -149,7 +147,7 @@ nafy::Texture &nafy::Image::getTexure() {
 }
 
 void nafy::Image::render() {
-    glUseProgram(shader);
+    shader->use();
     model.set();
     texture.bind();
     buffer.render();
