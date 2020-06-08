@@ -11,22 +11,25 @@ nafy::SoundData::SoundData(std::shared_ptr<const void> data, ALsizei dataBytes, 
     data(data), dataBytes(dataBytes), frequency(frequency), format(format) {
 }
 
+constexpr static bool littleEndian() {
+    int i = 1;  
+    char *c = (char*)&i;
+    return *c != 0;
+}
+
 template<typename T>
 static T readNumber(const unsigned char *source, int &i, int length) {
-    constexpr int start = sizeof(T) / sizeof(char);
+    constexpr int end = (sizeof(T) / sizeof(char) - 1) * 8;
     T result = 0;
-    for (int s = start; s >= 0; s -= 8) {
+    for (int s = 0; s <= end; s += 8) {
         if (i >= length) {
             delete[] source;
             throw nafy::al_error("Audio file corrupted");
         }
-        result |= source[i++];
+        result |= source[i++] << s;
     }
     return result;
 }
-
-// using readInt = readNumber<int>(const unsigned char *, int&, int);
-// using readShort = readNumber<short>(const unsigned char *, int&, int);
 
 auto constexpr readInt = &readNumber<int>;
 auto constexpr readShort = &readNumber<short>;
@@ -121,7 +124,7 @@ nafy::SoundData nafy::loadWavMemory(const unsigned char *data, int length) {
     strEq(data, i, length, "RIFF", "WAV Corrupted"); // Check has RIFF header
 
     i += 4; // Total file size. This value is useless as length is already given to us
-    strEq(data, i, length, "WAVEfmt ", "Not PCM WAV"); // Check has "WAVEfmt ", signifies PCM format
+    strEq(data, i, length, "WAVEfmt ", "Not PCM WAV 1"); // Check has "WAVEfmt ", signifies PCM format
     if (readInt(data, i, length) != 16) { // Check format; again, a pcm check...
         throw al_error("Not PCM WAV");
     }
@@ -134,27 +137,17 @@ nafy::SoundData nafy::loadWavMemory(const unsigned char *data, int length) {
     const short bits_per_sample = readShort(data, i, length); // aka "samples"
     i += 8; // Useless info
 
-    std::shared_ptr<SoundData::data_t> ptr;
     constexpr int headerSize = 44;
-    const int dataLength = length - headerSize; // Deduct size of the header
-    const std::size_t dataLengthBytes = dataLength * sizeof(char);
-    if (bits_per_sample == 16) {
-        int slen = dataLength;
-        if (slen % 2 == 1) { // Truncate to fit size of short
-            slen--;
-        }
-        slen /= 2;
-        short *soundData = new short[slen];
-        std::memcpy(soundData, data + headerSize, slen * sizeof(short));
-        ptr.reset(soundData, freeData<short>);
-    } else {
-        char *soundData = new char[dataLength];
-        std::memcpy(soundData, data + headerSize, dataLengthBytes);
-        ptr.reset(soundData, freeData<char>);
-    }
+    
+    int dataLength = length - headerSize; // Deduct size of the header
+    dataLength -= dataLength % bits_per_sample; // Truncate to fit to sample range. Could alternatively pad with junk...
+    std::size_t dataLengthBytes = dataLength * sizeof(char);
+
+    char *soundData = new char[dataLength];
+    std::memcpy(soundData, data + headerSize, dataLengthBytes);
 
     return SoundData(
-        ptr,
+        std::shared_ptr<SoundData::data_t>(soundData, freeData<char>),
         dataLengthBytes,
         frequency,
         getALFormat(channels, bits_per_sample)
@@ -166,5 +159,3 @@ nafy::SoundData nafy::loadVorbisFile(const std::string &path) {
 nafy::SoundData nafy::loadVorbisMemory(const unsigned char *data, int length) {
     return doLoadVorbis(stb_vorbis_open_memory(data, length, NULL, NULL));
 }
-
-
