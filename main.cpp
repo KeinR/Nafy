@@ -1,4 +1,4 @@
-#include "src/game/story.h"
+#include "src/game/Scene.h"
 #include "src/core/context.h"
 #include "src/env/env.h"
 #include "src/core/error.h"
@@ -12,7 +12,7 @@ using namespace nafy;
 int main() {
     try {
         context ctx(600, 400, "test");
-        scene sc;
+        Scene sc;
         sc.pushText("Hello gamers~");
         ctx.setRoot(sc);
 

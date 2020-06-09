@@ -172,11 +172,11 @@ void nafy::context::activate() {
     makeCurrent();
 }
 
-void nafy::context::setRoot(scene &root) {
+void nafy::context::setRoot(Scene &root) {
     this->root = &root;
 }
 
-void nafy::context::setCurrent(scene &current) {
+void nafy::context::setCurrent(Scene &current) {
     this->current = &current;
     this->current->init(this);
 }
@@ -192,7 +192,7 @@ void nafy::context::start() {
 
 void nafy::context::resume() {
     if (current == nullptr) {
-        throw error("`current` must NOT be nullptr. Did you forget to call setRoot(scene&)?");
+        throw error("`current` must NOT be nullptr. Did you forget to call setRoot(Scene&)?");
     }
     run = true;
 
@@ -277,7 +277,7 @@ void nafy::context::stop() {
     run = false;
 }
 
-void nafy::context::stopIfCurrent(scene *obj) {
+void nafy::context::stopIfCurrent(Scene *obj) {
     if (obj == current) {
         setGameRunning(false);
     }

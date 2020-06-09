@@ -7,15 +7,15 @@
 
 #include "glfw.h"
 
-#include "../game/story.h"
+#include "../game/Scene.h"
 #include "../shaders/Shader.h"
-#include "TextLibrary.h"
 #include "../gui/Rectangle.h"
 #include "../gui/Color.h"
 #include "../gui/View.h"
 #include "../gui/Button.h"
 #include "../gui/Image.h"
 #include "callback.h"
+#include "TextLibrary.h"
 
 #include "../text/ftype.h"
 #include "../text/TextCrawl.h"
@@ -77,8 +77,8 @@ namespace nafy {
         TextLibrary textLib;
         Font::type defaultFont;
 
-        scene *root;
-        scene *current;
+        Scene *root;
+        Scene *current;
         // int currentID;
         bool run;
         bool runGameAction;
@@ -128,9 +128,9 @@ namespace nafy {
         // IMPORTANT IF YOU ARE USING MORE THAN ONE CONTEXT!!!!
         void activate();
 
-        void setRoot(scene &root);
+        void setRoot(Scene &root);
         // Sets `this->current` to `current` and resets it
-        void setCurrent(scene &current);
+        void setCurrent(Scene &current);
         // Sets `current` to `root`
         void revert();
         // calls revert() and resume()
@@ -173,7 +173,7 @@ namespace nafy {
         bool shouldStop();
 
         void setGameRunning(bool value);
-        void stopIfCurrent(scene *obj);
+        void stopIfCurrent(Scene *obj);
     };
 }
 

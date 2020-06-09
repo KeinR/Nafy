@@ -42,12 +42,20 @@ static nafy::uniform_t assertUni(nafy::uniform_t result, const char *name) {
     return result;
 }
 
+// void nafy::Shader::test(const char *name) {
+//     int error = glGetError();
+//     if (error != GL_NO_ERROR) {
+//         throw gl_error(std::string("Shader does not meet uniform requirements for '") + name + "'", error);
+//     }
+// }
+
 nafy::Shader::Shader(shader_program_t shader, uni_t uniforms): shader(shader) {
     if (has(uniforms, uni::sampler0)) {
         uniform_t u = glGetUniformLocation(shader, SAMPLER0_NAME);
         use();
         glUniform1i(u, 0);
         cache::sampler0[shader] = u;
+
     }
     if (has(uniforms, uni::model)) {
         cache::model[shader] = glGetUniformLocation(shader, MODEL_NAME);

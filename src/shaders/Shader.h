@@ -20,6 +20,7 @@ namespace nafy {
         void free();
         void steal(Shader &other);
         bool has(uni_t uniforms, uni_t val);
+        void test(const char *name);
     public:
         Shader(shader_program_t shader, uni_t uniforms);
         Shader(Shader &&other);
