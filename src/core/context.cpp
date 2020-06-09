@@ -94,10 +94,23 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     game.crawl.setWidth(winWidth - 10 * 2);
     game.crawl.getBox().getColor().setHex(0x7d7fff);
     game.crawl.setMargin(5);
-    game.crawl.setCornerRadius(16);
+    game.crawl.setCornerRadius(0, 0);
+    game.crawl.setCornerRadius(1, 7);
+    game.crawl.setCornerRadius(2, 7);
+    game.crawl.setCornerRadius(3, 7);
     game.crawl.generate();
+    game.speaker.setX(10);
+    game.speaker.setY(winHeight - 75);
+    game.speaker.setHeight(15);
+    game.speaker.setWidth(80);
+    game.speaker.getBox().getColor().setHex(0xa6a7ff);
+    game.speaker.setMargin(2);
+    game.speaker.getText().setFontSize(12);
+    game.speaker.getText().setAlign(Font::textAlign::center);
+    game.speaker.generate();
 
     game.view.add(&game.crawl);
+    game.view.add(&game.speaker);
 
 
     setBackground(home.background);
@@ -321,6 +334,11 @@ std::shared_ptr<nafy::context::views_s> nafy::context::getViews() {
 
 nafy::context::views_s &nafy::context::getViewsRef() {
     return *views;
+}
+
+void nafy::context::setSpeaker(const std::string &name) {
+    views->game.speaker.getText().setString(name);
+    views->game.speaker.getText().generate();
 }
 
 nafy::shader_t nafy::context::getDefaultSpriteShader() {

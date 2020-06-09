@@ -51,6 +51,7 @@ namespace nafy {
             struct game_s {
                 View view;
                 Color background;
+                TextRec speaker;
                 TextRecCrawl crawl;
             } game;
 
@@ -161,6 +162,8 @@ namespace nafy {
 
         std::shared_ptr<views_s> getViews();
         views_s &getViewsRef();
+
+        void setSpeaker(const std::string &name);
 
         /* private */
         shader_t getDefaultSpriteShader();

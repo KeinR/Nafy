@@ -25,6 +25,8 @@ int main() {
         View &game = ctx.getViewsRef().game.view;
         game.addAt(&img, 0);
 
+        ctx.setSpeaker("Youmu");
+
         ctx.start();
     } catch (std::exception &e) {
         std::cerr << "ERROR: " << e.what() << std::endl;

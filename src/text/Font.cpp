@@ -21,6 +21,7 @@ inline static int compOffset(int lsb, Font::textAlign align, unsigned int &width
         case Font::textAlign::left:
             break;
         case Font::textAlign::center: {
+            // TODO: Perhaps ceil?
             Font::ofs_type shift = (wrappingWidth - width) / 2;
             xOffset += shift;
             width += shift;
