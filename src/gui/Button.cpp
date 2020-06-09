@@ -58,36 +58,68 @@ nafy::ButtonBase<T>::~ButtonBase() {
 
 template<class T>
 void nafy::ButtonBase<T>::updateNodesY() {
+    Rectangle &box = display.getBox();
+
+    // // Top left
+    // nodes[0].y = display.getY() + box.getCornerRadiusTopLeft();
+
+    // downmost = display.getY() + display.getHeight();
+
+    // // Bottom left
+    // nodes[1].y = downmost - box.getCornerRadiusBottomLeft();
+
+    // // Top right
+    // nodes[2].y = display.getY() + box.getCornerRadiusTopRight();
+
+    // // Bottom right
+    // nodes[3].y = downmost - box.getCornerRadiusBottomRight();
+
     // Top left
-    nodes[0].y = display.getY() + display.getCornerRadius();
+    nodes[0].y = display.getY() + box.getCornerRadiusTopLeft();
+
+    // Top right
+    nodes[1].y = display.getY() + box.getCornerRadiusTopRight();
 
     downmost = display.getY() + display.getHeight();
 
-    // Bottom left
-    nodes[1].y = downmost - display.getCornerRadius();
-
-    // Top right
-    nodes[2].y = display.getY() + display.getCornerRadius();
-
     // Bottom right
-    nodes[3].y = downmost - display.getCornerRadius();
+    nodes[2].y = downmost - box.getCornerRadiusBottomRight();
+
+    // Bottom left
+    nodes[3].y = downmost - box.getCornerRadiusBottomLeft();
 }
 
 template<class T>
 void nafy::ButtonBase<T>::updateNodesX() {
-    // Top left
-    nodes[0].x = display.getX() + display.getCornerRadius();
+    Rectangle &box = display.getBox();
 
-    // Bottom left
-    nodes[1].x = display.getX() + display.getCornerRadius();
+    // // Top left
+    // nodes[0].x = display.getX() + box.getCornerRadiusTopLeft();
+
+    // // Bottom left
+    // nodes[1].x = display.getX() + box.getCornerRadiusBottomLeft();
+
+    // rightmost = display.getX() + display.getWidth();
+
+    // // Top right
+    // nodes[2].x = rightmost - box.getCornerRadiusTopRight();
+
+    // // Bottom right
+    // nodes[3].x = rightmost - box.getCornerRadiusBottomRight();
+
+    // Top left
+    nodes[0].x = display.getX() + box.getCornerRadiusTopLeft();
 
     rightmost = display.getX() + display.getWidth();
 
     // Top right
-    nodes[2].x = rightmost - display.getCornerRadius();
+    nodes[1].x = rightmost - box.getCornerRadiusTopRight();
 
     // Bottom right
-    nodes[3].x = display.getX() + display.getWidth() - display.getCornerRadius();
+    nodes[2].x = rightmost - box.getCornerRadiusBottomRight();
+
+    // Bottom left
+    nodes[3].x = display.getX() + box.getCornerRadiusBottomLeft();
 
 }
 
@@ -172,13 +204,13 @@ void nafy::ButtonBase<T>::render() {
 template<class T>
 bool nafy::ButtonBase<T>::containPoint(double xPos, double yPos) {
     // More likely the mouse is somewhere here
-    if ((xPos >= nodes[0].x && xPos <= nodes[3].x && yPos >= display.getY() && yPos <= downmost) || // Big center
-        (xPos >= display.getX() && xPos <= rightmost && yPos >= nodes[0].y && yPos <= nodes[3].y) // Rotate that center
+    if ((xPos >= nodes[0].x && xPos <= nodes[2].x && yPos >= display.getY() && yPos <= downmost) || // Big center
+        (xPos >= display.getX() && xPos <= rightmost && yPos >= nodes[0].y && yPos <= nodes[2].y) // Rotate that center
         ) {
         return true;
     }
     for (int i = 0; i < 4; i++) {
-        if (std::hypot(xPos - nodes[i].x, yPos - nodes[i].y) < display.getCornerRadius()) {
+        if (std::hypot(xPos - nodes[i].x, yPos - nodes[i].y) < display.getBox().getCornerRadius(i)) {
             return true;
         }
     }

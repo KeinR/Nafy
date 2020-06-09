@@ -41,7 +41,7 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     },
     defaultFont(makeFont(FontFactory(getPath("resources/fonts/Arial.ttf")))),
     root(nullptr), current(nullptr), run(false), runGameAction(false), vsync(0)
-    {
+{
 
     makeCurrent();
 
@@ -94,6 +94,8 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     game.crawl.setWidth(winWidth - 10 * 2);
     game.crawl.getBox().getColor().setHex(0x7d7fff);
     game.crawl.setMargin(5);
+    game.crawl.setCornerRadius(16);
+    game.crawl.generate();
 
     game.view.add(&game.crawl);
 

@@ -13,10 +13,10 @@ DB_BUILD := $(DEV_BUILD)
 # AR = ar crf $(REL_OUT) header.o $(DEPS) $(LIBS)
 
 build-dev: $(MAIN) $(objects)
-	$(DEV_BUILD)
+	$(DEV_BUILD) -g
 
 build-debug: $(MAIN) $(objects)
-	$(DB_BUILD)
+	$(DB_BUILD) -g
 
 # build-release: $(DEPS)
 # 	$(REL_BUILD)
