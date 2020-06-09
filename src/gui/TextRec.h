@@ -57,6 +57,13 @@ namespace nafy {
         unsigned int getWidth();
         unsigned int getHeight();
 
+        void getCornerRadii(unsigned int data[4]);
+        unsigned int getCornerRadius(int index);
+        unsigned int getCornerRadiusTopLeft();
+        unsigned int getCornerRadiusTopRight();
+        unsigned int getCornerRadiusBottomRight();
+        unsigned int getCornerRadiusBottomLeft();
+
         Color &getColor();
 
         void generate();

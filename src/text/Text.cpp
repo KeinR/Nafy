@@ -171,6 +171,10 @@ void Text::bindShader(const nafy::shader_t &shader) {
     shader->uniSampler0();
 }
 
+nafy::shader_t Text::getShader() {
+    return shader;
+}
+
 void Text::generate() {
     if (!str.size()) {
         return;

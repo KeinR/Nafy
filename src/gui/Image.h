@@ -54,6 +54,7 @@ namespace nafy {
         void setImage(int format, int width, int height, unsigned char *data);
 
         void bindShader(const shader_t &shader);
+        shader_t getShader();
 
         void setX(int x);
         void setY(int y);

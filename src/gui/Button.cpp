@@ -101,6 +101,27 @@ void nafy::ButtonBase<T,S>::setOnLeave(const move_callback_func &callback) {
 }
 
 template<class T, class S>
+typename
+nafy::ButtonBase<T,S>::press_callback_func nafy::ButtonBase<T,S>::getOnClick() {
+    return onClick;
+}
+template<class T, class S>
+typename
+nafy::ButtonBase<T,S>::press_callback_func nafy::ButtonBase<T,S>::getOnRelease() {
+    return onRelease;
+}
+template<class T, class S>
+typename
+nafy::ButtonBase<T,S>::move_callback_func nafy::ButtonBase<T,S>::getOnEnter() {
+    return onEnter;
+}
+template<class T, class S>
+typename
+nafy::ButtonBase<T,S>::move_callback_func nafy::ButtonBase<T,S>::getOnLeave() {
+    return onLeave;
+}
+
+template<class T, class S>
 void nafy::ButtonBase<T,S>::setX(int value) {
     display.setX(value);
     updateNodesX();
@@ -124,6 +145,27 @@ template<class T, class S>
 void nafy::ButtonBase<T,S>::setMargin(unsigned int value) {
     display.setMargin(value);
     updateNodes();
+}
+
+template<class T, class S>
+int nafy::ButtonBase<T,S>::getX() {
+    return display.getX();
+}
+template<class T, class S>
+int nafy::ButtonBase<T,S>::getY() {
+    return display.getY();
+}
+template<class T, class S>
+unsigned int nafy::ButtonBase<T,S>::getWidth() {
+    return display.getWidth();
+}
+template<class T, class S>
+unsigned int nafy::ButtonBase<T,S>::getHeight() {
+    return display.getHeight();
+}
+template<class T, class S>
+unsigned int nafy::ButtonBase<T,S>::getMargin() {
+    return display.getMargin();
 }
 
 template<class T, class S>
@@ -163,6 +205,31 @@ void nafy::ButtonBase<T,S>::setEnabled(bool value) {
         hovering = false;
     }
     enabled = value;
+}
+
+template<class T, class S>
+void nafy::ButtonBase<T,S>::getCornerRadii(unsigned int data[4]) {
+    display.getCornerRadii(data);
+}
+template<class T, class S>
+unsigned int nafy::ButtonBase<T,S>::getCornerRadius(int index) {
+    return display.getCornerRadius(index);
+}
+template<class T, class S>
+unsigned int nafy::ButtonBase<T,S>::getCornerRadiusTopLeft() {
+    return display.getCornerRadiusTopLeft();
+}
+template<class T, class S>
+unsigned int nafy::ButtonBase<T,S>::getCornerRadiusTopRight() {
+    return display.getCornerRadiusTopRight();
+}
+template<class T, class S>
+unsigned int nafy::ButtonBase<T,S>::getCornerRadiusBottomRight() {
+    return display.getCornerRadiusBottomRight();
+}
+template<class T, class S>
+unsigned int nafy::ButtonBase<T,S>::getCornerRadiusBottomLeft() {
+    return display.getCornerRadiusBottomLeft();
 }
 
 template<class T, class S>

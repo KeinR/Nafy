@@ -60,11 +60,22 @@ namespace nafy {
         void setOnEnter(const move_callback_func &callback);
         void setOnLeave(const move_callback_func &callback);
 
+        press_callback_func getOnClick();
+        press_callback_func getOnRelease();
+        move_callback_func getOnEnter();
+        move_callback_func getOnLeave();
+
         void setX(int value);
         void setY(int value);
         void setWidth(unsigned int value);
         void setHeight(unsigned int value);
         void setMargin(unsigned int value);
+
+        int getX();
+        int getY();
+        unsigned int getWidth();
+        unsigned int getHeight();
+        unsigned int getMargin();
 
         void setCornerRadius(unsigned int radius);
         // By index; going clockwise, starting from top-left inclusive
@@ -75,8 +86,15 @@ namespace nafy {
         void setCornerRadiusBottomRight(unsigned int radius);
         void setCornerRadiusBottomLeft(unsigned int radius);
 
-        void setEnabled(bool value);
+        void getCornerRadii(unsigned int data[4]);
+        unsigned int getCornerRadius(int index);
+        unsigned int getCornerRadiusTopLeft();
+        unsigned int getCornerRadiusTopRight();
+        unsigned int getCornerRadiusBottomRight();
+        unsigned int getCornerRadiusBottomLeft();
 
+        void setEnabled(bool value);
+        bool getEnabled(); // 
 
         void trigger();
         void generate();

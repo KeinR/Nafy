@@ -129,6 +129,31 @@ unsigned int nafy::TextRecBase<T>::getHeight() {
 }
 
 template<class T>
+void nafy::TextRecBase<T>::getCornerRadii(unsigned int data[4]) {
+    box.getCornerRadii(data);
+}
+template<class T>
+unsigned int nafy::TextRecBase<T>::getCornerRadius(int index) {
+    return box.getCornerRadius(index);
+}
+template<class T>
+unsigned int nafy::TextRecBase<T>::getCornerRadiusTopLeft() {
+    return box.getCornerRadiusTopLeft();
+}
+template<class T>
+unsigned int nafy::TextRecBase<T>::getCornerRadiusTopRight() {
+    return box.getCornerRadiusTopRight();
+}
+template<class T>
+unsigned int nafy::TextRecBase<T>::getCornerRadiusBottomRight() {
+    return box.getCornerRadiusBottomRight();
+}
+template<class T>
+unsigned int nafy::TextRecBase<T>::getCornerRadiusBottomLeft() {
+    return box.getCornerRadiusBottomLeft();
+}
+
+template<class T>
 nafy::Color &nafy::TextRecBase<T>::getColor() {
     return box.getColor();
 }

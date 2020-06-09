@@ -40,6 +40,7 @@ namespace nafy {
         void render() override;
 
         void bindShader(const shader_t &shader);
+        shader_t getShader();
 
         void setX(int x);
         void setY(int y);

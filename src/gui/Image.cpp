@@ -116,6 +116,10 @@ void nafy::Image::bindShader(const shader_t &shader) {
     shader->uniSampler0();
 }
 
+nafy::shader_t nafy::Image::getShader() {
+    return shader;
+}
+
 void nafy::Image::setX(int x) {
     model.x = x;
 }

@@ -113,6 +113,7 @@ public:
     int getHeight();
 
     void bindShader(const nafy::shader_t &shader);
+    nafy::shader_t getShader();
 
     // Returns false if reached the end of the overflows
     bool nextOverflow();

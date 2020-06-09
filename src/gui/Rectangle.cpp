@@ -221,6 +221,10 @@ void nafy::Rectangle::bindShader(const shader_t &shader) {
     colorLocation = shader->uniColor();
 }
 
+nafy::shader_t nafy::Rectangle::getShader() {
+    return shader;
+}
+
 void nafy::Rectangle::setX(int x) {
     model.x = x;
 }
