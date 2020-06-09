@@ -42,26 +42,32 @@ static nafy::uniform_t assertUni(nafy::uniform_t result, const char *name) {
     return result;
 }
 
-// void nafy::Shader::test(const char *name) {
-//     int error = glGetError();
-//     if (error != GL_NO_ERROR) {
-//         throw gl_error(std::string("Shader does not meet uniform requirements for '") + name + "'", error);
-//     }
-// }
+void nafy::Shader::test(const char *name) {
+    const int error = glGetError();
+    if (error != GL_NO_ERROR) {
+        throw gl_error(std::string("Shader does not meet uniform requirements for '") + name + "'", error);
+    }
+}
 
 nafy::Shader::Shader(shader_program_t shader, uni_t uniforms): shader(shader) {
+    int error = glGetError();
+    if (error != GL_NO_ERROR) {
+        throw gl_error("OpenGL error occurred before start of Shader constructor", error);
+    }
     if (has(uniforms, uni::sampler0)) {
         uniform_t u = glGetUniformLocation(shader, SAMPLER0_NAME);
         use();
         glUniform1i(u, 0);
         cache::sampler0[shader] = u;
-
+        test("sampler0");
     }
     if (has(uniforms, uni::model)) {
         cache::model[shader] = glGetUniformLocation(shader, MODEL_NAME);
+        test("model");
     }
     if (has(uniforms, uni::color)) {
         cache::color[shader] = glGetUniformLocation(shader, COLOR_NAME);
+        test("color");
     }
 }
 nafy::Shader::~Shader() {

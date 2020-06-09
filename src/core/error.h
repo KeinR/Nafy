@@ -36,7 +36,8 @@ namespace nafy {
     class ft_error: public error_c {
     public:
         ft_error(error_code code) noexcept;
-        ft_error(const std::string &message, error_code code = 0) noexcept;
+        ft_error(const std::string &message) noexcept;
+        ft_error(const std::string &message, error_code code) noexcept;
     };
 
     // OpenGL error, thrown when, as you might expect, there was some
@@ -46,13 +47,15 @@ namespace nafy {
     class gl_error: public error_c  {
     public:
         gl_error(error_code code) noexcept;
-        gl_error(const std::string &message, error_code code = 0) noexcept;
+        gl_error(const std::string &message) noexcept;
+        gl_error(const std::string &message, error_code code) noexcept;
     };
 
     class al_error: public error_c {
     public:
         al_error(error_code code) noexcept;
-        al_error(const std::string &message, error_code code = 0) noexcept;
+        al_error(const std::string &message) noexcept;
+        al_error(const std::string &message, error_code code) noexcept;
     };
 }
 
