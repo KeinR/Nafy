@@ -52,7 +52,7 @@ namespace nafy {
                 View view;
                 Color background;
                 TextRec speaker;
-                TextRecCrawl crawl;
+                CrawlButton crawl;
             } game;
 
             // View 2: The menu screen, brought up mid-game to view options
@@ -82,6 +82,7 @@ namespace nafy {
         // int currentID;
         bool run;
         bool runGameAction;
+        bool userAdvance;
 
         float frameCooldown;
 
@@ -174,6 +175,8 @@ namespace nafy {
 
         void setGameRunning(bool value);
         void stopIfCurrent(Scene *obj);
+        void setUserAdvance(bool value);
+        bool getUserAdvance();
     };
 }
 

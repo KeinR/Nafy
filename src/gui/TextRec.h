@@ -57,6 +57,8 @@ namespace nafy {
         unsigned int getWidth();
         unsigned int getHeight();
 
+        Color &getColor();
+
         void generate();
         void render() override;
 

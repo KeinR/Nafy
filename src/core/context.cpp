@@ -40,7 +40,7 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
         )
     },
     defaultFont(makeFont(FontFactory(getPath("resources/fonts/Arial.ttf")))),
-    root(nullptr), current(nullptr), run(false), runGameAction(false), vsync(0)
+    root(nullptr), current(nullptr), run(false), runGameAction(false), userAdvance(false), vsync(0)
 {
 
     makeCurrent();
@@ -72,11 +72,14 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
         this->setBackground(this->getViewsRef().game.background);
         this->getViewsRef().home.startGame.setEnabled(false);
         this->setGameRunning(true);
+        releaseCursor();
     });
     home.startGame.setOnEnter([&home]() -> void {
+        setCursorHand();
         home.startGame.getDisplay().getBox().getColor().setHex(0x3e7887);
     });
     home.startGame.setOnLeave([&home]() -> void {
+        releaseCursor();
         home.startGame.getDisplay().getBox().getColor().setHex(0x1a5d6e);
     });
     home.startGame.setCornerRadius(20);
@@ -92,12 +95,18 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     game.crawl.setY(winHeight - 60);
     game.crawl.setHeight(50);
     game.crawl.setWidth(winWidth - 10 * 2);
-    game.crawl.getBox().getColor().setHex(0x7d7fff);
+    game.crawl.getColor().setHex(0x7d7fff);
     game.crawl.setMargin(5);
     game.crawl.setCornerRadius(0, 0);
     game.crawl.setCornerRadius(1, 7);
     game.crawl.setCornerRadius(2, 7);
     game.crawl.setCornerRadius(3, 7);
+    game.crawl.getText().setAlign(Font::textAlign::left);
+    game.crawl.setOnRelease([this](int button, int mods) -> void {
+        if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            this->setUserAdvance(true);
+        }
+    });
     game.crawl.generate();
     game.speaker.setX(10);
     game.speaker.setY(winHeight - 75);
@@ -244,10 +253,10 @@ void nafy::context::resume() {
             throw gl_error(glerror);
         }
 
-        // ALenum alerror = alGetError();
-        // if (alerror != AL_NO_ERROR) {
-
-        // }
+        ALenum alerror = alGetError();
+        if (alerror != AL_NO_ERROR) {
+            throw al_error(alerror);
+        }
 
         do {
             glfwPollEvents();
@@ -255,20 +264,6 @@ void nafy::context::resume() {
             // For some reason, this works... At least on my machine
             std::this_thread::sleep_for(std::chrono::nanoseconds(1));
         } while (!shouldStop() && glfwGetTime() < end);
-
-        // throw al_error(alerror);
-        // if (err != AL_NO_ERROR) {
-        //     std::cout << "Fuck " << err << std::endl;
-        //     switch (err) {
-        //         case AL_INVALID_NAME: std::cout << "Bad name" << std::endl; break;
-        //         case AL_INVALID_OPERATION: std::cout << "Bad operation" << std::endl; break;
-        //         case ALC_INVALID_CONTEXT: std::cout << "ALC_INVALID_CONTEXT"; break;
-        //         case AL_INVALID_VALUE: std::cout << "AL_INVALID_VALUE"; break;
-        //         case AL_OUT_OF_MEMORY: std::cout << "AL_OUT_OF_MEMORY"; break;
-        //         default: std::cout << "Dunno'" << std::endl;
-        //     }
-        //     std::cout << std::endl;
-        // }
     }
 
 }
@@ -352,9 +347,16 @@ Font::type nafy::context::getDefaultFont() {
 }
 
 TextCrawl &nafy::context::getCrawl() {
-    return views->game.crawl.getText();
+    return views->game.crawl.getDisplay().getText();
 }
 
 bool nafy::context::shouldStop() {
     return glfwWindowShouldClose(window) || !run;
+}
+
+void nafy::context::setUserAdvance(bool value) {
+    userAdvance = value;
+}
+bool nafy::context::getUserAdvance() {
+    return userAdvance;
 }

@@ -36,7 +36,12 @@ namespace nafy {
         HAND
     };
 
+    // Forces the change
     void setCursorType(cursorType type);
+
+    // Accounts for other requests to do the same; reccomended
+    void releaseCursor(); // Back to default
+    void setCursorHand(); // Hand
 }
 
 #endif

@@ -129,6 +129,11 @@ unsigned int nafy::TextRecBase<T>::getHeight() {
 }
 
 template<class T>
+nafy::Color &nafy::TextRecBase<T>::getColor() {
+    return box.getColor();
+}
+
+template<class T>
 void nafy::TextRecBase<T>::generate() {
     box.generate();
     text.generate();

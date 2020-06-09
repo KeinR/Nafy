@@ -15,6 +15,7 @@ namespace nafy {
         std::string::size_type index;
         float wait;
         float next;
+        bool rolling;
     public:
         static unsigned int defaultCooldown;
         TextString(const std::string &str, unsigned int cooldownMillis = defaultCooldown);

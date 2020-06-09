@@ -291,3 +291,18 @@ void nafy::setCursorType(cursorType type) {
             break;
     }
 }
+
+static int mouseLock = 0;
+void nafy::setCursorHand() {
+    if (mouseLock == 0) {
+        glfwSetCursor(glfwGetCurrentContext(), cursor_hand);
+    }
+    mouseLock++;
+}
+void nafy::releaseCursor() {
+    mouseLock--;
+    if (mouseLock <= 0) {
+        mouseLock = 0;
+        glfwSetCursor(glfwGetCurrentContext(), NULL);
+    }
+}

@@ -14,6 +14,8 @@ int main() {
         context ctx(600, 400, "test");
         Scene sc;
         sc.pushText("Hello gamers~");
+        sc.pushText("I like cheese");
+        sc.pushText("Did you know that?");
         ctx.setRoot(sc);
 
         Image img;

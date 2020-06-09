@@ -22,7 +22,7 @@ static bool isWhitespace(char c) {
 }
 
 nafy::TextString::TextString(const std::string &str, unsigned int cooldownMillis):
-    str(str), wait(0.001f * cooldownMillis) {
+    str(str), wait(0.001f * cooldownMillis), rolling(false) {
 }
 
 void nafy::TextString::setString(const std::string &str) {
@@ -37,18 +37,32 @@ void nafy::TextString::init(context *ctx, Scene *parent) {
     next = glfwGetTime() + wait;
     ctx->getCrawl().setString(str);
     ctx->getCrawl().generate();
+    rolling = true;
 }
 
 bool nafy::TextString::action(context *ctx, Scene *parent) {
-    if (glfwGetTime() >= next) {
-        next = glfwGetTime() + wait;
-        for (; isWhitespace(str[index]); index++) {
+    if (ctx->getUserAdvance()) {
+        ctx->setUserAdvance(false);
+        if (!rolling) {
+            ctx->getCrawl().setString("");
+            ctx->getCrawl().generate();
+            return true;
+        }
+        ctx->getCrawl().advance(str.length());
+    } else if (rolling) {
+        if (glfwGetTime() >= next) {
+            next = glfwGetTime() + wait;
+            for (; index < str.length() && isWhitespace(str[index]); index++) {
+                if (ctx->getCrawl().advance()) {
+                    rolling = false;
+                    return false;
+                }
+            }
+            index++;
             if (ctx->getCrawl().advance()) {
-                return true;
+                rolling = false;
             }
         }
-        index++;
-        return ctx->getCrawl().advance();
     }
     return false;
 }
