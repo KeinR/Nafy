@@ -27,6 +27,7 @@ static GLFWwindow *init(int width, int height, const char *title);
 static void initWindow(GLFWwindow *window);
 static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 static void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
+static void keyActionCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 GLFWwindow *init(int width, int height, const char *title) {
     glfwInit();
@@ -65,6 +66,7 @@ void deInit() {
 void initWindow(GLFWwindow *window) {
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetCursorPosCallback(window, mouseMoveCallback);
+    glfwSetKeyCallback(window, keyActionCallback);
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
@@ -80,6 +82,15 @@ void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
     for (call &c : callbacks) {
         if (c.window == window) {
             c.parent->mousePosCallback(xpos, ypos);
+            break;
+        }
+    }
+}
+
+void keyActionCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    for (call &c : callbacks) {
+        if (c.window == window) {
+            c.parent->keyActionCallback(key, scancode, action, mods);
             break;
         }
     }

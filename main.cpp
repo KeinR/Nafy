@@ -1,5 +1,7 @@
 #include "src/game/Scene.h"
-#include "src/core/context.h"
+#include "src/game/ButtonPrompt.h"
+#include "src/game/BasicEvent.h"
+#include "src/core/Context.h"
 #include "src/env/env.h"
 #include "src/core/error.h"
 #include "src/shaders/ShaderFactory.h"
@@ -11,12 +13,39 @@ using namespace nafy;
 
 int main() {
     try {
-        context ctx(600, 400, "test");
+        Context ctx(600, 400, "test");
+        ctx.activate();
+
         Scene sc;
-        sc.pushText("Hello gamers~");
-        sc.pushText("I like cheese");
-        sc.pushText("Did you know that?");
         ctx.setRoot(sc);
+        sc <<
+        "Hello gamers~" <<
+        "I like cheese" <<
+        "Did you know that?" <<
+        BasicEvent(
+            [](Context *ctx, Scene *sc)->void{
+                std::cout << "He he init" << std::endl;
+            },
+            [](Context *ctx, Scene *sc)->bool{
+                std::cout << "Wait I'm last!?!?" << std::endl;
+                return true;
+            }
+        ) <<
+        "Did you enjoy this? Please answer honestly...";
+
+        std::cout << "GL_NO_ERROR = " << GL_NO_ERROR << std::endl;
+
+        std::shared_ptr<ButtonPrompt> prompt = std::make_shared<ButtonPrompt>();
+        prompt->add("Yes", []()->void{
+            std::cout << ">>> That's pretty cool" << std::endl;
+        });
+        prompt->add("No", [&ctx]()->void{
+            std::cout << ">>> Aw, well, that stucks..." << std::endl;
+            ctx.stop();
+        });
+        prompt->generate();
+
+        sc << prompt;
 
         Image img;
         img.loadImage("img.jpg");
@@ -56,7 +85,7 @@ int main() {
     
     // {
     //     nafy::scene sc;
-    //     nafy::context ctx(400, 400, "test", sc, font);
+    //     nafy::Context ctx(400, 400, "test", sc, font);
     // }
 
     // nafy::minusContext(window);

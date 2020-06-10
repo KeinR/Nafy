@@ -56,14 +56,14 @@ namespace nafy {
             } game;
 
             // View 2: The menu screen, brought up mid-game to view options
-            // struct menu_s {
-            //     View view;
-            //     Color background;
-            //     Text topTitle;
-            //     Button resumeGame;
-            //     Button toMenu;
-            //     // Button toConfig;
-            // } menu;
+            struct menu_s {
+                View view;
+                Rectangle bg;
+                Text topTitle;
+                Button resumeGame;
+                Button toMenu;
+                // Button toConfig;
+            } menu;
         };
     private:
         GLFWwindow *window;
@@ -86,9 +86,9 @@ namespace nafy {
 
         float frameCooldown;
 
-        // TODO: Change to vector for faster iteration
         std::vector<mouseMoveCallback*> cursorPosCallbacks;
         std::vector<mouseClickCallback*> cursorButtonCallbacks;
+        std::vector<keyCallback*> keyCallbacks;
 
         Color *background;
         View *view;
@@ -117,13 +117,16 @@ namespace nafy {
 
         void mousePosCallback(double x, double y);
         void mouseButtonCallback(int button, int action, int mods);
+        void keyActionCallback(int key, int scancode, int action, int mods);
 
         // Returns const iterators to the positions of the callbacks,
         // which can then later be used for fast removal 
         void addMousePosCallback(mouseMoveCallback &callback);
         void addMouseButtonCallback(mouseClickCallback &callback);
+        void addKeyCallback(keyCallback &callback);
         void removeMousePosCallback(mouseMoveCallback *callback);
         void removeMouseButtonCallback(mouseClickCallback *callback);
+        void removeKeyCallback(keyCallback *callback);
 
         // Sets context to current
         // IMPORTANT IF YOU ARE USING MORE THAN ONE CONTEXT!!!!

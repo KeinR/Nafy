@@ -54,18 +54,22 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
     // Shortcuts, serve no other purpose
     views_s::home_s &home = views->home;
     views_s::game_s &game = views->game;
+    views_s::menu_s &menu = views->menu;
 
     // Init home screen
 
     home.background.setHex(0x2f67f5);
     home.title.setString("NAFY");
-    home.title.setX(100);
     home.title.setY(10);
+    home.title.setAlign(Font::textAlign::center);
     home.title.generate();
-    home.startGame.setX(100);
+    home.title.setX((winWidth - home.title.getWidth()) / 2);
     home.startGame.setY(50);
-    home.startGame.getDisplay().getBox().getColor().setHex(0x1a5d6e);
-    home.startGame.getDisplay().getText().setString("Start game!");
+    home.startGame.getColor().setHex(0x1a5d6e);
+    home.startGame.getText().setAlign(Font::textAlign::center);
+    home.startGame.getText().setString("Start game!");
+    home.startGame.setWidth(100);
+    home.startGame.setX((winWidth - home.startGame.getWidth()) / 2);
     home.startGame.setOnClick([this](Button *caller, int button, int mods) -> void {
         std::cout << "Start game~!" << std::endl;
         this->setView(this->getViewsRef().game.view);
@@ -82,7 +86,7 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
         releaseCursor();
         caller->getColor().setHex(0x1a5d6e);
     });
-    home.startGame.setCornerRadius(20);
+    home.startGame.setCornerRadius(10);
     home.startGame.generate();
 
     home.view.add(&home.title);
@@ -121,6 +125,27 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
     game.view.add(&game.crawl);
     game.view.add(&game.speaker);
 
+    menu.bg.getColor().setVal(0, 0, 0, 0.5);
+    menu.topTitle.setString("PAUSED");
+    menu.topTitle.generate();
+    menu.topTitle.setX((winWidth - menu.topTitle.getWidth()) / 2);
+    menu.topTitle.setY(20);
+    #define MARGIN 6
+    menu.resumeGame.getText().setString("Resume");
+    menu.resumeGame.getText().generate();
+    menu.resumeGame.setX((winWidth - menu.resumeGame.getText().getWidth() - MARGIN) / 2);
+    menu.resumeGame.setY(50);
+    menu.resumeGame.setMargin(MARGIN);
+    menu.toMenu.getText().setString("Main menu");
+    menu.toMenu.getText().generate();
+    menu.toMenu.setX((winWidth - menu.toMenu.getText().getWidth() - MARGIN) / 2);
+    menu.toMenu.setY(70);
+    menu.toMenu.setMargin(MARGIN);
+    #undef MARGIN
+
+    menu.view.add(&menu.topTitle);
+    menu.view.add(&menu.resumeGame);
+    menu.view.add(&menu.toMenu);
 
     setBackground(home.background);
     setView(home.view);
@@ -151,12 +176,22 @@ void nafy::Context::mouseButtonCallback(int button, int action, int mods) {
     }
 }
 
+void nafy::Context::keyActionCallback(int key, int scancode, int action, int mods) {
+    for (keyCallback *&callback : keyCallbacks) {
+        callback->keyAction(key, scancode, action, mods);
+    }
+}
+
 void nafy::Context::addMousePosCallback(mouseMoveCallback &callback) {
     cursorPosCallbacks.push_back(&callback);
 }
 
 void nafy::Context::addMouseButtonCallback(mouseClickCallback &callback) {
     cursorButtonCallbacks.push_back(&callback);
+}
+
+void nafy::Context::addKeyCallback(keyCallback &callback) {
+    keyCallbacks.push_back(&callback);
 }
 
 void nafy::Context::removeMousePosCallback(mouseMoveCallback *callback) {
@@ -172,6 +207,15 @@ void nafy::Context::removeMouseButtonCallback(mouseClickCallback *callback) {
     for (std::vector<mouseClickCallback*>::const_iterator it = cursorButtonCallbacks.cbegin(); it != cursorButtonCallbacks.cend(); ++it) {
         if (*it == callback) {
             cursorButtonCallbacks.erase(it);
+            break;
+        }
+    }
+}
+
+void nafy::Context::removeKeyCallback(keyCallback *callback) {
+    for (std::vector<keyCallback*>::const_iterator it = keyCallbacks.cbegin(); it != keyCallbacks.cend(); ++it) {
+        if (*it == callback) {
+            keyCallbacks.erase(it);
             break;
         }
     }

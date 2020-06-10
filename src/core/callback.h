@@ -13,6 +13,10 @@ namespace nafy {
         // Misleading I suppose, because it can be released too...
         virtual void mouseClicked(bool isPressed, int button, int mods) = 0;
     };
+    class keyCallback {
+    public:
+        virtual void keyAction(int key, int scancode, int action, int mods) = 0;
+    };
 };
 
 #endif
