@@ -133,7 +133,9 @@ void Text::textCopyPOD(const Text &other) {
 
 Text::Text(const Text &other) {
     textCopy(other);
-    loadStops();
+    if (lines.size()) {
+        loadStops();
+    }
 }
 
 Text::Text(Text &&other) {
@@ -142,7 +144,9 @@ Text::Text(Text &&other) {
 
 Text &Text::operator=(const Text &other) {
     textCopy(other);
-    loadStops();
+    if (lines.size()) {
+        loadStops();
+    }
     return *this;
 }
 
@@ -182,7 +186,6 @@ void Text::generate() {
 
     configureFont();
     index = font->indexString(str.cbegin(), str.cend());
-    std::cout << "GENERATE: textAlign == left -> " << (textAlign == Font::textAlign::center) << std::endl;
     if (wrappingWidth) {
         lines = font->getLines(index.cbegin(), index.cend(), wrappingWidth, textAlign);
         if (overflowHeight) {
