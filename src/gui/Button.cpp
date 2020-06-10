@@ -326,6 +326,10 @@ void nafy::ButtonBase<T,S>::trigger() {
 template<class T, class S>
 void nafy::ButtonBase<T,S>::generate() {
     display.generate();
+    // True center
+    if (display.getText().getAlign() == Font::textAlign::center) {
+        display.getText().setY(getY() + (getHeight() - display.getText().getHeight()) / 2);
+    }
 }
 template<class T, class S>
 void nafy::ButtonBase<T,S>::render() {
