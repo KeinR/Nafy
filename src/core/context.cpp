@@ -71,7 +71,6 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
     home.startGame.setWidth(100);
     home.startGame.setX((winWidth - home.startGame.getWidth()) / 2);
     home.startGame.setOnClick([this](Button *caller, int button, int mods) -> void {
-        std::cout << "Start game~!" << std::endl;
         this->setView(this->getViewsRef().game.view);
         this->setBackground(this->getViewsRef().game.background);
         this->getViewsRef().home.startGame.setEnabled(false);
@@ -250,29 +249,6 @@ void nafy::Context::resume() {
     run = true;
 
     makeCurrent();
-
-    std::cout << "Initializing OpenAL... ";
-    Device device;
-    AudioContext ctx(device);
-    ctx.bind();
-    std::cout << "done." << std::endl;
-    std::cout << "Loading... ";
-    // SoundData testMusic = loadOggVorbisFile("test.ogg");
-    std::cout << "done." << std::endl;
-    std::cout << "Load ogg" << std::endl;
-    SoundBuffer buffer(loadWavFile("test.wav"));
-    std::cout << "done" << std::endl;
-    Speaker speaker;
-    speaker.setGain(1);
-    speaker.setPitch(1);
-    speaker.setBuffer(buffer);
-    // speaker.setTime(120);
-    std::cout << "Start play" << std::endl;
-    speaker.play();
-    std::cout << "done" << std::endl;
-
-    // testMusic.data.reset();
-
 
     while (!shouldStop()) {
 

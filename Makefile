@@ -1,31 +1,26 @@
-# SHELL := /usr/bin/env bash
-.SUFFIXES:
+EXT_OBJ = bin/extern.glad.glad.o bin/extern.stb.stb_image.o bin/extern.stb.stb_image_write.o bin/extern.stb.stb_vorbis.o 
+OBJ = bin/audio.AudioContext.o bin/audio.Device.o bin/audio.SoundBuffer.o bin/audio.SoundData.o bin/audio.Speaker.o bin/core.context.o bin/core.error.o bin/core.TextLibrary.o bin/core.Window.o bin/env.env.o bin/game.BasicEvent.o bin/game.ButtonPrompt.o bin/game.Scene.o bin/game.sceneEvent.o bin/game.TextString.o bin/gui.Button.o bin/gui.Color.o bin/gui.Image.o bin/gui.Node.o bin/gui.Rectangle.o bin/gui.TextRec.o bin/gui.View.o bin/render.Buffer.o bin/render.Model.o bin/render.Texture.o bin/shaders.Shader.o bin/shaders.ShaderFactory.o bin/text.Font.o bin/text.FontFactory.o bin/text.Text.o bin/text.TextCrawl.o 
+objects := $(OBJ) $(EXT_OBJ)
 
-include globals.mk
-DEV_OUT = ./build-dev.exe
-# REL_OUT = ./nafy.a
+CFLAGS = -Wall `pkg-config --cflags freetype2` -s
+CC = g++
+INCLUDE = -Iextern
+LIBS = -lglfw3dll -lfreetype.dll -lOpenAL32.dll
+
+MK = $(CC) $(CFLAGS) $(INCLUDE)
+OUT = ./nafy.exe
 
 MAIN = bin/main.o
 
-DEV_BUILD := $(MK) -o $(DEV_OUT) $(MAIN) $(objects) $(LIBS)
-DB_BUILD := $(DEV_BUILD)
-# REL_BUILD := $(MK) -o $(DEV_OUT) main.o $(DEPS) $(LIBS) -02 -s
-# AR = ar crf $(REL_OUT) header.o $(DEPS) $(LIBS)
+.SUFFIXES:
 
-build-dev: $(MAIN) $(objects)
-	$(DEV_BUILD) -g
+release: bin $(MAIN) $(objects)
+	$(MK) -o $(OUT) $(MAIN) $(objects) $(LIBS)
 
-build-debug: $(MAIN) $(objects)
-	$(DB_BUILD) -g
+run: release
+	@$(OUT)
 
-# build-release: $(DEPS)
-# 	$(REL_BUILD)
-
-run: build-dev
-	@./build-dev.exe
-
-debug: build-debug
-	gdb ./build-dev.exe -ex run
+include depconfig.mk
 
 # For dev
 $(MAIN): main.cpp src/**
@@ -37,13 +32,15 @@ $(EXT_OBJ):
 $(OBJ):
 	$(MK) -c $< -o $@
 
-include depconfig.mk
-depconfig.mk: $(shell ./depdep)
-	./confdeps
+bin:
+	mkdir -p bin
 
-globals.mk:
-	@echo "ERROR: globals.mk not found"
+depconfig.mk:
+	@echo "ERROR: depconfig.mk not found"
 	@exit 1
 
 clean:
 	rm -f $(objects) $(MAIN)
+
+clean-all: clean
+	rm -f $(OUT)

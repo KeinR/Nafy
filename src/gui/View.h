@@ -26,7 +26,7 @@ namespace nafy {
         void addAt(renderable *rend, position_t index);
         // Remove using the iterator returned from the add() function
         // (fast, O(vectorSize - 1 - pos + erased))
-        void remove(position_t pos);
+        void removePos(position_t pos);
         // Remove by searching for element
         // (slow, O(vectorSize + erased))
         void remove(renderable *rend);

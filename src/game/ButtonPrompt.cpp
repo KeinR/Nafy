@@ -1,5 +1,7 @@
 #include "ButtonPrompt.h"
 
+#include <iostream>
+
 #include "../env/env.h"
 
 nafy::ButtonPrompt::elementData::elementData(const std::string &str, const callback_func &func): str(str), func(func) {
@@ -148,12 +150,8 @@ void nafy::ButtonPrompt::add(const elementData &cb) {
     button.setOnClick([this, func](Button *caller, int button, int mods)->void{
         releaseCursor();
         func();
-        // Now it is possible...
-        // The user, if they beat the next frame, could click
-        // another button...
-        // But that's very unlikely to happen unless they're using some program
         // Also, NB: This'll happen on a different thread
-        this->shouldStop = true;
+        deactivate();
     });
     button.setEnabled(false);
     elements.push_back(std::move(button));
@@ -205,11 +203,7 @@ void nafy::ButtonPrompt::init(Context *ctx, Scene *sc) {
     activate();
 }
 bool nafy::ButtonPrompt::action(Context *ctx, Scene *sc) {
-    if (shouldStop) {
-        deactivate();
-        return true;
-    }
-    return false;
+    return shouldStop;
 }
 
 void nafy::ButtonPrompt::render() {

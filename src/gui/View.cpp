@@ -1,5 +1,7 @@
 #include "View.h"
 
+#include <iostream>
+
 nafy::View::View() {
 }
 nafy::View::position_t nafy::View::add(renderable *rend) {
@@ -9,7 +11,7 @@ nafy::View::position_t nafy::View::add(renderable *rend) {
 void nafy::View::addAt(renderable *rend, position_t index) {
     nodes.insert(nodes.cbegin() + index, Node(rend));
 }
-void nafy::View::remove(position_t pos) {
+void nafy::View::removePos(position_t pos) {
     nodes.erase(nodes.cbegin() + pos);
 }
 void nafy::View::remove(renderable *rend) {
@@ -19,6 +21,7 @@ void nafy::View::remove(renderable *rend) {
             break;
         }
     }
+    std::cout << "Not found" << std::endl;
 }
 void nafy::View::render() {
     for (Node &n : nodes) {
