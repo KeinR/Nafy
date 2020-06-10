@@ -35,7 +35,13 @@ void nafy::Color::setProp(float red, float green, float blue, float alpha) {
     color[3] = alpha;
 }
 
-void nafy::Color::getVal(unsigned char *red, unsigned char *green, unsigned char *blue, unsigned char *alpha) {
+void nafy::Color::set(const Color &other) {
+    for (int i = 0; i < 4; i++) {
+        color[i] = other.color[i];
+    }
+}
+
+void nafy::Color::getVal(unsigned char *red, unsigned char *green, unsigned char *blue, unsigned char *alpha) const {
     #define TRYGET(var, i) if (var != nullptr) *var = color[i] * 0xFF;
     TRYGET(red, 0)
     TRYGET(green, 1)
@@ -46,4 +52,15 @@ void nafy::Color::getVal(unsigned char *red, unsigned char *green, unsigned char
 
 float *nafy::Color::get() {
     return color;
+}
+
+nafy::Color nafy::Color::brighten(float percent) const {
+    Color c;
+    for (int i = 0; i < 4; i++) {
+        c.color[i] = color[i] + color[i] * percent;
+        if (c.color[i] > 1) {
+            c.color[i] = 1;
+        }
+    }
+    return c;
 }

@@ -25,11 +25,20 @@ namespace nafy {
         // Proportions, 0-1 representing percent of 255
         void setProp(float red, float green, float blue, float alpha = 1.0f);
 
+        void set(const Color &other);
+
         // Any parameter as `nullptr` is ignored
-        void getVal(unsigned char *red, unsigned char *green, unsigned char *blue, unsigned char *alpha);
+        void getVal(unsigned char *red, unsigned char *green, unsigned char *blue, unsigned char *alpha) const;
 
         // Get pointer to pointer data, array of length 4
         float *get();
+
+        // In `percent`, 1 is 100%
+        // Basically for each one does f(x)=x+percent*x,
+        // effectively brightening the previous color
+        // Returns a new color object with the new values.
+        // Negative values for `percent` will instead darken.
+        Color brighten(float percent) const;
     };
 }
 
