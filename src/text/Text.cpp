@@ -129,6 +129,7 @@ void Text::textCopyPOD(const Text &other) {
     overflowHeight = other.overflowHeight;
     lineSpacingMod = other.lineSpacingMod;
     stopsIndex = other.stopsIndex;
+    textAlign = other.textAlign;
 }
 
 Text::Text(const Text &other) {
