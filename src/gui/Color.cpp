@@ -1,37 +1,56 @@
 #include "Color.h"
 
-nafy::Color::Color(): color{0.0f, 0.0f, 0.0f, 1.0f} {
+nafy::Color::Color() {
+    setProp(0.0f, 0.0f, 0.0f, 1.0f);
 }
-nafy::Color::Color(float r, float b, float g, float a): color{r, g, b, a} {
+nafy::Color::Color(hex_t hex, value_t alpha) {
+    setHex(hex, alpha);
 }
-
-void nafy::Color::setHex(unsigned int hex) {
-    const unsigned char r = hex >> 24;
-    if (r) {
-        setVal(
-            r,
-            (hex >> 16) & 0xFF,
-            (hex >> 8) & 0xFF,
-            hex & 0xFF
-        );
-    } else {
-        setVal(
-            (hex >> 16) & 0xFF,
-            (hex >> 8) & 0xFF,
-            hex & 0xFF,
-            0xFF
-        );
-    }
+nafy::Color::Color(prop_t r, prop_t g, prop_t b, prop_t a) {
+    setProp(r, b, g, a);
 }
 
-void nafy::Color::setVal(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha) {
+nafy::Color &nafy::Color::operator=(hex_t hex) {
+    setHex(hex);
+    return *this;
+}
+
+void nafy::Color::setHex(hex_t hex) {
+    setVal(
+        (hex >> 16) & 0xFF,
+        (hex >> 8) & 0xFF,
+        hex & 0xFF
+    );
+}
+void nafy::Color::setHex(hex_t hex, value_t alpha) {
+    setVal(
+        (hex >> 16) & 0xFF,
+        (hex >> 8) & 0xFF,
+        hex & 0xFF,
+        alpha
+    );
+}
+
+void nafy::Color::setVal(value_t red, value_t green, value_t blue) {
+    setProp(red / 255.0f, green / 255.0f, blue / 255.0f, color[3]);
+}
+void nafy::Color::setVal(value_t red, value_t green, value_t blue, value_t alpha) {
     setProp(red / 255.0f, green / 255.0f, blue / 255.0f, alpha / 255.0f);
 }
+void nafy::Color::setValAlpha(value_t alpha) {
+    setPropAlpha(alpha / 255.0f);
+}
 
-void nafy::Color::setProp(float red, float green, float blue, float alpha) {
+void nafy::Color::setProp(prop_t red, prop_t green, prop_t blue) {
+    setProp(red, green, blue, color[3]);
+}
+void nafy::Color::setProp(prop_t red, prop_t green, prop_t blue, prop_t alpha) {
     color[0] = red;
     color[1] = green;
     color[2] = blue;
+    color[3] = alpha;
+}
+void nafy::Color::setPropAlpha(prop_t alpha) {
     color[3] = alpha;
 }
 
@@ -41,7 +60,7 @@ void nafy::Color::set(const Color &other) {
     }
 }
 
-void nafy::Color::getVal(unsigned char *red, unsigned char *green, unsigned char *blue, unsigned char *alpha) const {
+void nafy::Color::getVal(value_t *red, value_t *green, value_t *blue, value_t *alpha) const {
     #define TRYGET(var, i) if (var != nullptr) *var = color[i] * 0xFF;
     TRYGET(red, 0)
     TRYGET(green, 1)
@@ -50,7 +69,7 @@ void nafy::Color::getVal(unsigned char *red, unsigned char *green, unsigned char
     #undef TRYGET
 }
 
-float *nafy::Color::get() {
+nafy::Color::prop_t *nafy::Color::get() {
     return color;
 }
 

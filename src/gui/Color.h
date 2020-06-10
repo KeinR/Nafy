@@ -5,33 +5,60 @@
 
 namespace nafy {
     class Color {
-        // rgba
-        float color[4];
     public:
+        typedef unsigned int hex_t;
+        typedef unsigned char value_t;
+        typedef float prop_t;
+    private:
+        // rgba
+        prop_t color[4];
+    public:
+        // Yoinked from wikipedia
+        // https://en.wikipedia.org/wiki/Web_colors#X11_color_names
+        static constexpr hex_t red = 0xFF0000;
+        static constexpr hex_t green = 0x008000;
+        static constexpr hex_t blue = 0x0000FF;
+        static constexpr hex_t black = 0x000000;
+        static constexpr hex_t white = 0xFFFFFF;
+        static constexpr hex_t silver = 0xC0C0C0;
+        static constexpr hex_t gray = 0x808080;
+        static constexpr hex_t maroon = 0x800000;
+        static constexpr hex_t yellow = 0xFFFF00;
+        static constexpr hex_t olive = 0x808000;
+        static constexpr hex_t lime = 0x00FF00;
+        static constexpr hex_t aqua = 0x00FFFF;
+        static constexpr hex_t teal = 0x008080;
+        static constexpr hex_t navy = 0x000080;
+        static constexpr hex_t fuchsia = 0xFF00FF;
+        static constexpr hex_t purple = 0x800080;
+
         // 0, 0, 0, 1 by default; ie, opaque black
         Color();
-        Color(float r, float b, float g, float a);
+        Color(hex_t hex, value_t alpha = 0xFF);
+        Color(prop_t r, prop_t g, prop_t b, prop_t a = 1);
 
-        // Hex value for RGBA, with first 8 bytes ignored,
-        // next 8 red, then green, blue, and lastly, alpha
-        // If the first 8 bits are empty, then the format is assumed to
-        // be RGB, and those bits are ignored and the alpha set to 0xFF
-        // To illustrate:
-        // 0xFF32AC33 -> RGBA -> R=FF, G=32, B=AC, A=33
-        // 0xFF32AC == 0x00FF32AC -> Only 3 bytes -> RGB -> R=FF, G=32, B=AC, A=FF
-        void setHex(unsigned int hex);
+        // Sets a color to a hex value (no alpha, first byte ignored)
+        Color &operator=(hex_t hex);
+
+        // Hex value for RGBA, with first 8 bytes ignored
+        void setHex(hex_t hex);
+        void setHex(hex_t hex, value_t alpha);
         // Color 0-255
-        void setVal(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255);
+        void setVal(value_t red, value_t green, value_t blue);
+        void setVal(value_t red, value_t green, value_t blue, value_t alpha);
+        void setValAlpha(value_t alpha);
         // Proportions, 0-1 representing percent of 255
-        void setProp(float red, float green, float blue, float alpha = 1.0f);
+        void setProp(prop_t red, prop_t green, prop_t blue);
+        void setProp(prop_t red, prop_t green, prop_t blue, prop_t alpha);
+        void setPropAlpha(prop_t alpha);
 
         void set(const Color &other);
 
         // Any parameter as `nullptr` is ignored
-        void getVal(unsigned char *red, unsigned char *green, unsigned char *blue, unsigned char *alpha) const;
+        void getVal(value_t *red, value_t *green, value_t *blue, value_t *alpha) const;
 
         // Get pointer to pointer data, array of length 4
-        float *get();
+        prop_t *get();
 
         // In `percent`, 1 is 100%
         // Basically for each one does f(x)=x+percent*x,
