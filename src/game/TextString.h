@@ -19,13 +19,14 @@ namespace nafy {
     public:
         static unsigned int defaultCooldown;
         TextString(const std::string &str, unsigned int cooldownMillis = defaultCooldown);
-        ~TextString() = default;
 
         // Setting the string won't have any effect unil the next call
         // to init()... And in the meantime, it'll make the text crawl look
         // weird 
         void setString(const std::string &str);
         void setCooldown(unsigned int cooldownMillis);
+        std::string getString();
+        unsigned int getCooldown();
 
         void init(context *ctx, Scene *parent) override;
         bool action(context *ctx, Scene *parent) override;

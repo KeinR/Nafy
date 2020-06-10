@@ -170,7 +170,9 @@ namespace nafy {
         shader_t getDefaultSpriteShader();
         shader_t getDefaultPrimShader();
         Font::type getDefaultFont();
+        // These two are really just for conviniences sake
         TextCrawl &getCrawl();
+        View &getGameView();
         bool shouldStop();
 
         void setGameRunning(bool value);

@@ -20,8 +20,8 @@ namespace nafy {
     template<class T, class S>
     class ButtonBase: public renderable, public mouseMoveCallback, public mouseClickCallback {
     public:
-        typedef std::function<void()> move_callback_func;
-        typedef std::function<void(int button, int mods)> press_callback_func;
+        typedef std::function<void(ButtonBase<T,S> *caller)> move_callback_func;
+        typedef std::function<void(ButtonBase<T,S> *caller, int button, int mods)> press_callback_func;
     private:
         T display;
 
@@ -48,12 +48,20 @@ namespace nafy {
         void updateNodesY();
         void updateNodes();
         bool containPoint(double xPos, double yPos);
+        void disable();
+        void enable();
+        void steal(ButtonBase &other);
+        void copy(const ButtonBase &other);
     public:
         // Takes current context defaults
         ButtonBase();
         // Alternatively, set the font and shaders 
         ButtonBase(const Font::type &textFont, const shader_t &textShader, const shader_t &shapeShader);
         ~ButtonBase();
+        ButtonBase(ButtonBase &&other);
+        ButtonBase(const ButtonBase &other);
+        ButtonBase &operator=(ButtonBase &&other);
+        ButtonBase &operator=(const ButtonBase &other);
 
         void setOnClick(const press_callback_func &callback);
         void setOnRelease(const press_callback_func &callback);
@@ -94,7 +102,9 @@ namespace nafy {
         unsigned int getCornerRadiusBottomLeft();
 
         void setEnabled(bool value);
-        bool getEnabled(); // 
+        bool isEnabled();
+
+        bool isHovering();
 
         void trigger();
         void generate();

@@ -31,6 +31,12 @@ void nafy::TextString::setString(const std::string &str) {
 void nafy::TextString::setCooldown(unsigned int cooldownMillis) {
     wait = 0.001f * cooldownMillis;
 }
+std::string nafy::TextString::getString() {
+    return str;
+}
+unsigned int nafy::TextString::getCooldown() {
+    return wait / 0.001f;
+}
 
 void nafy::TextString::init(context *ctx, Scene *parent) {
     index = 0;
@@ -52,13 +58,21 @@ bool nafy::TextString::action(context *ctx, Scene *parent) {
     } else if (rolling) {
         if (glfwGetTime() >= next) {
             next = glfwGetTime() + wait;
-            for (; index < str.length() && isWhitespace(str[index]); index++) {
-                if (ctx->getCrawl().advance()) {
-                    rolling = false;
-                    return false;
+            // Failsafe in case string is changed mid-way
+            if (index < str.length()) {
+                for (; index < str.length() && isWhitespace(str[index]); index++) {
+                    if (ctx->getCrawl().advance()) {
+                        rolling = false;
+                        return false;
+                    }
                 }
+                // dot, dot, dot...
+                // Wait longer on ellipsises
+                if (str[index] == '.') {
+                    next += wait * 5;
+                }
+                index++;
             }
-            index++;
             if (ctx->getCrawl().advance()) {
                 rolling = false;
             }

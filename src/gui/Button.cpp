@@ -9,11 +9,9 @@
 
 template<class T, class S>
 void nafy::ButtonBase<T,S>::init() {
-    enabled = true;
     hovering = false;
     setCornerRadius(0);
-    getContext()->addMousePosCallback(*this);
-    getContext()->addMouseButtonCallback(*this);
+    enable();
     setWidth(100);
     setHeight(50);
     updateNodesX();
@@ -36,6 +34,70 @@ template<class T, class S>
 nafy::ButtonBase<T,S>::~ButtonBase() {
     getContext()->removeMousePosCallback(this);
     getContext()->removeMouseButtonCallback(this);
+}
+
+template<class T, class S>
+void nafy::ButtonBase<T,S>::steal(ButtonBase &other) {
+    display = std::move(other.display);
+    onClick = std::move(other.onClick);
+    onRelease = std::move(other.onRelease);
+    onEnter = std::move(other.onEnter);
+    onLeave = std::move(other.onLeave);
+    hovering = other.hovering;
+
+    setEnabled(other.enabled);
+
+    // Just to be safe - re-calculate the cache
+    updateNodes();
+}
+template<class T, class S>
+void nafy::ButtonBase<T,S>::copy(const ButtonBase &other) {
+    display = other.display;
+    onClick = other.onClick;
+    onRelease = other.onRelease;
+    onEnter = other.onEnter;
+    onLeave = other.onLeave;
+    hovering = other.hovering;
+
+    setEnabled(other.enabled);
+
+    updateNodes();
+}
+
+template<class T, class S>
+nafy::ButtonBase<T,S>::ButtonBase(ButtonBase &&other) {
+    enabled = false;
+    steal(other);
+}
+template<class T, class S>
+nafy::ButtonBase<T,S>::ButtonBase(const ButtonBase &other) {
+    enabled = false;
+    copy(other);
+}
+template<class T, class S>
+typename
+nafy::ButtonBase<T,S> &nafy::ButtonBase<T,S>::operator=(ButtonBase &&other) {
+    steal(other);
+    return *this;
+}
+template<class T, class S>
+typename
+nafy::ButtonBase<T,S> &nafy::ButtonBase<T,S>::operator=(const ButtonBase &other) {
+    copy(other);
+    return *this;
+}
+
+template<class T, class S>
+void nafy::ButtonBase<T,S>::disable() {
+    enabled = false;
+    getContext()->removeMousePosCallback(this);
+    getContext()->removeMouseButtonCallback(this);
+}
+template<class T, class S>
+void nafy::ButtonBase<T,S>::enable() {
+    enabled = true;
+    getContext()->addMousePosCallback(*this);
+    getContext()->addMouseButtonCallback(*this);
 }
 
 template<class T, class S>
@@ -201,10 +263,24 @@ void nafy::ButtonBase<T,S>::setCornerRadiusBottomLeft(unsigned int radius) {
 
 template<class T, class S>
 void nafy::ButtonBase<T,S>::setEnabled(bool value) {
-    if (enabled && !value && hovering) {
-        hovering = false;
+    if (enabled != value) {
+        if (enabled) {
+            hovering = false;
+            disable();
+        } else {
+            enable();
+        }
     }
-    enabled = value;
+}
+
+template<class T, class S>
+bool nafy::ButtonBase<T,S>::isEnabled() {
+    return enabled;
+}
+
+template<class T, class S>
+bool nafy::ButtonBase<T,S>::isHovering() {
+    return hovering;
 }
 
 template<class T, class S>
@@ -240,10 +316,10 @@ nafy::Color &nafy::ButtonBase<T,S>::getColor() {
 template<class T, class S>
 void nafy::ButtonBase<T,S>::trigger() {
     if (onClick) {
-        onClick(GLFW_MOUSE_BUTTON_LEFT, 0);
+        onClick(this, GLFW_MOUSE_BUTTON_LEFT, 0);
     }
     if (onRelease) {
-        onRelease(GLFW_MOUSE_BUTTON_LEFT, 0);
+        onRelease(this, GLFW_MOUSE_BUTTON_LEFT, 0);
     }
 }
 
@@ -280,13 +356,13 @@ void nafy::ButtonBase<T,S>::mouseMoved(double mouseX, double mouseY) {
         if (!inside) {
             hovering = false;
             if (onLeave) {
-                onLeave();
+                onLeave(this);
             }
         }
     } else if (inside) {
         hovering = true;
         if (onEnter) {
-            onEnter();
+            onEnter(this);
         }
     }
 }
@@ -298,10 +374,10 @@ void nafy::ButtonBase<T,S>::mouseClicked(bool isPressed, int button, int mods) {
     if (containPoint(mouseX, mouseY)) {
         if (isPressed) {
             if (onClick) {
-                onClick(button, mods);
+                onClick(this, button, mods);
             }
         } else if (onRelease) {
-            onRelease(button, mods);
+            onRelease(this, button, mods);
         }
     }
 }

@@ -66,7 +66,7 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     home.startGame.setY(50);
     home.startGame.getDisplay().getBox().getColor().setHex(0x1a5d6e);
     home.startGame.getDisplay().getText().setString("Start game!");
-    home.startGame.setOnClick([this](int button, int mods) -> void {
+    home.startGame.setOnClick([this](Button *caller, int button, int mods) -> void {
         std::cout << "Start game~!" << std::endl;
         this->setView(this->getViewsRef().game.view);
         this->setBackground(this->getViewsRef().game.background);
@@ -74,13 +74,13 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
         this->setGameRunning(true);
         releaseCursor();
     });
-    home.startGame.setOnEnter([&home]() -> void {
+    home.startGame.setOnEnter([](Button *caller) -> void {
         setCursorHand();
-        home.startGame.getDisplay().getBox().getColor().setHex(0x3e7887);
+        caller->getColor().setHex(0x3e7887);
     });
-    home.startGame.setOnLeave([&home]() -> void {
+    home.startGame.setOnLeave([](Button *caller) -> void {
         releaseCursor();
-        home.startGame.getDisplay().getBox().getColor().setHex(0x1a5d6e);
+        caller->getColor().setHex(0x1a5d6e);
     });
     home.startGame.setCornerRadius(20);
     home.startGame.generate();
@@ -102,7 +102,7 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
     game.crawl.setCornerRadius(2, 7);
     game.crawl.setCornerRadius(3, 7);
     game.crawl.getText().setAlign(Font::textAlign::left);
-    game.crawl.setOnRelease([this](int button, int mods) -> void {
+    game.crawl.setOnRelease([this](CrawlButton *caller, int button, int mods) -> void {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             this->setUserAdvance(true);
         }
@@ -348,6 +348,10 @@ Font::type nafy::context::getDefaultFont() {
 
 TextCrawl &nafy::context::getCrawl() {
     return views->game.crawl.getDisplay().getText();
+}
+
+nafy::View &nafy::context::getGameView() {
+    return views->game.view;
 }
 
 bool nafy::context::shouldStop() {
