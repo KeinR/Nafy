@@ -12,12 +12,12 @@
 static std::string homeDir;
 static int contextCount = 0; // Enlarge data type for more possible instances
 static bool isInit = false;
-static nafy::context *currentContext = nullptr;
+static nafy::Context *currentContext = nullptr;
 static GLFWcursor *cursor_hand = nullptr;
 
 struct call {
     GLFWwindow *window;
-    nafy::context *parent;
+    nafy::Context *parent;
 };
 
 static std::vector<call> callbacks;
@@ -102,19 +102,19 @@ void nafy::minusContext(GLFWwindow *window) {
     }
 }
 
-void nafy::setContext(context *ctx) {
+void nafy::setContext(Context *ctx) {
     currentContext = ctx;
 }
 
-nafy::context *nafy::getContext() {
+nafy::Context *nafy::getContext() {
     return currentContext;
 }
 
-void nafy::registerCallbacks(GLFWwindow *window, context *ctx) {
+void nafy::registerCallbacks(GLFWwindow *window, Context *ctx) {
     callbacks.push_back({window, ctx});
 }
 
-void nafy::deleteCallbacks(context *ctx) {
+void nafy::deleteCallbacks(Context *ctx) {
     for (std::vector<call>::iterator it = callbacks.begin(); it != callbacks.end(); ++it) {
         if (it->parent == ctx) {
             callbacks.erase(it);

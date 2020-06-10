@@ -34,7 +34,7 @@
 // TODO: Multible windows in one context
 
 namespace nafy {
-    class context {
+    class Context {
     public:
 
         struct views_s {
@@ -106,14 +106,14 @@ namespace nafy {
 
         // Pointers towards `initCrawlFace` and `root` are stored
         // Throws `ft_error` if text setup failed
-        context(int winWidth, int winHeight, const char *winTitle);
-        ~context();
+        Context(int winWidth, int winHeight, const char *winTitle);
+        ~Context();
 
         // Let's not bother with these for now
-        context(const context &other) = delete;
-        context(context &&other) = delete;
-        context &operator=(const context &other) = delete;
-        context &operator=(context &&other) = delete;
+        Context(const Context &other) = delete;
+        Context(Context &&other) = delete;
+        Context &operator=(const Context &other) = delete;
+        Context &operator=(Context &&other) = delete;
 
         void mousePosCallback(double x, double y);
         void mouseButtonCallback(int button, int action, int mods);

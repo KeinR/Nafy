@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "TextString.h"
-#include "../core/context.h"
+#include "../core/Context.h"
 #include "../core/error.h"
 
 nafy::Scene::Scene(): startIndex(0) {
@@ -48,7 +48,7 @@ void nafy::Scene::setStart(events_index_t i) {
     }
 }
 
-void nafy::Scene::init(context *ctx) {
+void nafy::Scene::init(Context *ctx) {
     if (events.size()) {
         index = startIndex;
         if (index >= events.size()) {
@@ -60,7 +60,7 @@ void nafy::Scene::init(context *ctx) {
     }
 }
 
-void nafy::Scene::run(context *ctx) {
+void nafy::Scene::run(Context *ctx) {
     if (events[index]->action(ctx, this)) {
         index++;
         if (index < events.size()) {

@@ -10,7 +10,7 @@
 #include "../gui/renderable.h"
 
 namespace nafy {
-    class context;
+    class Context;
     class Scene;
 
     class ButtonPrompt: public sceneEvent, public renderable {
@@ -89,8 +89,8 @@ namespace nafy {
         elements_cont_t &getElements();
 
 
-        void init(context *ctx, Scene *sc) override;
-        bool action(context *ctx, Scene *sc) override;
+        void init(Context *ctx, Scene *sc) override;
+        bool action(Context *ctx, Scene *sc) override;
         void render() override;
     };
 }

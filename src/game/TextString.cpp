@@ -5,7 +5,7 @@
 #include "Scene.h"
 
 #include "../core/glfw.h"
-#include "../core/context.h"
+#include "../core/Context.h"
 
 unsigned int nafy::TextString::defaultCooldown = 50;
 
@@ -38,7 +38,7 @@ unsigned int nafy::TextString::getCooldown() {
     return wait / 0.001f;
 }
 
-void nafy::TextString::init(context *ctx, Scene *parent) {
+void nafy::TextString::init(Context *ctx, Scene *parent) {
     index = 0;
     next = glfwGetTime() + wait;
     ctx->getCrawl().setString(str);
@@ -46,7 +46,7 @@ void nafy::TextString::init(context *ctx, Scene *parent) {
     rolling = true;
 }
 
-bool nafy::TextString::action(context *ctx, Scene *parent) {
+bool nafy::TextString::action(Context *ctx, Scene *parent) {
     if (ctx->getUserAdvance()) {
         ctx->setUserAdvance(false);
         if (!rolling) {

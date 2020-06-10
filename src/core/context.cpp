@@ -1,4 +1,4 @@
-#include "context.h"
+#include "Context.h"
 
 #include <iostream>
 #include <vector>
@@ -24,12 +24,12 @@
 #include "../audio/SoundBuffer.h"
 #include "../audio/Speaker.h"
 
-void nafy::context::makeCurrent() {
+void nafy::Context::makeCurrent() {
     glfwMakeContextCurrent(window);
     setContext(this);
 }
 
-nafy::context::context(int winWidth, int winHeight, const char *winTitle):
+nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
     window(plusContext(winWidth, winHeight, winTitle)),
     defaultShaders{
         ShaderFactory("resources/shaders/sprite.vert", "resources/shaders/sprite.frag").make(
@@ -127,39 +127,39 @@ nafy::context::context(int winWidth, int winHeight, const char *winTitle):
 
 }
 
-nafy::context::~context() {
+nafy::Context::~Context() {
     deleteCallbacks(this);
     minusContext(window);
 }
 
-void nafy::context::runFrame() {
+void nafy::Context::runFrame() {
     if (runGameAction) {
         current->run(this);
     }
 }
 
-void nafy::context::mousePosCallback(double x, double y) {
+void nafy::Context::mousePosCallback(double x, double y) {
     for (mouseMoveCallback *&callback : cursorPosCallbacks) {
         callback->mouseMoved(x, y);
     }
 }
 
-void nafy::context::mouseButtonCallback(int button, int action, int mods) {
+void nafy::Context::mouseButtonCallback(int button, int action, int mods) {
     const bool isPressed = action == GLFW_PRESS;
     for (mouseClickCallback *&callback : cursorButtonCallbacks) {
         callback->mouseClicked(isPressed, button, mods);
     }
 }
 
-void nafy::context::addMousePosCallback(mouseMoveCallback &callback) {
+void nafy::Context::addMousePosCallback(mouseMoveCallback &callback) {
     cursorPosCallbacks.push_back(&callback);
 }
 
-void nafy::context::addMouseButtonCallback(mouseClickCallback &callback) {
+void nafy::Context::addMouseButtonCallback(mouseClickCallback &callback) {
     cursorButtonCallbacks.push_back(&callback);
 }
 
-void nafy::context::removeMousePosCallback(mouseMoveCallback *callback) {
+void nafy::Context::removeMousePosCallback(mouseMoveCallback *callback) {
     for (std::vector<mouseMoveCallback*>::const_iterator it = cursorPosCallbacks.cbegin(); it != cursorPosCallbacks.cend(); ++it) {
         if (*it == callback) {
             cursorPosCallbacks.erase(it);
@@ -168,7 +168,7 @@ void nafy::context::removeMousePosCallback(mouseMoveCallback *callback) {
     }
 }
 
-void nafy::context::removeMouseButtonCallback(mouseClickCallback *callback) {
+void nafy::Context::removeMouseButtonCallback(mouseClickCallback *callback) {
     for (std::vector<mouseClickCallback*>::const_iterator it = cursorButtonCallbacks.cbegin(); it != cursorButtonCallbacks.cend(); ++it) {
         if (*it == callback) {
             cursorButtonCallbacks.erase(it);
@@ -177,29 +177,29 @@ void nafy::context::removeMouseButtonCallback(mouseClickCallback *callback) {
     }
 }
 
-void nafy::context::activate() {
+void nafy::Context::activate() {
     makeCurrent();
 }
 
-void nafy::context::setRoot(Scene &root) {
+void nafy::Context::setRoot(Scene &root) {
     this->root = &root;
 }
 
-void nafy::context::setCurrent(Scene &current) {
+void nafy::Context::setCurrent(Scene &current) {
     this->current = &current;
     this->current->init(this);
 }
 
-void nafy::context::revert() {
+void nafy::Context::revert() {
     setCurrent(*root);
 }
 
-void nafy::context::start() {
+void nafy::Context::start() {
     revert();
     resume();
 }
 
-void nafy::context::resume() {
+void nafy::Context::resume() {
     if (current == nullptr) {
         throw error("`current` must NOT be nullptr. Did you forget to call setRoot(Scene&)?");
     }
@@ -268,99 +268,99 @@ void nafy::context::resume() {
 
 }
 
-void nafy::context::stop() {
+void nafy::Context::stop() {
     run = false;
 }
 
-void nafy::context::stopIfCurrent(Scene *obj) {
+void nafy::Context::stopIfCurrent(Scene *obj) {
     if (obj == current) {
         setGameRunning(false);
     }
 }
 
-void nafy::context::setGameRunning(bool value) {
+void nafy::Context::setGameRunning(bool value) {
     runGameAction = value;
 }
 
-void nafy::context::setView(View &view) {
+void nafy::Context::setView(View &view) {
     this->view = &view;
 }
-void nafy::context::setBackground(Color &color) {
+void nafy::Context::setBackground(Color &color) {
     background = &color;
 }
 
-void nafy::context::setFPS(unsigned int fps) {
+void nafy::Context::setFPS(unsigned int fps) {
     framesPerSecond = fps;
     frameCooldown = 1.0f / fps;
 }
 
-unsigned int nafy::context::getFPS() {
+unsigned int nafy::Context::getFPS() {
     return framesPerSecond;
 }
 
-void nafy::context::setVSync(int lv) {
+void nafy::Context::setVSync(int lv) {
     vsync = lv;
     makeCurrent();
     glfwSwapInterval(vsync);
 }
 
-int nafy::context::getVSync() {
+int nafy::Context::getVSync() {
     return vsync;
 }
 
-Font::type nafy::context::makeFont(const FontFactory &factory) {
+Font::type nafy::Context::makeFont(const FontFactory &factory) {
     textLib.makeFont(factory);
     return textLib.makeFont(factory);
 }
 
-void nafy::context::setDefaultSpriteShader(const shader_t &shader) {
+void nafy::Context::setDefaultSpriteShader(const shader_t &shader) {
     defaultShaders.sprite = shader;
 }
-void nafy::context::setDefaultPrimShader(const shader_t &shader) {
+void nafy::Context::setDefaultPrimShader(const shader_t &shader) {
     defaultShaders.prim = shader;
 }
-void nafy::context::setDefaultFont(const Font::type &font) {
+void nafy::Context::setDefaultFont(const Font::type &font) {
     defaultFont = font;
 }
 
-std::shared_ptr<nafy::context::views_s> nafy::context::getViews() {
+std::shared_ptr<nafy::Context::views_s> nafy::Context::getViews() {
     return views;
 }
 
-nafy::context::views_s &nafy::context::getViewsRef() {
+nafy::Context::views_s &nafy::Context::getViewsRef() {
     return *views;
 }
 
-void nafy::context::setSpeaker(const std::string &name) {
+void nafy::Context::setSpeaker(const std::string &name) {
     views->game.speaker.getText().setString(name);
     views->game.speaker.getText().generate();
 }
 
-nafy::shader_t nafy::context::getDefaultSpriteShader() {
+nafy::shader_t nafy::Context::getDefaultSpriteShader() {
     return defaultShaders.sprite;
 }
-nafy::shader_t nafy::context::getDefaultPrimShader() {
+nafy::shader_t nafy::Context::getDefaultPrimShader() {
     return defaultShaders.prim;
 }
-Font::type nafy::context::getDefaultFont() {
+Font::type nafy::Context::getDefaultFont() {
     return defaultFont;
 }
 
-TextCrawl &nafy::context::getCrawl() {
+TextCrawl &nafy::Context::getCrawl() {
     return views->game.crawl.getDisplay().getText();
 }
 
-nafy::View &nafy::context::getGameView() {
+nafy::View &nafy::Context::getGameView() {
     return views->game.view;
 }
 
-bool nafy::context::shouldStop() {
+bool nafy::Context::shouldStop() {
     return glfwWindowShouldClose(window) || !run;
 }
 
-void nafy::context::setUserAdvance(bool value) {
+void nafy::Context::setUserAdvance(bool value) {
     userAdvance = value;
 }
-bool nafy::context::getUserAdvance() {
+bool nafy::Context::getUserAdvance() {
     return userAdvance;
 }

@@ -13,7 +13,7 @@
 
 namespace nafy {
     // Forward decleration to get around circular dependency
-    class context;
+    class Context;
 
     class Scene {
     public:
@@ -52,8 +52,8 @@ namespace nafy {
         /* private */
 
         // Throws instance of `error` if the scene is invalid, ie, no events
-        void init(context *ctx);
-        void run(context *ctx);
+        void init(Context *ctx);
+        void run(Context *ctx);
     };
 };
 

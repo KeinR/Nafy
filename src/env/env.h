@@ -5,15 +5,15 @@
 
 #include "../core/glfw.h"
 
-#include "../core/context.h"
+#include "../core/Context.h"
 
 namespace nafy {
     GLFWwindow *plusContext(int width, int height, const char *title);
     void minusContext(GLFWwindow *window);
-    void setContext(context *ctx);
-    context *getContext();
-    void registerCallbacks(GLFWwindow *window, context *ctx);
-    void deleteCallbacks(context *ctx);
+    void setContext(Context *ctx);
+    Context *getContext();
+    void registerCallbacks(GLFWwindow *window, Context *ctx);
+    void deleteCallbacks(Context *ctx);
 
     // Should be called if you run the program from anywhere
     // other than the executable location

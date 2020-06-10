@@ -201,10 +201,10 @@ nafy::ButtonPrompt::elements_cont_t &nafy::ButtonPrompt::getElements() {
     return elements;
 }
 
-void nafy::ButtonPrompt::init(context *ctx, Scene *sc) {
+void nafy::ButtonPrompt::init(Context *ctx, Scene *sc) {
     activate();
 }
-bool nafy::ButtonPrompt::action(context *ctx, Scene *sc) {
+bool nafy::ButtonPrompt::action(Context *ctx, Scene *sc) {
     if (shouldStop) {
         deactivate();
         return true;

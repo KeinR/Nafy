@@ -8,7 +8,7 @@
 namespace nafy {
     // Forward declartion to get around circular dependency
     class Scene;
-    class context;
+    class Context;
 
     class TextString: public sceneEvent {
         std::string str;
@@ -28,8 +28,8 @@ namespace nafy {
         std::string getString();
         unsigned int getCooldown();
 
-        void init(context *ctx, Scene *parent) override;
-        bool action(context *ctx, Scene *parent) override;
+        void init(Context *ctx, Scene *parent) override;
+        bool action(Context *ctx, Scene *parent) override;
     };
 };
 
