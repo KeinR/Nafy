@@ -89,6 +89,11 @@ nafy::Buffer nafy::Buffer::derive() const {
     bindVert();
     glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &vertSize);
 
+    const int verticiesLen = vertSize / sizeof(float);
+    float *verticiesData = new float[verticiesLen];
+    other.setVerticies(verticiesLen, verticiesData);
+    delete[] verticiesData;
+
     glBindBuffer(GL_COPY_READ_BUFFER, vertices);
     glBindBuffer(GL_COPY_WRITE_BUFFER, other.vertices);
     glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, vertSize);
@@ -98,10 +103,16 @@ nafy::Buffer nafy::Buffer::derive() const {
     bindElem();
     glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &elemSize);
 
+    const int indicesLen = elemSize / sizeof(unsigned int);
+    unsigned int *indicesData = new unsigned int[indicesLen];
+    other.setIndices(indicesLen, indicesData);
+    delete[] indicesData;
+
     glBindBuffer(GL_COPY_READ_BUFFER, indices);
     glBindBuffer(GL_COPY_WRITE_BUFFER, other.indices);
+    glGetError();
     glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, elemSize);
-    
+
     other.countIndices = countIndices;
 
     return other;
