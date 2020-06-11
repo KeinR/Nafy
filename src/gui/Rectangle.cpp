@@ -10,44 +10,21 @@
 // Number of verticies per unit of circumference, floored
 #define CURVE_SMOOTHNESS 3
 
-void nafy::Rectangle::generateBuffers() {
-    generateCurveless();
-    initVA();
+static void initBuffer(nafy::Buffer &buffer) {
+    buffer.setParam(0, 2, 2 * sizeof(float), (void*)0);
 }
 
-void nafy::Rectangle::initVA() {
-    array.setParam(0, 2, 2 * sizeof(float), (void*)0);
+void nafy::Rectangle::generateBuffers() {
+    generateCurveless();
 }
 
 nafy::Rectangle::Rectangle(): Rectangle(getContext()->getDefaultPrimShader()) {
 }
 
-nafy::Rectangle::Rectangle(const shader_t &shader): model(0, 0, 100, 100), cornerRadii{0, 0, 0, 0} {
+nafy::Rectangle::Rectangle(const shader_t &shader): buffer(initBuffer), model(0, 0, 100, 100), cornerRadii{0, 0, 0, 0} {
     generateBuffers();
     generateCurveless();
     bindShader(shader);
-}
-
-void nafy::Rectangle::copy(const Rectangle &other) {
-    model = other.model;
-    buffer = other.buffer;
-    colorLocation = other.colorLocation;
-    shader = other.shader;
-    cornerRadii[0] = other.cornerRadii[0];
-    cornerRadii[1] = other.cornerRadii[1];
-    cornerRadii[2] = other.cornerRadii[2];
-    cornerRadii[3] = other.cornerRadii[3];
-    color = other.color;
-    initVA();
-}
-
-nafy::Rectangle::Rectangle(const Rectangle &other) {
-    copy(other);
-}
-
-nafy::Rectangle &nafy::Rectangle::operator=(const Rectangle &other) {
-    copy(other);
-    return *this;
 }
 
 void nafy::Rectangle::generateCurveless() {
@@ -205,12 +182,8 @@ void nafy::Rectangle::generate() {
 }
 void nafy::Rectangle::render() {
     shader->use();
-
     model.set();
-
     glUniform4fv(colorLocation, 1, color.get());
-
-    array.bind();
     buffer.render();
 }
 

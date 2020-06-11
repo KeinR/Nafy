@@ -5,7 +5,6 @@
 #include "../shaders/Shader.h"
 #include "Color.h"
 #include "../render/Buffer.h"
-#include "../render/VArray.h"
 #include "../render/Model.h"
 
 // TODO: Memory managment
@@ -13,9 +12,8 @@
 
 namespace nafy {
     class Rectangle: public renderable {
-        Model model;
         Buffer buffer;
-        VArray array;
+        Model model;
         uniform_t colorLocation; // In shader
         shader_t shader;
 
@@ -33,11 +31,7 @@ namespace nafy {
         // Takes context default prim shader
         Rectangle();
         Rectangle(const shader_t &shader);
-        Rectangle(Rectangle &&other) = default;
-        Rectangle(const Rectangle &other);
-        ~Rectangle() = default;
-        Rectangle &operator=(Rectangle &&other) = default;
-        Rectangle &operator=(const Rectangle &other);
+
         void generate();
         void render() override;
 
