@@ -6,7 +6,6 @@
 
 #include "../shaders/Shader.h"
 #include "../render/Buffer.h"
-#include "../render/VArray.h"
 #include "../render/Texture.h"
 #include "../render/Model.h"
 
@@ -34,8 +33,8 @@ namespace nafy {
     void freeImage(unsigned char *data);
 
     class Image: public renderable {
-        VArray array;
-        Buffer buffer;
+        std::shared_ptr<Buffer> buffer;
+
         Texture texture;
         Model model;
         shader_t shader;
@@ -47,10 +46,6 @@ namespace nafy {
         Image(const Texture::tparam &texParams);
         Image(const shader_t &shader);
         Image(const Texture::tparam &texParams, const shader_t &shader);
-
-        Image(Image &&other) = default;
-        Image &operator=(Image &&other) = default;
-        Image &operator=(const Image &other);
 
         // Throws an instance of `error` if failed to load image,
         // Either because of an i/o problem, or the channel # is unsupported

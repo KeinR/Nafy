@@ -5,8 +5,41 @@
 #include <stb/stb_image.h>
 
 #include "../core/glfw.h"
+#include "../core/Cache.h"
 #include "../env/env.h"
 #include "../env/defs.h"
+
+namespace cache {
+
+    using namespace nafy;
+
+    static Cache<Buffer> buffer([]()-> Cache<Buffer>::data_t {
+
+        float vertices[16] = {
+            // positions   // texture coords
+            1.0,   1.0,  1.0f, 1.0f, // top right
+            1.0,  -1.0,  1.0f, 0.0f, // bottom right
+            -1.0, -1.0,  0.0f, 0.0f, // bottom left
+            -1.0,  1.0,  0.0f, 1.0f  // top left 
+        };
+
+        unsigned int indices[6] = {
+            0, 1, 3, // first triangle
+            1, 2, 3  // second triangle
+        };
+
+        std::shared_ptr<Buffer> buffer = std::make_shared<Buffer>([](Buffer &buffer)->void{
+            buffer.setParam(0, 2, 4 * sizeof(float), (void*)0);
+            buffer.setParam(1, 2, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+        });
+
+        buffer->setVerticies(16, vertices);
+        buffer->setIndices(6, indices);
+
+        return buffer;
+    });
+};
+
 
 int nafy::getImageFormat(int channels) {
     switch (channels) {
@@ -60,40 +93,9 @@ nafy::Image::Image(const Texture::tparam &texParams, const shader_t &shader): te
     init(shader);
 }
 
-nafy::Image &nafy::Image::operator=(const Image &other) {
-    buffer = other.buffer;
-    texture = other.texture;
-    model = other.model;
-    shader = other.shader;
-    return *this;
-}
-
 void nafy::Image::init(const shader_t &initShader) {
     bindShader(initShader);
-    initBuffer();
-}
-
-void nafy::Image::initBuffer() {
-
-    float vertices[16] = {
-        // positions   // texture coords
-        1.0,   1.0,  1.0f, 1.0f, // top right
-        1.0,  -1.0,  1.0f, 0.0f, // bottom right
-        -1.0, -1.0,  0.0f, 0.0f, // bottom left
-        -1.0,  1.0,  0.0f, 1.0f  // top left 
-    };
-
-    unsigned int indices[6] = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-    };
-
-
-    buffer.setVerticies(16, vertices);
-    buffer.setIndices(6, indices);
-
-    array.setParam(0, 2, 4 * sizeof(float), (void*)0);
-    array.setParam(1, 2, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    buffer = cache::buffer.get();
 }
 
 void nafy::Image::loadImage(const std::string &path) {
@@ -156,6 +158,5 @@ void nafy::Image::render() {
     shader->use();
     model.set();
     texture.bind();
-    array.bind();
-    buffer.render();
+    buffer->render();
 }
