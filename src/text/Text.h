@@ -8,25 +8,18 @@
 #include "Font.h"
 
 #include "../shaders/Shader.h" // DEVIATION
+#include "../gui/Image.h" // DEVIATION
+#include "../gui/Color.h" // DEVIATION
 #include "../gui/renderable.h" // DEVIATION
 
 class Text: public nafy::renderable /*DEVIATION*/ { 
 protected:
     Font::type font;
-    nafy::shader_t shader;
 
-    unsigned int VA; // Array
-    unsigned int VB; // Buffer
-    unsigned int EB; // Elem. buffer
-    unsigned int TX; // Text texture
-    unsigned int modelLocation; // In shader
+    nafy::Image image;
 
-    Font::map_size renderedWidth;
-    Font::map_size renderedHeight;
+    nafy::Color color;
 
-    float color[4];
-    int x;
-    int y;
     std::string str;
     Font::map_size wrappingWidth;
     Font::map_size overflowHeight;
@@ -41,7 +34,6 @@ protected:
 
     void generateBuffers();
 
-    void setTexture(unsigned char *bitmap);
     virtual void loadLines(const Font::line_iterator &start, const Font::line_iterator &end);
     void loadStops();
 
@@ -61,7 +53,6 @@ public:
     Text(Text &&other);
     Text &operator=(const Text &other);
     Text &operator=(Text &&other);
-    virtual ~Text();
 
     Font::type getFont();
     void setFont(const Font::type &font);
@@ -77,21 +68,7 @@ public:
     void setString(const std::string &str);
     void setAlign(Font::textAlign textAlign);
 
-    // Hex value for RGBA, with first 8 bytes ignored,
-    // next 8 red, then green, blue, and lastly, alpha
-    // If the first 8 bits are empty, then the format is assumed to
-    // be RGB, and those bits are ignored and the alpha set to 0xFF
-    // To illustrate:
-    // 0xFF32AC33 -> RGBA -> R=FF, G=32, B=AC, A=33
-    // 0xFF32AC == 0x00FF32AC -> Only 3 bytes -> RGB -> R=FF, G=32, B=AC, A=FF
-    void setColorHex(unsigned int hex);
-    // Color 0-255
-    void setColorVal(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255);
-    // Proportions, 0-1 representing percent of 255
-    void setColorProp(float red, float green, float blue, float alpha = 1.0f);
-
-    // Any parameter as `nullptr` is ignored
-    void getColorVal(unsigned char *red, unsigned char *green, unsigned char *blue, unsigned char *alpha);
+    nafy::Color &getColor();
 
     // The height at which the text will be truncated.
     // A value of 0 enables (infinite) width
@@ -109,8 +86,8 @@ public:
     unsigned int getFontSize();
 
     // The width and height of the current texture
-    int getWidth();
-    int getHeight();
+    unsigned int getWidth();
+    unsigned int getHeight();
 
     void bindShader(const nafy::shader_t &shader);
     nafy::shader_t getShader();

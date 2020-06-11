@@ -15,14 +15,14 @@ TextCrawl::TextCrawl():
     Text(),
     pen(0, 0), bitmap(nullptr),
     fall(0), start(nullptr),
-    render_c(CHANNELS, color, nullptr, 0, 0) {
+    render_c(CHANNELS, color.get(), nullptr, 0, 0) {
 }
 
 TextCrawl::TextCrawl(const Font::type &font, const nafy::shader_t &shader):
     Text(font, shader),
     pen(0, 0), bitmap(nullptr),
     fall(0), start(nullptr),
-    render_c(CHANNELS, color, nullptr, 0, 0) {
+    render_c(CHANNELS, color.get(), nullptr, 0, 0) {
 }
 
 // Start mem manegment
@@ -88,7 +88,6 @@ TextCrawl &TextCrawl::operator=(const TextCrawl &other) {
 }
 
 TextCrawl &TextCrawl::operator=(TextCrawl &&other) {
-    glDeleteTextures(1, &TX);
     textSteal(other);
     crawlSteal(other);
     return *this;
@@ -101,8 +100,7 @@ TextCrawl::~TextCrawl() {
 // end mem manegment
 
 void TextCrawl::updateTex() {
-    glBindTexture(GL_TEXTURE_2D, TX);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, renderedWidth, renderedHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap);
+    image.setImage(GL_RGBA, image.getWidth(), image.getHeight(), bitmap);
 }
 
 void TextCrawl::updateLineData() {
@@ -114,10 +112,13 @@ void TextCrawl::updateLineData() {
 void TextCrawl::loadLines(const Font::line_iterator &begin, const Font::line_iterator &end) {
     int offset;
     configureFont();
-    font->getLinesRenderData(begin, end, CHANNELS, lineSpacingMod, render_c.lineHeight, renderedWidth, renderedHeight, offset, fall);
-    render_c.verticalStride = renderedWidth;
+    unsigned int width, height;
+    font->getLinesRenderData(begin, end, CHANNELS, lineSpacingMod, render_c.lineHeight, width, height, offset, fall);
+    image.setWidth(width);
+    image.setHeight(height);
+    render_c.verticalStride = width;
 
-    bmpSizeBytes = renderedWidth * renderedHeight * CHANNELS;
+    bmpSizeBytes = width * height * CHANNELS;
 
     delBitmap();
     bitmap = new unsigned char[bmpSizeBytes];

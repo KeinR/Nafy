@@ -7,82 +7,23 @@
 
 #include GLFW_INCLUDE_HEADER_LOCATION
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-void Text::generateBuffers() {
-    float vertices[] = {
-        // positions   // texture coords
-        1.0,   1.0,  1.0f, 1.0f, // top right
-        1.0,  -1.0,  1.0f, 0.0f, // bottom right
-        -1.0, -1.0,  0.0f, 0.0f, // bottom left
-        -1.0,  1.0,  0.0f, 1.0f  // top left 
-    };
-
-    unsigned int indices[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-    };
-
-    glGenVertexArrays(1, &VA);
-    glGenBuffers(1, &VB);
-    glGenBuffers(1, &EB);
-    glGenTextures(1, &TX);
-
-    glBindTexture(GL_TEXTURE_2D, TX);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-    // We don't plan on scaling this one, nearest is fine~
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glBindVertexArray(VA);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VB);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EB);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    constexpr int stride = 4 * sizeof(float);
-
-    // position attribute
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
-    glEnableVertexAttribArray(0);
-    // texture coord attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-}
-
 Text::Text(): Text(getDefaultFont(), getDefaultTextShader()) {
 }
 
 Text::Text(const Font::type &font, const nafy::shader_t &shader):
-    font(font), shader(shader),
-    modelLocation(shader->uniModel()),
-    renderedWidth(0), renderedHeight(0),
-    color{0, 0, 0, 1}, x(0), y(0),
+    font(font),
     wrappingWidth(0), overflowHeight(0),
     lineSpacingMod(1.0f), textAlign(Font::textAlign::left),
     fontSize(Font::defaultSize), stopsIndex(0) {
-
-    generateBuffers();
-
-    // glUseProgram(shader);
-    // glUniform1i(glGetUniformLocation(shader, SHADER_TEXT_SAMPLER), 0);
+    bindShader(shader);
 }
 
 // Memory manegemet
 
 void Text::textSteal(Text &other) {
     font = std::move(other.font);
-
-    TX = other.TX;
-    // https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glDeleteTextures.xml
-    // "glDeleteTextures silently ignores 0's"
-    other.TX = 0;
+    image = std::move(other.image);
+    color = std::move(other.color);
 
     str = std::move(other.str);
     stops = std::move(other.stops);
@@ -93,6 +34,8 @@ void Text::textSteal(Text &other) {
 
 void Text::textCopy(const Text &other) {
     font = other.font;
+    image = other.image;
+    color = other.color;
 
     str = other.str;
     stops = other.stops;
@@ -116,15 +59,6 @@ void Text::textCopyIL(const Text &other) {
 }
 
 void Text::textCopyPOD(const Text &other) {
-    renderedWidth = other.renderedWidth;
-    renderedHeight = other.renderedHeight;
-
-    for (int i = 0; i < 4; i++) {
-        color[i] = other.color[i];
-    }
-
-    x = other.x;
-    y = other.y;
     wrappingWidth = other.wrappingWidth;
     overflowHeight = other.overflowHeight;
     lineSpacingMod = other.lineSpacingMod;
@@ -152,16 +86,8 @@ Text &Text::operator=(const Text &other) {
 }
 
 Text &Text::operator=(Text &&other) {
-    glDeleteTextures(1, &TX);
     textSteal(other);
     return *this;
-}
-
-Text::~Text() {
-    glDeleteVertexArrays(1, &VA);
-    glDeleteBuffers(1, &VB);
-    glDeleteBuffers(1, &EB);
-    glDeleteTextures(1, &TX);
 }
 
 // End memory manegemet
@@ -171,13 +97,11 @@ void Text::configureFont() {
 }
 
 void Text::bindShader(const nafy::shader_t &shader) {
-    this->shader = shader;
-    modelLocation = shader->uniModel();
-    shader->uniSampler0();
+    image.bindShader(shader);
 }
 
 nafy::shader_t Text::getShader() {
-    return shader;
+    return image.getShader();
 }
 
 void Text::generate() {
@@ -207,16 +131,13 @@ void Text::generate() {
 
 void Text::loadLines(const Font::line_iterator &start, const Font::line_iterator &end) {
     configureFont();
-    unsigned char *bitmap = font->renderLines(start, end, 4, color, lineSpacingMod, renderedWidth, renderedHeight);
-
-    setTexture(bitmap);
+    unsigned int width, height;
+    unsigned char *bitmap = font->renderLines(start, end, 4, color.get(), lineSpacingMod, width, height);
+    image.setWidth(width);
+    image.setHeight(height);
+    image.setImage(GL_RGBA, width, height, bitmap);
 
     delete[] bitmap;
-}
-
-void Text::setTexture(unsigned char *bitmap) {
-    glBindTexture(GL_TEXTURE_2D, TX);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, renderedWidth, renderedHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap);
 }
 
 void Text::loadStops() {
@@ -230,26 +151,7 @@ void Text::loadStops() {
 }
 
 void Text::render() {
-    glm::mat4 model(1.0f);
-
-    const float xPos = normX(x + 0.375f + (float)renderedWidth / 2);
-    const float yPos = normY(y + 0.375f + (float)renderedHeight / 2);
-
-    int winWidth, winHeight;
-    getWindowSize(&winWidth, &winHeight);
-    model = glm::translate(model, glm::vec3(xPos, yPos, 0.0f));
-    model = glm::scale(model, glm::vec3((float)renderedWidth / winWidth, (float)renderedHeight / winHeight, 0.0f));
-
-    shader->use();
-
-    glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
-
-    glBindVertexArray(VA);
-    glBindBuffer(GL_ARRAY_BUFFER, VB);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EB);
-    glBindTexture(GL_TEXTURE_2D, TX);
-
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    image.render();
 }
 
 bool Text::nextOverflow() {
@@ -275,43 +177,8 @@ void Text::seekOverflow(Font::line_str::size_type i) {
 /* Setter bloat */
 
 
-void Text::setColorHex(unsigned int hex) {
-    const unsigned char r = hex >> 24;
-    if (r) {
-        setColorVal(
-            r,
-            (hex >> 16) & 0xFF,
-            (hex >> 8) & 0xFF,
-            hex & 0xFF
-        );
-    } else {
-        setColorVal(
-            (hex >> 16) & 0xFF,
-            (hex >> 8) & 0xFF,
-            hex & 0xFF,
-            0xFF
-        );
-    }
-}
-
-void Text::setColorVal(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha) {
-    setColorProp(red / 255.0f, green / 255.0f, blue / 255.0f, alpha / 255.0f);
-}
-
-void Text::setColorProp(float red, float green, float blue, float alpha) {
-    color[0] = red;
-    color[1] = green;
-    color[2] = blue;
-    color[3] = alpha;
-}
-
-void Text::getColorVal(unsigned char *red, unsigned char *green, unsigned char *blue, unsigned char *alpha) {
-    #define TRYGET(var, i) if (var != nullptr) *var = color[i] * 0xFF;
-    TRYGET(red, 0)
-    TRYGET(green, 1)
-    TRYGET(blue, 2)
-    TRYGET(alpha, 3)
-    #undef TRYGET
+nafy::Color &Text::getColor() {
+    return color;
 }
 
 Font::type Text::getFont() {
@@ -323,11 +190,11 @@ void Text::setFont(const Font::type &font) {
 }
 
 int Text::getX() {
-    return x;
+    return image.getX();
 }
 
 int Text::getY() {
-    return y;
+    return image.getY();
 }
 
 std::string &Text::getString() {
@@ -339,11 +206,11 @@ Font::textAlign Text::getAlign() {
 }
 
 void Text::setX(int x) {
-    this->x = x;
+    image.setX(x);
 }
 
 void Text::setY(int y) {
-    this->y = y;
+    image.setY(y);
 }
 
 void Text::setString(const std::string &str) {
@@ -382,10 +249,10 @@ unsigned int Text::getFontSize() {
     return fontSize;
 }
 
-int Text::getWidth() {
-    return renderedWidth;
+unsigned int Text::getWidth() {
+    return image.getWidth();
 }
 
-int Text::getHeight() {
-    return renderedHeight;
+unsigned int Text::getHeight() {
+    return image.getHeight();
 }

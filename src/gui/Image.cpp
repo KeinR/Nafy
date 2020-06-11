@@ -96,6 +96,7 @@ nafy::Image::Image(const Texture::tparam &texParams, const shader_t &shader): te
 void nafy::Image::init(const shader_t &initShader) {
     bindShader(initShader);
     buffer = cache::buffer.get();
+    std::cout << "buffer.get() = " << buffer.get() << std::endl;
 }
 
 void nafy::Image::loadImage(const std::string &path) {
