@@ -42,6 +42,7 @@ public:
     Text &operator=(const Text &other) = delete;
     Text &operator=(Text &&other) = delete;
     ~TextCrawl();
+    void clear() override;
     // Calls reset() and loads the set string
     // void generate();
     // Resets to the start

@@ -36,8 +36,9 @@ int main() {
         std::cout << "GL_NO_ERROR = " << GL_NO_ERROR << std::endl;
 
         std::shared_ptr<ButtonPrompt> prompt = std::make_shared<ButtonPrompt>();
-        prompt->add("Yes", []()->void{
+        prompt->add("Yes", [&ctx]()->void{
             std::cout << ">>> That's pretty cool" << std::endl;
+            // ctx.setSpeaker("");
         });
         prompt->add("No", [&ctx]()->void{
             std::cout << ">>> Aw, well, that stucks..." << std::endl;
@@ -55,6 +56,9 @@ int main() {
         img.setHeight(400);
         View &game = ctx.getViewsRef().game.view;
         game.addAt(&img, 0);
+
+        Image *img2 = new Image();
+        delete img2;
 
         ctx.setSpeaker("Youmu");
 

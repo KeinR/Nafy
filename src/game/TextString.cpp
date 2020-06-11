@@ -50,8 +50,6 @@ bool nafy::TextString::action(Context *ctx, Scene *parent) {
     if (ctx->getUserAdvance()) {
         ctx->setUserAdvance(false);
         if (!rolling) {
-            ctx->getCrawl().setString("");
-            ctx->getCrawl().generate();
             return true;
         }
         ctx->getCrawl().advance(str.length());

@@ -69,6 +69,7 @@ void TextCrawl::crawlCopyPOD(const TextCrawl &other) {
 void TextCrawl::delBitmap() {
     if (bitmap != nullptr) {
         delete[] bitmap;
+        bitmap = nullptr;
     }
 }
 
@@ -155,6 +156,9 @@ void TextCrawl::reset() {
 }
 
 bool TextCrawl::doAdvance() {
+    if (!lines.size()) { // Not going to account for all situations - be careful about when you call advance!
+        return true;
+    }
     if (linePos >= currentLine->end) {
         if (currentLine + 1 >= lastLineX) {
             return true;
@@ -167,22 +171,35 @@ bool TextCrawl::doAdvance() {
     font->renderGlyphTo(*linePos, linePos + 1 < currentLine->end ? *(linePos + 1) : 0, render_c, pen);
 
     ++linePos;
-    updateTex();
     return false;
+}
+
+void TextCrawl::clear() {
+    image.setImage(GL_RGBA, 0, 0, nullptr);
+    image.setWidth(0);
+    image.setHeight(0);
+    lines.clear();
+    delBitmap();
+    bmpSizeBytes = 0;
 }
 
 bool TextCrawl::advance() {
     configureFont();
-    return doAdvance();
+    const bool ret = doAdvance();
+    updateTex();
+    return ret;
 }
 
 bool TextCrawl::advance(int count) {
     configureFont();
+    bool ret = false;
     // The legendary arrow operator
     while (count --> 0) {
         if (doAdvance()) {
-            return true;
+            ret = true;
+            break;
         }
     }
-    return false;
+    updateTex();
+    return ret;
 }

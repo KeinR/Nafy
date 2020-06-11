@@ -104,9 +104,26 @@ nafy::shader_t Text::getShader() {
     return image.getShader();
 }
 
+void Text::clear() {
+    image.setImage(GL_RGBA, 0, 0, nullptr);
+    image.setWidth(0);
+    image.setHeight(0);
+    lines.clear();
+}
+
 void Text::generate() {
     if (!str.size()) {
+        clear();
         return;
+    }
+    for (std::string::size_type i = 0;; i++) {
+        if (i >= str.size()) {
+            clear();
+            return;
+        }
+        if (str[i] != ' ' && str[i] != '\n') {
+            break;
+        }
     }
 
     configureFont();

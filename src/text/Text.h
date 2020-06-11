@@ -57,6 +57,9 @@ public:
     Font::type getFont();
     void setFont(const Font::type &font);
 
+    // Clear the text and have it display a blank.
+    // Similar effect is achieved with empty string or string with only spaces and newlines
+    virtual void clear();
 
     int getX();
     int getY();
