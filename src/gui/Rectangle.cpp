@@ -16,9 +16,7 @@ void nafy::Rectangle::generateBuffers() {
 }
 
 void nafy::Rectangle::initVA() {
-    buffer.bindArr();
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    array.setParam(0, 2, 2 * sizeof(float), (void*)0);
 }
 
 nafy::Rectangle::Rectangle(): Rectangle(getContext()->getDefaultPrimShader()) {
@@ -32,8 +30,7 @@ nafy::Rectangle::Rectangle(const shader_t &shader): model(0, 0, 100, 100), corne
 
 void nafy::Rectangle::copy(const Rectangle &other) {
     model = other.model;
-    buffer = other.buffer.derive();
-    initVA();
+    buffer = other.buffer;
     colorLocation = other.colorLocation;
     shader = other.shader;
     cornerRadii[0] = other.cornerRadii[0];
@@ -41,6 +38,7 @@ void nafy::Rectangle::copy(const Rectangle &other) {
     cornerRadii[2] = other.cornerRadii[2];
     cornerRadii[3] = other.cornerRadii[3];
     color = other.color;
+    initVA();
 }
 
 nafy::Rectangle::Rectangle(const Rectangle &other) {
@@ -212,6 +210,7 @@ void nafy::Rectangle::render() {
 
     glUniform4fv(colorLocation, 1, color.get());
 
+    array.bind();
     buffer.render();
 }
 

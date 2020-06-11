@@ -19,7 +19,6 @@ namespace cache {
     static map_t color;
     static nafy::uniform_t getFrom(const map_t &map, nafy::shader_program_t shader) {
         location_t loc = map.find(shader);
-        std::cout << "RETURN --> " << (loc != map.end() ? loc->second : -1) << std::endl;
         return loc != map.end() ? loc->second : -1;
     }
     static void removeFrom(map_t &map, nafy::shader_program_t shader) {

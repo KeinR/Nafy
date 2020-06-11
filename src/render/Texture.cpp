@@ -1,6 +1,14 @@
 #include "Texture.h"
 
+#include <iostream> // DEBUG
+#include <string>
+
+#include "../core/error.h"
+
 #include "../core/glfw.h"
+
+#define TEXTURE_TYPE GL_TEXTURE_2D
+#define TEXTURE_PIXEL_TYPE GL_UNSIGNED_BYTE
 
 constexpr nafy::Texture::tparam defaultParams{
     GL_CLAMP_TO_BORDER,
@@ -36,20 +44,49 @@ void nafy::Texture::steal(Texture &other) {
     other.buffer = 0;
 }
 
+void nafy::Texture::copy(const Texture &other) {
+    other.bind();
+    GLint width, height, format;
+    glGetTexLevelParameteriv(TEXTURE_TYPE, 0, GL_TEXTURE_WIDTH, &width);
+    glGetTexLevelParameteriv(TEXTURE_TYPE, 0, GL_TEXTURE_HEIGHT, &height);
+    glGetTexLevelParameteriv(TEXTURE_TYPE, 0, GL_TEXTURE_INTERNAL_FORMAT, &format);
+    GLint channels;
+    switch (format) {
+        case GL_RGBA: channels = 4; break;
+        case GL_RGB: channels = 3; break;
+        case GL_RG: channels = 2; break;
+        case GL_RED: channels = 1; break;
+        default: throw gl_error("Texture encountered unexpected image format while copying: " + std::to_string(format));
+    }
+    const GLint length = channels * width * height;
+    data_t *copyBuffer = new data_t[length];
+    glGetTexImage(TEXTURE_TYPE, 0, format, TEXTURE_PIXEL_TYPE, copyBuffer);
+    setData(format, width, height, copyBuffer);
+    delete[] copyBuffer;
+}
+
 nafy::Texture::Texture(Texture &&other) {
     steal(other);
+}
+nafy::Texture::Texture(const Texture &other) {
+    copy(other);
 }
 nafy::Texture &nafy::Texture::operator=(Texture &&other) {
     steal(other);
     return *this;
 }
-
-void nafy::Texture::bind() {
-    glBindTexture(GL_TEXTURE_2D, buffer);
+nafy::Texture &nafy::Texture::operator=(const Texture &other) {
+    copy(other);
+    return *this;
 }
 
-void nafy::Texture::setData(int format, unsigned int width, unsigned int height, const unsigned char *data) {
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+void nafy::Texture::bind() const {
+    glBindTexture(TEXTURE_TYPE, buffer);
+}
+
+void nafy::Texture::setData(int format, unsigned int width, unsigned int height, const data_t *data) {
+    bind();
+    glTexImage2D(TEXTURE_TYPE, 0, format, width, height, 0, format, TEXTURE_PIXEL_TYPE, data);
 }
 
 void nafy::Texture::setDefaultParams() {
@@ -58,9 +95,9 @@ void nafy::Texture::setDefaultParams() {
 void nafy::Texture::setParams(const tparam &params) {
     bind();
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, params.xWrap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, params.yWrap);
+    glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_WRAP_S, params.xWrap);
+    glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_WRAP_T, params.yWrap);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, params.minFilter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, params.maxFilter);
+    glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_MIN_FILTER, params.minFilter);
+    glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_MAG_FILTER, params.maxFilter);
 }

@@ -117,8 +117,6 @@ void TextCrawl::loadLines(const Font::line_iterator &begin, const Font::line_ite
     font->getLinesRenderData(begin, end, CHANNELS, lineSpacingMod, render_c.lineHeight, renderedWidth, renderedHeight, offset, fall);
     render_c.verticalStride = renderedWidth;
 
-    std::cout << "height -> " << renderedHeight << std::endl;
-
     bmpSizeBytes = renderedWidth * renderedHeight * CHANNELS;
 
     delBitmap();

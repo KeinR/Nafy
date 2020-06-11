@@ -60,6 +60,14 @@ nafy::Image::Image(const Texture::tparam &texParams, const shader_t &shader): te
     init(shader);
 }
 
+nafy::Image &nafy::Image::operator=(const Image &other) {
+    buffer = other.buffer;
+    texture = other.texture;
+    model = other.model;
+    shader = other.shader;
+    return *this;
+}
+
 void nafy::Image::init(const shader_t &initShader) {
     bindShader(initShader);
     initBuffer();
@@ -84,14 +92,8 @@ void nafy::Image::initBuffer() {
     buffer.setVerticies(16, vertices);
     buffer.setIndices(6, indices);
 
-    buffer.bindArr();
-
-    // position attribute
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // texture coord attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    array.setParam(0, 2, 4 * sizeof(float), (void*)0);
+    array.setParam(1, 2, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 }
 
 void nafy::Image::loadImage(const std::string &path) {
@@ -154,5 +156,6 @@ void nafy::Image::render() {
     shader->use();
     model.set();
     texture.bind();
+    array.bind();
     buffer.render();
 }

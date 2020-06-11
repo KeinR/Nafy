@@ -251,28 +251,27 @@ void nafy::Context::resume() {
 
     makeCurrent();
 
-    std::cout << "Initializing OpenAL... ";
-    Device device;
-    AudioContext ctx(device);
-    ctx.bind();
-    std::cout << "done." << std::endl;
-    std::cout << "Loading... ";
-    // SoundData testMusic = loadOggVorbisFile("test.ogg");
-    std::cout << "done." << std::endl;
-    std::cout << "Load ogg" << std::endl;
-    SoundBuffer buffer(loadWavFile("test.wav"));
-    std::cout << "done" << std::endl;
-    Speaker speaker;
-    speaker.setGain(1);
-    speaker.setPitch(1);
-    speaker.setBuffer(buffer);
-    // speaker.setTime(120);
-    std::cout << "Start play" << std::endl;
-    speaker.play();
-    std::cout << "done" << std::endl;
+    // std::cout << "Initializing OpenAL... ";
+    // Device device;
+    // AudioContext ctx(device);
+    // ctx.bind();
+    // std::cout << "done." << std::endl;
+    // std::cout << "Loading... ";
+    // // SoundData testMusic = loadOggVorbisFile("test.ogg");
+    // std::cout << "done." << std::endl;
+    // std::cout << "Load ogg" << std::endl;
+    // SoundBuffer buffer(loadWavFile("test.wav"));
+    // std::cout << "done" << std::endl;
+    // Speaker speaker;
+    // speaker.setGain(1);
+    // speaker.setPitch(1);
+    // speaker.setBuffer(buffer);
+    // // speaker.setTime(120);
+    // std::cout << "Start play" << std::endl;
+    // speaker.play();
+    // std::cout << "done" << std::endl;
 
     // testMusic.data.reset();
-
 
     while (!shouldStop()) {
 
