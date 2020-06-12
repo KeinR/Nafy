@@ -19,8 +19,8 @@ void nafy::Model::bindShader(const shader_t &shader) {
 void nafy::Model::set() {
     glm::mat4 model(1.0f);
 
-    const float xPos = normX(x + 0.375f + (float)width / 2);
-    const float yPos = normY(y + 0.375f + (float)height / 2);
+    const float xPos = normX(x + (float)width / 2);
+    const float yPos = normY(y + (float)height / 2);
 
     int winWidth, winHeight;
     getWindowSize(&winWidth, &winHeight);
