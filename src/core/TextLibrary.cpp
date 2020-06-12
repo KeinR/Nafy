@@ -12,7 +12,7 @@ nafy::TextLibrary::TextLibrary() {
 }
 
 nafy::TextLibrary::~TextLibrary() {
-    FT_Done_FreeType(library);
+    delLib();
 }
 
 void nafy::TextLibrary::delLib() {
