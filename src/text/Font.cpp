@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cmath>
 
+constexpr unsigned int newline = -1;
+
 // A specific round function, rounds a 26.6 int to nearest 32
 inline static int rto32(int v26_6) {
     return (v26_6 >> 6) + ((v26_6 & 0x3F) < 32 ? 0 : 1);
@@ -53,7 +55,7 @@ Font::vec2::vec2(map_size x, map_size y): x(x), y(y) {
 Font::Font(FT_Face face, const std::shared_ptr<unsigned char> &data):
     face(face), data(data),
     space(FT_Get_Char_Index(face, ' ')),
-    newline(FT_Get_Char_Index(face, '\n')) {
+    fontNewline(FT_Get_Char_Index(face, '\n')) {
 
     setSize(defaultSize);
 }
@@ -63,6 +65,13 @@ Font::Font(): face(nullptr) {
 
 Font::~Font() {
     delFace();
+}
+
+Font::glyph_type Font::getGlyph(glyph_type glyph) {
+    if (glyph == newline) {
+        return fontNewline;
+    }
+    return glyph;
 }
 
 void Font::delFace() {
@@ -80,7 +89,7 @@ void Font::steal(Font &other) {
 
 void Font::copyPOD(const Font &other) {
     space = other.space;
-    newline = other.newline;
+    fontNewline = other.fontNewline;
 }
 
 Font::Font(Font &&other) {
@@ -114,8 +123,9 @@ void Font::stringMetrics(glyph_iterator start, const glyph_iterator &end, map_si
     ofs_type preVerticalOffset = 0;
     map_size sHeight = 0;
     for (;; ++start) {
-        FT_Error error = FT_Load_Glyph(face, *start, FT_LOAD_NO_BITMAP);
-        if (!error) { // TODO: Pre-index strings with glyph indices
+        const glyph_type g = getGlyph(*start);
+        FT_Error error = FT_Load_Glyph(face, g, FT_LOAD_NO_BITMAP);
+        if (!error) {
             preWidth += face->glyph->advance.x;
             preHeight += face->glyph->advance.y;
             if (face->glyph->metrics.horiBearingY > preVerticalOffset) {
@@ -129,7 +139,7 @@ void Font::stringMetrics(glyph_iterator start, const glyph_iterator &end, map_si
             }
             if (start + 1 < end) {
                 FT_Vector kerning;
-                FT_Get_Kerning(face, *start, *(start + 1), FT_KERNING_UNFITTED, &kerning);
+                FT_Get_Kerning(face, g, getGlyph(*(start + 1)), FT_KERNING_UNFITTED, &kerning);
                 preWidth += kerning.x;
                 preHeight += kerning.y;
             } else {
@@ -156,7 +166,7 @@ void Font::stringMetrics(glyph_iterator start, const glyph_iterator &end, map_si
 int Font::stringDescent(glyph_iterator start, const glyph_iterator &end) {
     int max = -0x7FFFFFFF;
     for (; start < end; ++start) {
-        FT_Error error = FT_Load_Glyph(face, *start, FT_LOAD_NO_BITMAP);
+        FT_Error error = FT_Load_Glyph(face, getGlyph(*start), FT_LOAD_NO_BITMAP);
         if (!error) {
             const int lower = face->glyph->metrics.height - face->glyph->metrics.horiBearingY;
             if (lower > max) {
@@ -172,7 +182,7 @@ int Font::stringDescent(glyph_iterator start, const glyph_iterator &end) {
 Font::map_size Font::stringAscent(glyph_iterator start, const glyph_iterator &end) {
     map_size max = 0;
     for (; start < end; ++start) {
-        FT_Error error = FT_Load_Glyph(face, *start, FT_LOAD_NO_BITMAP);
+        FT_Error error = FT_Load_Glyph(face, getGlyph(*start), FT_LOAD_NO_BITMAP);
         if (!error) {
             if (face->glyph->metrics.horiBearingY > max) {
                 max = face->glyph->metrics.horiBearingY;
@@ -191,12 +201,13 @@ std::vector<Font::char_metrics> Font::measureString(glyph_iterator start, const 
     }
     result.reserve(end - start);
     for (;; ++start) {
-        FT_Error error = FT_Load_Glyph(face, *start, FT_LOAD_NO_BITMAP);
+        const glyph_type g = getGlyph(*start);
+        FT_Error error = FT_Load_Glyph(face, g, FT_LOAD_NO_BITMAP);
         if (!error) {
             result.push_back(char_metrics{face->glyph->bitmap_left, 0, face->glyph->advance.x});
             if (start + 1 < end) {
                 FT_Vector kerning;
-                FT_Get_Kerning(face, *start, *(start + 1), FT_KERNING_UNFITTED, &kerning);
+                FT_Get_Kerning(face, g, getGlyph(*(start + 1)), FT_KERNING_UNFITTED, &kerning);
                 result.back().kern = kerning.x;
             } else {
                 break;
@@ -232,7 +243,7 @@ void Font::renderTo(glyph_iterator start, const glyph_iterator &end, const rende
 }
 
 void Font::renderGlyphTo(glyph_type glyph, glyph_type next, const renderConf &render, vec2 &pen) {
-    if (!FT_Load_Glyph(face, glyph, FT_LOAD_RENDER)) {
+    if (!FT_Load_Glyph(face, getGlyph(glyph), FT_LOAD_RENDER)) {
         const int ix = rto32(pen.x) + face->glyph->bitmap_left;
         const int iy = rto32(pen.y) - face->glyph->bitmap_top;
         for (unsigned int y = 0; y < face->glyph->bitmap.rows; y++) {
@@ -338,10 +349,10 @@ Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator 
                     width = move;
                     if (spaceLast && *it != space) {
                         spaceLast = false;
-                        for (glyph_iterator newI = stop; newI >= start; newI--) {
+                        for (glyph_iterator newI = stop; newI >= start; --newI) {
                             if (*newI == space) {
                                 resume = newI + 1;
-                                for (; newI >= start && *newI == space; newI--);
+                                for (; newI >= start && *newI == space; --newI);
                                 ++newI; // because it's exclusive
                                 for (int fi; stop > newI;) {
                                     --stop;
@@ -377,8 +388,12 @@ Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator 
 Font::glyph_str Font::indexString(std::string::const_iterator start, const std::string::const_iterator &end) {
     glyph_str index;
     index.reserve(end - start);
-    for (; start < end; start++) {
-        index.push_back(FT_Get_Char_Index(face, *start));
+    for (; start < end; ++start) {
+        if (*start == '\n') {
+            index.push_back(newline);
+        } else {
+            index.push_back(FT_Get_Char_Index(face, *start));
+        }
     }
     return index;
 }

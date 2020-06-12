@@ -19,7 +19,7 @@ int main() {
         Scene sc;
         ctx.setRoot(sc);
         sc <<
-        "Hello gamers~" <<
+        "Hello\2 ga\nmers~" <<
         "I like cheese" <<
         "Did you know that?" <<
         BasicEvent(

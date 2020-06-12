@@ -64,17 +64,20 @@ private:
     FT_Face face;
     std::shared_ptr<unsigned char> data;
     glyph_type space;
-    glyph_type newline;
+    // Switch between the newline defined by the font and our own value,
+    // because many fonts will just have newline as a nul
+    glyph_type fontNewline;
     struct char_metrics {
         int lsb;
         int kern;
         FT_Pos advance;
     };
-    inline void steal(Font &other);
-    inline void copyPOD(const Font &other);
-    inline void delFace();
+    inline glyph_type getGlyph(glyph_type glyph);
+    void steal(Font &other);
+    void copyPOD(const Font &other);
+    void delFace();
     std::vector<char_metrics> measureString(glyph_iterator start, const glyph_iterator &end);
-    inline line consLine(const glyph_iterator &start, const glyph_iterator &end, const ofs_type horizontalOffset, const map_size width);
+    line consLine(const glyph_iterator &start, const glyph_iterator &end, const ofs_type horizontalOffset, const map_size width);
 public:
     static constexpr unsigned int defaultSize = 16;
     Font();
