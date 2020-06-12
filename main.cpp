@@ -1,3 +1,8 @@
+#include "src/audio/AudioContext.h"
+#include "src/audio/Device.h"
+#include "src/audio/SoundBuffer.h"
+#include "src/audio/SoundData.h"
+#include "src/audio/Speaker.h"
 #include "src/game/Scene.h"
 #include "src/game/ButtonPrompt.h"
 #include "src/game/BasicEvent.h"
@@ -16,11 +21,23 @@ int main() {
         Context ctx(600, 400, "test");
         ctx.activate();
 
+        Device device;
+        AudioContext ac(device);
+        ac.bind();
+        SoundBuffer buffer(loadWavFile("test.wav"));
+        Speaker speaker;
+        speaker.setGain(1);
+        speaker.setPitch(1);
+        speaker.setBuffer(buffer);
+
         Scene sc;
         ctx.setRoot(sc);
         sc <<
         "Hello\2 ga\nmers~" <<
         "I like cheese" <<
+        [&speaker]() -> void {
+            speaker.play();
+        } <<
         "Did you know that?" <<
         BasicEvent(
             [](Context *ctx, Scene *sc)->void{

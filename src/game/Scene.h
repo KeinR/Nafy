@@ -5,6 +5,7 @@
 #include <string>
 
 #include "BasicEvent.h"
+#include "FuncEvent.h"
 #include "sceneEvent.h"
 
 // Think about scenes as single threads of execution,
@@ -33,7 +34,11 @@ namespace nafy {
         void pushText(const std::string &str);
         void pushText(const std::string &str, unsigned int cooldownMillis);
         // Just any event
-        void pushEvent(sceneEvent_t e);
+        void pushEvent(const sceneEvent_t &e);
+        // Emplaces a FuncEvent (context and scene as parameters in callback)
+        void pushFunc(const FuncEvent::callback_t &func);
+        // Emplaces a FreeFuncEvent (no parameters in callback)
+        void pushFreeFunc(const FreeFuncEvent::callback_t &func);
 
         // For convinience, moves `e` to dynamically allocated BasicEvent
         // Call it like << {x,y}
@@ -41,7 +46,11 @@ namespace nafy {
         // For convinience, calls pushText(const std::string&)
         Scene &operator<<(const std::string &str);
         // For convinience, calls pushEvent(sceneEvent_t)
-        Scene &operator<<(sceneEvent_t e);
+        Scene &operator<<(const sceneEvent_t &e);
+        // For convineince, calls pushFunc()
+        Scene &operator<<(const FuncEvent::callback_t &func);
+        // For convineince, calls pushFreeFunc()
+        Scene &operator<<(const FreeFuncEvent::callback_t &func);
 
         // Changes the start index to `i`, with the first event being at 0.
         // Clamps to 0 and events.size()-1 in case of invalid bounds

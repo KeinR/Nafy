@@ -21,8 +21,16 @@ void nafy::Scene::pushText(const std::string &str, unsigned int cooldownMillis) 
     events.push_back(std::make_shared<TextString>(str, cooldownMillis));
 }
 
-void nafy::Scene::pushEvent(sceneEvent_t e) {
+void nafy::Scene::pushEvent(const sceneEvent_t &e) {
     events.push_back(e);
+}
+
+void nafy::Scene::pushFunc(const FuncEvent::callback_t &func) {
+    events.push_back(std::make_shared<FuncEvent>(func));
+}
+
+void nafy::Scene::pushFreeFunc(const FreeFuncEvent::callback_t &func) {
+    events.push_back(std::make_shared<FreeFuncEvent>(func));
 }
 
 nafy::Scene &nafy::Scene::operator<<(BasicEvent &&e) {
@@ -35,8 +43,18 @@ nafy::Scene &nafy::Scene::operator<<(const std::string &str) {
     return *this;
 }
 
-nafy::Scene &nafy::Scene::operator<<(sceneEvent_t e) {
+nafy::Scene &nafy::Scene::operator<<(const sceneEvent_t &e) {
     pushEvent(e);
+    return *this;
+}
+
+nafy::Scene &nafy::Scene::operator<<(const FuncEvent::callback_t &func) {
+    pushFunc(func);
+    return *this;
+}
+
+nafy::Scene &nafy::Scene::operator<<(const FreeFuncEvent::callback_t &func) {
+    pushFreeFunc(func);
     return *this;
 }
 
