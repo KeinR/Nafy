@@ -1,5 +1,7 @@
 #include "callback.h"
 
+// Virtual constructor implementation
+
 nafy::mouseMoveCallback::~mouseMoveCallback() {
 }
 

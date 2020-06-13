@@ -3,6 +3,10 @@
 
 #include "glfw.h"
 
+/*
+* Wrapps a glfw window, and provides functions for interacting with it
+*/
+
 // TODO: Use this for something
 // TODO: Memory management
 

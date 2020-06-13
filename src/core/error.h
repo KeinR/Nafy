@@ -51,6 +51,8 @@ namespace nafy {
         gl_error(const std::string &message, error_code code) noexcept;
     };
 
+    // OpenAL error, or more broadly, something related to audio
+    // Generally thrown when playback/streaming/loading fails
     class al_error: public error_c {
     public:
         al_error(error_code code) noexcept;

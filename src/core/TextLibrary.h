@@ -11,6 +11,13 @@
 #include "../text/FontFactory.h"
 #include "../text/Font.h"
 
+/*
+* Wrapps a Freetype library and provides facilities for making
+* new fonts from it.
+* Libraries are Freetype's version of a context: each one controls the objects spawned off of
+* it, and their memory(?).
+*/
+
 namespace nafy {
     class TextLibrary {
         FT_Library library;
