@@ -36,7 +36,7 @@ namespace nafy {
         // Stop the buffer from playing
         void stopPlaying();
         // Stream the audio stream on this thread
-        void doPlayStreamBlocked(AudioStream &stream);
+        void doPlayStreamBlocked(AudioStream *stream);
         // Close the handle and clean up resources
         void close();
         // Move the resources from `other` to self
@@ -66,10 +66,15 @@ namespace nafy {
         // Second offset of audio
         void setTime(float seconds);
         // Set sound buffer for playback
-        // Do note that the SoundBuffer is monopolized when playing(?)
+        // Do note that the SoundBuffer is monopolized when playing (I'm pretty sure)
+        // Calls stop()
         void setBuffer(const SoundBuffer &buffer);
+        // Calls stop() and sets buffer to NULL, allowing to be used for something else.
+        void clearBuffer();
 
+        // Streaming?
         bool isStreaming();
+        // Playing audio? (includes streaming)
         bool isPlaying();
 
         // Streams audio from a stream.
@@ -82,7 +87,7 @@ namespace nafy {
         void playBlocked();
         // Play async
         void play();
-        // Stop playing.
+        // Stop literally everything - playing/streaming.
         // No averse effect if not playing.
         void stop();
     };
