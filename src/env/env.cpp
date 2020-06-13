@@ -9,12 +9,24 @@
 #include "../core/error.h"
 #include "../audio/oal.h"
 
+// Location of executable relative to the call dir
+// So, if foo/fa/ding.exe was called from a terminal opened in
+// foo/, then the call path would be fa/
 static std::string homeDir;
+// The number of GLFW windows open. When this number goes from 0
+// to 1, glfw is initialzied with init(...). When it goes from 1 to
+// 0, glfw is deinitialized with deInit()
 static int contextCount = 0; // Enlarge data type for more possible instances
+// Flag to ensure that glfw is really initialzied
 static bool isInit = false;
+// The current nafy context
 static nafy::Context *currentContext = nullptr;
+// glfw cursors
 static GLFWcursor *cursor_hand = nullptr;
 
+// A window and context associated together.
+// The `parent` will called for all of the `window`'s
+// input events
 struct call {
     GLFWwindow *window;
     nafy::Context *parent;
@@ -22,20 +34,30 @@ struct call {
 
 static std::vector<call> callbacks;
 
+// Private functions
+// Terminate glfw
 static void deInit();
+// Initialize glfw and set OpenGL settings
 static GLFWwindow *init(int width, int height, const char *title);
+// Initialze window settings
 static void initWindow(GLFWwindow *window);
+// Due to the nature of glfw, it only accepts global function pointers or
+// captureless lambdas... Therefore, all events are processed by these, and each time
+// we must iterate through the `callbacks` vector to find a window and it's associated
+// context to dispatch the events properly
 static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 static void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
 static void keyActionCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 GLFWwindow *init(int width, int height, const char *title) {
     glfwInit();
+    // Default window hints
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_SAMPLES, MSSA);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // A glfw window is required to properly initialize GLAD
     GLFWwindow *window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (window == NULL) {
         deInit();
@@ -47,8 +69,10 @@ GLFWwindow *init(int width, int height, const char *title) {
         throw nafy::error("Failed to initialize GLAD");
     }
 
+    // glfw cursor objects
     cursor_hand = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
 
+    // OpenGL settings
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -60,10 +84,13 @@ GLFWwindow *init(int width, int height, const char *title) {
 void deInit() {
     isInit = false;
     glfwTerminate();
+    // glfwTerminate "destroys all remaining windows and cursors"
+    // https://www.glfw.org/docs/3.1/group__init.html#gaaae48c0a18607ea4a4ba951d939f0901
     cursor_hand = nullptr;
 }
 
 void initWindow(GLFWwindow *window) {
+    // Set the window's callbacks to the global ones
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetCursorPosCallback(window, mouseMoveCallback);
     glfwSetKeyCallback(window, keyActionCallback);
@@ -97,6 +124,7 @@ void keyActionCallback(GLFWwindow* window, int key, int scancode, int action, in
 }
 
 GLFWwindow *nafy::plusContext(int width, int height, const char *title) {
+    // Could use contextCount to check if initialized, but I just... Don't feel safe doing that.
     contextCount++;
     // We're assuming that the hints will stay in place - which they should...
     GLFWwindow *window = isInit ? glfwCreateWindow(width, height, title, NULL, NULL) : init(width, height, title);
@@ -136,6 +164,7 @@ void nafy::deleteCallbacks(Context *ctx) {
 
 void nafy::setCallPath(const char *path) {
     homeDir = path;
+    // Remove the executable name from the path
     for (std::string::size_type i = homeDir.length()-1; i >= 0; i--) {
         if (homeDir[i] == '/') {
             i++;
