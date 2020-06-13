@@ -5,6 +5,14 @@
 
 #include "sceneEvent.h"
 
+/*
+* As the name suggests, this is the most basic form of an event.
+* It takes in two functions, one for init and one for action,
+* and runs those when their respective functions are called.
+* If you just want to run something once (a one-off event),
+* see FuncEvent.
+*/
+
 namespace nafy {
     class Context;
     class Scene;

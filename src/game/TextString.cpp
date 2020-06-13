@@ -9,12 +9,13 @@
 
 unsigned int nafy::TextString::defaultCooldown = 50;
 
+// Gets if a char is considered "whitespace"
 static bool isWhitespace(char c) {
     switch (c) {
         case ' ':
         case '\n':
         case '\r':
-        case '\t': // ?
+        case '\t': // Is tab character ever even used?
             return true;
         default:
             return false;
@@ -47,11 +48,14 @@ void nafy::TextString::init(Context *ctx, Scene *parent) {
 }
 
 bool nafy::TextString::action(Context *ctx, Scene *parent) {
+    // If user has prompted an advance...
     if (ctx->getUserAdvance()) {
         ctx->setUserAdvance(false);
         if (!rolling) {
             return true;
         }
+        // Scroll the rest of the text
+        // TextCrawl.advance(int) is built it handle any input value
         ctx->getCrawl().advance(str.length());
     } else if (rolling) {
         if (glfwGetTime() >= next) {

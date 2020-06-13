@@ -59,19 +59,46 @@ nafy::Scene &nafy::Scene::operator<<(const FreeFuncEvent::callback_t &func) {
 }
 
 void nafy::Scene::setStart(events_index_t i) {
-    if (i < 0) {
-        startIndex = 0;
+    startIndex = i;
+}
+
+nafy::Scene::events_index_t nafy::Scene::getStart() {
+    return startIndex;
+}
+
+nafy::Scene::events_t &nafy::Scene::getEvents() {
+    return events;
+}
+
+
+void nafy::Scene::setIndex(events_index_t i) {
+    if (events.size()) {
+        if (i >= events.size()) {
+            index = events.size() - 1;
+        } else {
+            index = i;
+        }
     } else {
-        startIndex = i;
+        index = 0;
     }
+}
+
+void nafy::Scene::setIndexInit(events_index_t i, Context *ctx) {
+    setIndex(i);
+    if (events.size()) {
+        events[index]->init(ctx, this);
+    } else {
+        throw error("Cannot init index as there are no events");
+    }
+}
+
+nafy::Scene::events_index_t nafy::Scene::getIndex() {
+    return index;
 }
 
 void nafy::Scene::init(Context *ctx) {
     if (events.size()) {
-        index = startIndex;
-        if (index >= events.size()) {
-            index = events.size() - 1;
-        }
+        setIndex(startIndex);
         events[index]->init(ctx, this);
     } else {
         throw error("Invalid Scene, must have at least one event");

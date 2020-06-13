@@ -9,6 +9,16 @@
 #include "../gui/Button.h"
 #include "../gui/renderable.h"
 
+/*
+* Event that prompts the user to press one of an array of buttons.
+* Each button is associated with a user-provided function, and when pressed
+* that function will be called.
+* You can set global parameters for the buttons, and also edit them individually
+* through getElements().
+* Adds itself to a user provided view or the currently displaying one in the current context.
+* Has ease-of-use functions that makes the creation process flow a little more.
+*/
+
 namespace nafy {
     class Context;
     class Scene;
@@ -25,24 +35,37 @@ namespace nafy {
         enum com { done };
     private:
         View *view;
-        Color color;
-        Color colorLight;
 
+        // Global settings, set every generate()
         unsigned int cornerRadius;
+        // Spacing is the vertical distance between two consecutive buttons
         unsigned int spacing;
         unsigned int width;
         unsigned int height;
         unsigned int margin;
+        Color color;
+        Color colorLight;
 
         elements_cont_t elements;
+        // Has this ButtonPrompt been added to `view`?
         bool added;
+        // Checked every action(...), signifies that the button has been pressed
+        // and that the ButtonPrompt should deactivate()
+        // Checked every action(...) because events are dispatched concurrently,
+        // so to prevent issues with that we just have a flag that triggers cleanup
+        // on (what I assume is) the main thread.
         bool shouldStop;
+        // Add self to a view
         void joinView();
+        // Remove self from a view
         void leaveView();
+        // joinView() and enable buttons (TODO: That's dumb)
         void activate();
+        // leaveView() and disable buttons (TODO: That's dumb)
         void deactivate();
         void steal(ButtonPrompt &other);
         void copy(const ButtonPrompt &other);
+        // Copy "Plain Old Data"; data such as ints, bools, etc that can't really be moved
         void copyPOD(const ButtonPrompt &other);
     public:
         // Default color: light blue-ish. cornerRadius = 0. view = current context game view,
@@ -88,9 +111,10 @@ namespace nafy {
         // Gets the element container for lower level access
         elements_cont_t &getElements();
 
-
         void init(Context *ctx, Scene *sc) override;
+        // Returns true as soon as a button is pressed
         bool action(Context *ctx, Scene *sc) override;
+        // Renders the buttons
         void render() override;
     };
 }

@@ -1,7 +1,6 @@
 #include "sceneEvent.h"
 
-#include "Scene.h"
-#include "../core/Context.h"
+// Virtual constructor implementation
 
 nafy::sceneEvent::~sceneEvent() {
 }

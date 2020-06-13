@@ -5,6 +5,13 @@
 
 #include "sceneEvent.h"
 
+/*
+* A templated typedef'd class that calls a single function.
+* Since the class is templated, the user has the choice of
+* using a function with no parameters, or a function that
+* takes the currently running Context and Scene.
+*/
+
 namespace nafy {
     class Context;
     class Scene;
@@ -25,6 +32,7 @@ namespace nafy {
         bool action(Context *ctx, Scene *parent) override;
     };
 
+    // Template is pre-generated, so please use one of these...
     typedef FuncEventBase<std::function<void(Context*, Scene*)>> FuncEvent;
     typedef FuncEventBase<std::function<void()>> FreeFuncEvent;
 }
