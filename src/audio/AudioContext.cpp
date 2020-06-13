@@ -1,11 +1,13 @@
 #include "AudioContext.h"
 
+#include <iostream> // DEBUG
 #include <cstddef>
 
 nafy::AudioContext::AudioContext(const Device &device): handle(alcCreateContext(device.get(), NULL)) {
 }
 
 nafy::AudioContext::~AudioContext() {
+    std::cout << "destruct AudioContext" << std::endl;
     close();
 }
 

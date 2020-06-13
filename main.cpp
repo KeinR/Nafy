@@ -3,6 +3,7 @@
 #include "src/audio/SoundBuffer.h"
 #include "src/audio/SoundData.h"
 #include "src/audio/Speaker.h"
+#include "src/audio/AudioStream.h"
 #include "src/game/Scene.h"
 #include "src/game/ButtonPrompt.h"
 #include "src/game/BasicEvent.h"
@@ -24,23 +25,27 @@ int main() {
         Device device;
         AudioContext ac(device);
         ac.bind();
-        SoundBuffer buffer(loadWavFile("test.wav"));
+        // WavStream stream("test.wav");
+        VorbisStream stream("test.ogg");
         Speaker speaker;
         speaker.setGain(1);
         speaker.setPitch(1);
-        speaker.setBuffer(buffer);
+        // speaker.setBuffer(buffer);
 
         Scene sc;
         ctx.setRoot(sc);
         sc <<
         "Hello\2 ga\nmers~" <<
         "I like cheese" <<
-        [&speaker]() -> void {
-            speaker.play();
+        [&speaker, &stream]() -> void {
+            std::cout << "go play" << std::endl;
+            speaker.playStream(stream);
+            std::cout << "ah yes" << std::endl;
         } <<
         "Did you know that?" <<
         BasicEvent(
-            [](Context *ctx, Scene *sc)->void{
+            [&speaker](Context *ctx, Scene *sc)->void{
+                speaker.setTime(0);
                 std::cout << "He he init" << std::endl;
             },
             [](Context *ctx, Scene *sc)->bool{

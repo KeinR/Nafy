@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <fstream>
+#include <iostream>
 
 #include <stb/stb_vorbis.h>
 
@@ -9,12 +10,6 @@
 
 nafy::SoundData::SoundData(std::shared_ptr<const void> data, ALsizei dataBytes, ALsizei frequency, ALenum format):
     data(data), dataBytes(dataBytes), frequency(frequency), format(format) {
-}
-
-constexpr static bool littleEndian() {
-    int i = 1;  
-    char *c = (char*)&i;
-    return *c != 0;
 }
 
 template<typename T>
@@ -124,27 +119,33 @@ nafy::SoundData nafy::loadWavMemory(const unsigned char *data, int length) {
     strEq(data, i, length, "RIFF", "WAV Corrupted"); // Check has RIFF header
 
     i += 4; // Total file size. This value is useless as length is already given to us
-    strEq(data, i, length, "WAVEfmt ", "Not PCM WAV 1"); // Check has "WAVEfmt ", signifies PCM format
-    if (readInt(data, i, length) != 16) { // Check format; again, a pcm check...
-        throw al_error("Not PCM WAV");
+    strEq(data, i, length, "WAVEfmt ", "Not PCM WAV"); // Check has "WAVEfmt "
+    if (readInt(data, i, length) != 16) { // Check format
+        throw al_error("WAV Corrupted");
     }
-    if (readShort(data, i, length) != 1) { // Again, like before...
+    if (readShort(data, i, length) != 1) { // PCM check
         throw al_error("Not PCM WAV");
     }
     const int channels = readShort(data, i, length);
     const int frequency = readInt(data, i, length); // aka sample rate
     i += 6; // Useless info
     const short bits_per_sample = readShort(data, i, length); // aka "samples"
-    i += 8; // Useless info
+    // Seek past junk data to "data" chunk
+    for (int f = 0; f < 4; i++) {
+        if (i >= length) {
+            throw al_error("Wav file corrupted, failed to seek to \"data\" chunk");
+        }
+        if ("data"[f] == data[i]) {
+            f++;
+        }
+    }
+    const int declaredLength = readInt(data, i, length);
 
-    constexpr int headerSize = 44;
-    
-    int dataLength = length - headerSize; // Deduct size of the header
-    dataLength -= dataLength % bits_per_sample; // Truncate to fit to sample range. Could alternatively pad with junk...
+    int dataLength = std::min(length - i, declaredLength);
     std::size_t dataLengthBytes = dataLength * sizeof(char);
 
     char *soundData = new char[dataLength];
-    std::memcpy(soundData, data + headerSize, dataLengthBytes);
+    std::memcpy(soundData, data + i, dataLengthBytes);
 
     return SoundData(
         std::shared_ptr<SoundData::data_t>(soundData, freeData<char>),
