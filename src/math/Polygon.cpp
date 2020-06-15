@@ -2,10 +2,6 @@
 
 #include <stdexcept>
 
-// DEBUG
-#include <iostream>
-#include <fstream>
-
 nafy::Polygon::Polygon(): points(nullptr), lines(nullptr), length(0) {
 }
 nafy::Polygon::Polygon(float *pointsData, int pointsLen) {
@@ -66,17 +62,17 @@ bool nafy::Polygon::hasPoint(float x, float y) const {
     //   /   + /  | |
     //  /_____/   |_/
     // 
-    // And draw a horizontal and vertical line passing through that point
+    // And draw horizontal and vertical rays coming out of that point
     //     __|_______
     //    /  |   __  |
     // --/---+--/--|-|---
     //  /____|_/   |_/
     //       |
     // 
-    // If we take this example here, the portion of the vertical line above the line
-    // intersects the polygon once (1), and same for the portion below (1).
-    // As for the horizontal line, the left portion intersects the polygon once (1), and
-    // the right portion intersects three times (3).
+    // If we take this example here, the North facing ray intersects the polygon
+    // once (1), and same for the South facing one (1). As for the horizontal rays,
+    // the West ray intersects the polygon once (1), and the East ray intersects
+    // three times (3).
     // What do all these numbers have in common? They're _odd_.
     // 
     // Now let's look at a point outside of the polygon...
@@ -85,23 +81,23 @@ bool nafy::Polygon::hasPoint(float x, float y) const {
     //   /     / +| |
     //  /_____/   |_/
     // 
-    // ...and draw vertical and horizontal lines coming out of it
+    // ...and draw vertical and horizontal rays coming out of it
     //     ______|__
     //    /     _|_ |
     // --/-----/-+|-|---
     //  /_____/  ||_/
     //           |
     // 
-    // As you can see, top vertical intersects twice (2), bottom vertical zero times (0),
-    // left horizontal twice (2), and right horizontal twice (2).
+    // As you can see, North intersects twice (2), South zero times (0),
+    // West twice (2), and East twice (2).
     // As you may have noticed, all of these are _even_.
     // 
-    // That's right: If a point is inside a polygon, then lines drawn out of it in one direction will
+    // That's right: If a point is inside a polygon, then rays drawn out of it in one direction will
     // intersect a polygon an odd number of times. This is because a polygon MUST be closed off, so if there
     // are an odd number of ends on one side, you know that they must wrap around and enclose the point.
     // 
     // Such is shown below: It doesn't matter what side is used, I just chose the top side.
-    // Time complexity is O(n), with n being the number of lines
+    // Time complexity is O(n), with n being the number of lines.
     int top = 0;
     for (int i = 0; i < length; i++) {
         if (lines[i].inDomain(x)) {
@@ -138,5 +134,8 @@ bool nafy::Polygon::contains(const Polygon &other) const {
     return false;
 }
 bool nafy::Polygon::overlaps(const Polygon &other) const {
+    // Has to check if it contains the other because, as
+    // you might have guessed, x can contain the points of y
+    // but y won't necessarially be the same to x
     return contains(other) || other.contains(*this);
 }

@@ -3,6 +3,10 @@
 
 // TODO: Setters because minX must be less than maxX
 
+/*
+* A rectangular space represented by the min/max x/y values. 
+*/
+
 namespace nafy {
     class Bounds {
         bool hasPointsOf(const Bounds &other) const;

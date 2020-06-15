@@ -53,5 +53,6 @@ bool nafy::Bounds::hasPointsOf(const Bounds &other) const {
         ((minY <= other.minY && other.minY <= maxY) || (minY <= other.maxY && other.maxY <= maxY));
 }
 bool nafy::Bounds::overlap(const Bounds &other) const {
+    // Of course, x can be in y and/or y in x, hence why we must check both
     return hasPointsOf(other) || other.hasPointsOf(*this);
 }

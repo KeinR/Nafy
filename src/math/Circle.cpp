@@ -12,8 +12,8 @@ void nafy::Circle::set(float x, float y, float radius) {
     this->radius = radius;
 }
 bool nafy::Circle::hasPoint(float xPos, float yPos) const {
-    return std::hypot(x - xPos, y - yPos) < radius;
+    return std::hypot(x - xPos, y - yPos) <= radius;
 }
 bool nafy::Circle::overlaps(const Circle &other) const {
-    return std::hypot(x - other.x, y - other.y) < radius + other.radius;
+    return std::hypot(x - other.x, y - other.y) <= radius + other.radius;
 }
