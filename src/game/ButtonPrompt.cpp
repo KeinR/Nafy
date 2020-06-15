@@ -162,8 +162,12 @@ void nafy::ButtonPrompt::generate() {
     int winWidth, winHeight;
     getWindowSize(&winWidth, &winHeight);
     const int jump = height + spacing; // Distance between each top-left corner
-    int y = (winHeight - (elements.size() * jump - spacing)) / 2; // Integer div
-    const int x = (winWidth - width) / 2; // Integer div
+    // Starting y:
+    // window height minus the net height of the buttons stacked on
+    // top of each-other, divided by 2
+    int y = (winHeight - (elements.size() * jump - spacing)) / 2;
+    // x position of the buttons, calculated similarly to the starting y
+    const int x = (winWidth - width) / 2;
 
     for (Button &button : elements) {
         button.getColor().set(color);

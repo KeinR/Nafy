@@ -81,6 +81,7 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
         this->setGameRunning(true);
         // set cursor to normal (TODO: This is a bad way of doing this!)
         releaseCursor();
+        this->getViewsRef().game.crawl.setEnabled(true); // TODO: This is stupid!
     });
     home.startGame.setOnEnter([](Button *caller) -> void {
         setCursorHand();
@@ -119,6 +120,7 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
             this->setUserAdvance(true);
         }
     });
+    game.crawl.setEnabled(false);
     game.crawl.generate();
     // The aforementioned "speaker box", displays the name of
     // whoever's currently speaking
@@ -153,11 +155,13 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
     menu.resumeGame.setX((winWidth - menu.resumeGame.getText().getWidth() - MARGIN) / 2);
     menu.resumeGame.setY(50);
     menu.resumeGame.setMargin(MARGIN);
+    menu.resumeGame.setEnabled(false);
     menu.toMenu.getText().setString("Main menu");
     menu.toMenu.getText().generate();
     menu.toMenu.setX((winWidth - menu.toMenu.getText().getWidth() - MARGIN) / 2);
     menu.toMenu.setY(70);
     menu.toMenu.setMargin(MARGIN);
+    menu.toMenu.setEnabled(false);
     #undef MARGIN
 
     menu.view.add(&menu.topTitle);
