@@ -5,22 +5,36 @@
 
 #include "renderable.h"
 
+
+
 namespace nafy {
-    template<typename E>
-    class NodeBase: public renderable {
-        E element;
+
+    class Node: public renderable {
         bool visible;
     public:
-        NodeBase(E element);
+        Node();
+        virtual ~Node() = 0;
         void setVisible(bool value);
         bool isVisible() const;
+        virtual bool isElement(renderable *ptr) const = 0;
+        virtual void render() override = 0;
+    };
+
+    template<typename E>
+    class SubNodeBase: public Node {
+        E element;
+    public:
+        SubNodeBase(E element);
         void setElement(E value);
         E getElement() const;
+        bool isElement(renderable *ptr) const override;
         void render() override;
     };
 
-    typedef NodeBase<renderable*> Node;
-    typedef NodeBase<std::shared_ptr<renderable>> DyNode;
+    // Node referencing a renderable with a simple pointer
+    typedef SubNodeBase<renderable*> StaNode;
+    // Node managing the data it was given through a shared pointer
+    typedef SubNodeBase<std::shared_ptr<renderable>> ManNode;
 };
 
 #endif

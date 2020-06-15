@@ -29,7 +29,12 @@ namespace cache {
         };
 
         std::shared_ptr<Buffer> buffer = std::make_shared<Buffer>([](Buffer &buffer)->void{
+            // Initialize the vertex array object
+            // First parameter, two values, four steps to get to the next one, starts at index 0
+            // The position data
             buffer.setParam(0, 2, 4 * sizeof(float), (void*)0);
+            // Second parameter, two values, four steps to get to the next one, starts at index 2
+            // The texture coordinates
             buffer.setParam(1, 2, 4 * sizeof(float), (void*)(2 * sizeof(float)));
         });
 
@@ -47,12 +52,22 @@ int nafy::getImageFormat(int channels) {
         case 3: return GL_RGB;
         case 2: return GL_RG;
         case 1: return GL_RED;
+        // Could cause a problem if, for some reason, one of the
+        // above enums is def'd as 0.
+        // I have no idea why they would do that though.
         default: return 0;
     }
 }
 unsigned char *nafy::loadImagePath(const std::string &path, int &width, int &height, int &format) {
+    // OpenGL's 0,0 is at the bottom-left hand corner of the screen, the opposate of images,
+    // the origins of which are at the top-left
     stbi_set_flip_vertically_on_load(true);
+    // The last parameter is the desired number of channels - I'm not sure what it does to get
+    // the channel number to that value (can't just make data appear out of thin air, and deleting
+    // data is just a no no). Hence we give 0 as the parameter, which disables the feature.
     unsigned char *data = stbi_load(path.c_str(), &width, &height, &format, 0);
+    // Not nullptr because, since stb_image is a C lib, it only has NULL.
+    // Therefore, this is safer
     if (data == NULL) {
         throw error("Failed to load image");
     }
@@ -70,6 +85,7 @@ nafy::man_image nafy::loadImageStr(const std::string &path) {
     int width, height, format;
     unsigned char *data = loadImagePath(path, width, height, format);
 
+    // TODO: Would having a shared pointer to just the image data be a better idea?
     return std::shared_ptr<imageData>(new imageData{format, width, height, data}, [](imageData *image) -> void {
         stbi_image_free(image->data);
         delete image;
@@ -96,7 +112,6 @@ nafy::Image::Image(const Texture::tparam &texParams, const shader_t &shader): te
 void nafy::Image::init(const shader_t &initShader) {
     bindShader(initShader);
     buffer = cache::buffer.get();
-    std::cout << "buffer.get() = " << buffer.get() << std::endl;
 }
 
 void nafy::Image::loadImage(const std::string &path) {
@@ -118,6 +133,7 @@ void nafy::Image::setImage(int format, int width, int height, unsigned char *dat
 void nafy::Image::bindShader(const shader_t &shader) {
     this->shader = shader;
     model.bindShader(shader);
+    // Assert that the shader has the desired sampler.
     shader->uniSampler0();
 }
 
@@ -156,8 +172,12 @@ nafy::Texture &nafy::Image::getTexure() {
 }
 
 void nafy::Image::render() {
+    // Enable shader globally
     shader->use();
+    // Insert the model into the shader uniform
     model.set();
+    // Bind the texture so that it's the one that's sampled from
     texture.bind();
+    // Render using the configuration in the buffer
     buffer->render();
 }

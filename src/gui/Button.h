@@ -45,8 +45,12 @@
 * The button takes the distance from that point, and checks if the distance between that and the mouse
 * is less than the radius of the corner.
 * 
-* It's worthy to note that the button doesn't do anything when it's clicked, etc. so as to provide the user
-* with the most control (aside from perhaps later, mouse detection will be done in the render loop, TODO) 
+* The "conventional hitbox" may be a little overkill, but it's needed because those curved corners can have
+* _different radii_ (please save me). This means that we use - yes that's right - polygons to determine if the
+* mouse is hovering over the button. For details, please see ../math/Polygon.h 
+* 
+* It's worthy to note that the button doesn't do anything on its own when it's clicked, etc. so as to provide
+* the user with the most control (aside from perhaps later, mouse detection will be done in the render loop, TODO) 
 */
 
 // TODO: Abstract this to where it's just detecting moust clicks
@@ -65,8 +69,12 @@ namespace nafy {
 
         // Cached data relating to the position of the nodes.
         // Used to detect if the user is hovering over or pressing the button
+        // Nodes: the smoothed corners
         Circle nodes[4];
+        // boxes: the inner polygon sections of the button
         Polygon boxes[5];
+        // bounds: used to efficiently determine if the mouse is close enough
+        // to warrent more accurate calculation
         Bounds bounds;
 
         // User-defined callbacks
@@ -75,13 +83,15 @@ namespace nafy {
         move_callback_func onEnter;
         move_callback_func onLeave;
 
-        // Transient
+        // Is the mouse hovering over the button right now?
         bool hovering;
 
+        // Initialize all parts of the button
         void init();
-        // Updates the x & y values of all nodes (calls updateNodesX() and updateNodesY())
+        // Updates the mouse detection nodes (nodes, boxes, bounds)
         void updateNodes();
         // Does this button contain that point?
+        // Uses bounds, nodes and boxes to determine so, in that order.
         bool containPoint(double xPos, double yPos);
         // Disable checking of mouse input events by removing itself from the Context's dispatch
         void disable();
@@ -90,10 +100,12 @@ namespace nafy {
         void steal(ButtonBase &other);
         void copy(const ButtonBase &other);
     public:
-        // Takes current context defaults
+        // Takes default sprite shader, prim shader, and font from the current context.
         ButtonBase();
-        // Alternatively, set the font and shaders.
+        // Alternatively, specify them yourself.
         // These are passed along to the wrapped TextRec*
+        // textShader requirements: model, sampler0
+        // shapeShader requirements: model, color
         ButtonBase(const Font::type &textFont, const shader_t &textShader, const shader_t &shapeShader);
         ~ButtonBase();
         ButtonBase(ButtonBase &&other);
@@ -180,6 +192,7 @@ namespace nafy {
         T &getDisplay();
     };
 
+    // Aliase ugly templates to cleaner names
     typedef ButtonBase<TextRec, Text> Button;
     typedef ButtonBase<TextRecCrawl, TextCrawl> CrawlButton;
 }

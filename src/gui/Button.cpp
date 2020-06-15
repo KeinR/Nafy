@@ -387,6 +387,8 @@ void nafy::ButtonBase<T,S>::render() {
 
 template<class T, class S>
 bool nafy::ButtonBase<T,S>::containPoint(double xPos, double yPos) {
+    // Called many times, this is a focus of optimization
+
     // O(1)
     if (bounds.hasPoint(xPos, yPos)) {
         // O(5n + 4)
@@ -414,7 +416,7 @@ bool nafy::ButtonBase<T,S>::containPoint(double xPos, double yPos) {
 
 template<class T, class S>
 void nafy::ButtonBase<T,S>::mouseMoved(double mouseX, double mouseY) {
-    if (!enabled) return;
+    if (!enabled) return; // TODO: This is stupid!
     const bool inside = containPoint(mouseX, mouseY);
     if (hovering) {
         if (!inside) {
@@ -432,7 +434,7 @@ void nafy::ButtonBase<T,S>::mouseMoved(double mouseX, double mouseY) {
 }
 template<class T, class S>
 void nafy::ButtonBase<T,S>::mouseClicked(bool isPressed, int button, int mods) {
-    if (!enabled) return;
+    if (!enabled) return; // TODO: This is stupid!
     double mouseX, mouseY;
     glfwGetCursorPos(glfwGetCurrentContext(), &mouseX, &mouseY);
     if (containPoint(mouseX, mouseY)) {
@@ -460,7 +462,6 @@ T &nafy::ButtonBase<T,S>::getDisplay() {
     return display;
 }
 
-
-
+// Generate templates
 template class nafy::ButtonBase<nafy::TextRec, Text>;
 template class nafy::ButtonBase<nafy::TextRecCrawl, TextCrawl>;

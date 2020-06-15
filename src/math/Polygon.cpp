@@ -101,8 +101,6 @@ bool nafy::Polygon::hasPoint(float x, float y) const {
     // are an odd number of ends on one side, you know that they must wrap around and enclose the point.
     // 
     // Such is shown below: It doesn't matter what side is used, I just chose the top side.
-    // I'm kidding, I chose the top side so that I don't have to worry about badness with vertical
-    // lines.
     // Time complexity is O(n), with n being the number of lines
     int top = 0;
     for (int i = 0; i < length; i++) {

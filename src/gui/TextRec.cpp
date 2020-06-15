@@ -3,37 +3,57 @@
 #include <cmath>
 
 template<class T>
-nafy::TextRecBase<T>::TextRecBase(): margin(0) {
+void nafy::TextRecBase<T>::init() {
+    margin = 0;
     regenMove();
+}
+
+template<class T>
+nafy::TextRecBase<T>::TextRecBase() {
+    init();
 }
 
 template<class T>
 nafy::TextRecBase<T>::TextRecBase(const T &text, const Rectangle &box):
-    text(text), box(box), margin(0) {
-    regenMove();
+    text(text), box(box) {
+    init();
+}
+
+template<class T>
+nafy::TextRecBase<T>::TextRecBase(T &&text, Rectangle &&box):
+    text(std::move(text)), box(std::move(box)) {
+    init();
 }
 
 template<class T>
 void nafy::TextRecBase<T>::reposText() {
+    // We use the rectangle as a point of origin
     text.setX(box.getX() + move.xy);
     text.setY(box.getY() + move.xy);
-    text.setWrappingWidth(box.getWidth() - move.width);
-    text.setOverflowHeight(box.getHeight() - move.height);
+    text.setWrappingWidth(box.getWidth() + move.width);
+    text.setOverflowHeight(box.getHeight() + move.height);
 }
 
 template<class T>
 int nafy::TextRecBase<T>::calcMove(unsigned int radius) {
+    // Equivalent to 1 - sin(45)
     constexpr float distBase = 1 - std::sqrt(2) / 2.0f;
-    // Will break with very big numbers, like 2^31 big
+    // Will break with very big numbers, like 2^31-1 big
     return std::round(margin + radius * distBase);
 }
 
 template<class T>
 void nafy::TextRecBase<T>::regenMove() {
     move.xy = calcMove(box.getCornerRadiusTopLeft());
+    // The bottom right point radius will have an effect on both
+    // the width and the height, however the top right point radius will
+    // only effect the width and the bottom left radius will only effect
+    // the height. Hence, we take the min of the two for each one.
+    // Also deduct the x/y move, because it's supposed to be decreasing
+    // the size, not moving it.
     const int dual = calcMove(box.getCornerRadiusBottomRight());
-    move.width = std::min(calcMove(box.getCornerRadiusTopRight()), dual) + move.xy;
-    move.height = std::min(calcMove(box.getCornerRadiusBottomLeft()), dual) + move.xy;
+    move.width = -std::min(calcMove(box.getCornerRadiusTopRight()), dual) - move.xy;
+    move.height = -std::min(calcMove(box.getCornerRadiusBottomLeft()), dual) - move.xy;
 }
 
 template<class T>
@@ -64,13 +84,13 @@ void nafy::TextRecBase<T>::setY(int y) {
 }
 template<class T>
 void nafy::TextRecBase<T>::setWidth(unsigned int width) {
-    text.setWrappingWidth(width - move.width);
+    text.setWrappingWidth(width + move.width);
     box.setWidth(width);
     text.setX(box.getX() + move.xy);
 }
 template<class T>
 void nafy::TextRecBase<T>::setHeight(unsigned int height) {
-    text.setOverflowHeight(height - move.height);
+    text.setOverflowHeight(height + move.height);
     box.setHeight(height);
     text.setY(box.getY() + move.xy);
 }

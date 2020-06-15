@@ -7,29 +7,53 @@
 #include "../render/Buffer.h"
 #include "../render/Model.h"
 
+/*
+* A rectangle, a basic primitive found in basically all drawing libs.
+* It's what you'd expect, except it has the ability to have curved corners.
+* Each corner has a "radius", and that radius determines how large the curve is.
+* Because each corner can have a different radius, the rendering calculations are
+* more heavy than usual. Therefore, there are checks (one) that can efficiently
+* render a rectangle with no curved corners.
+*/
+
 // TODO: Memory managment
 // TODO: Set image as opposed to uniform background color. Perhaps utilize shaders? Seperate buffers?
 
 namespace nafy {
     class Rectangle: public renderable {
+        // Renders vertex data
         Buffer buffer;
+        // Determines where the rectangle gets rendered
         Model model;
-        uniform_t colorLocation; // In shader
+        // The location of the color uniform in the shader
+        uniform_t colorLocation;
+        // The shader used to render the buffer
         shader_t shader;
 
         // Top left, top right, bottom right, bottom left
+        // The radii of the rectangle's corners
         unsigned int cornerRadii[4];
+        // The overall color of the rectangle
         Color color;
+        // Generate data for `buffer` based on the width, height
+        // and corner radii of the rectangle
         void generateBuffers();
+        // Called if the cornerradii are all zero, generates buffer data efficiently
         void generateCurveless();
-        void initVA();
         void copy(const Rectangle &other);
+        // Caps the given radius to min(width, height) / 2
         unsigned int capRadius(unsigned int radius);
-        void doSetSide(int indexA, int indexB, unsigned int radius);
+        // Re-caps all radii, called when there's a change in width/height.
+        // See capRadius(...) for more details.
         void recalRadius();
     public:
-        // Takes context default prim shader
+        // Default initialization.
+        // Takes the default prim shader from the current context
+        // and sets all corner radii to zero.
+        // Default color is determined by Color's default.
         Rectangle();
+        // Like the above, however specifying a shader to use.
+        // Shader requirements: color & model
         Rectangle(const shader_t &shader);
 
         void generate();

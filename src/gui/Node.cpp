@@ -1,30 +1,41 @@
 #include "Node.h"
 
-template<typename E>
-nafy::NodeBase<E>::NodeBase(E element): element(element), visible(true) {
+nafy::Node::Node(): visible(true) {
 }
-template<typename E>
-void nafy::NodeBase<E>::setVisible(bool value) {
+nafy::Node::~Node() {
+}
+void nafy::Node::setVisible(bool value) {
     visible = value;
 }
-template<typename E>
-bool nafy::NodeBase<E>::isVisible() const {
+bool nafy::Node::isVisible() const {
     return visible;
 }
+
 template<typename E>
-void nafy::NodeBase<E>::setElement(E value) {
+nafy::SubNodeBase<E>::SubNodeBase(E element): Node(), element(element) {
+}
+template<typename E>
+void nafy::SubNodeBase<E>::setElement(E value) {
     element = value;
 }
 template<typename E>
-E nafy::NodeBase<E>::getElement() const {
+E nafy::SubNodeBase<E>::getElement() const {
     return element;
 }
+template<>
+bool nafy::SubNodeBase<nafy::renderable*>::isElement(renderable *ptr) const {
+    return ptr == element;
+}
+template<>
+bool nafy::SubNodeBase<std::shared_ptr<nafy::renderable>>::isElement(renderable *ptr) const {
+    return ptr == element.get();
+}
 template<typename E>
-void nafy::NodeBase<E>::render() {
-    if (visible) {
+void nafy::SubNodeBase<E>::render() {
+    if (isVisible()) {
         element->render();
     }
 }
 
-template class nafy::NodeBase<nafy::renderable*>;
-template class nafy::NodeBase<std::shared_ptr<nafy::renderable>>;
+template class nafy::SubNodeBase<nafy::renderable*>;
+template class nafy::SubNodeBase<std::shared_ptr<nafy::renderable>>;

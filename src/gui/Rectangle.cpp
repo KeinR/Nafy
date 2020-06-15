@@ -10,6 +10,7 @@
 // Number of verticies per unit of circumference, floored
 #define CURVE_SMOOTHNESS 3
 
+// Initializes the buffer's vertex object with the proper configurations
 static void initBuffer(nafy::Buffer &buffer) {
     buffer.setParam(0, 2, 2 * sizeof(float), (void*)0);
 }

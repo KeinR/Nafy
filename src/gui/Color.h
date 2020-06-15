@@ -1,20 +1,24 @@
 #ifndef COLOR_H_INCLUDED
 #define COLOR_H_INCLUDED
 
-// TODO: Color constants
-
 namespace nafy {
     class Color {
     public:
+        // Type used for hexidecimal values
+        // Note that RGB color values are 24 bit (3 byte),
+        // so any superfluous values are ignored.
         typedef unsigned int hex_t;
+        // Type used for full RGBA values (0-255) incl.
         typedef unsigned char value_t;
+        // Type used for RGBA proportions (0-1) incl.
         typedef float prop_t;
     private:
-        // rgba
+        // RGBA, Red Green Blue Alpha, in that order
         prop_t color[4];
     public:
         // Yoinked from wikipedia
         // https://en.wikipedia.org/wiki/Web_colors#X11_color_names
+        // Predefined hex values to help streamline early development
         static constexpr hex_t red = 0xFF0000;
         static constexpr hex_t green = 0x008000;
         static constexpr hex_t blue = 0x0000FF;
@@ -32,32 +36,47 @@ namespace nafy {
         static constexpr hex_t fuchsia = 0xFF00FF;
         static constexpr hex_t purple = 0x800080;
 
-        // 0, 0, 0, 1 by default; ie, opaque black
+        // Default initialization
+        // 0, 0, 0, 255 by default; ie, "opaque black"
         Color();
+        // Init with hex and optional alpha
         Color(hex_t hex, value_t alpha = 0xFF);
+        // Init with proportions and optional alpha
         Color(prop_t r, prop_t g, prop_t b, prop_t a = 1);
 
-        // Sets a color to a hex value (no alpha, first byte ignored)
+        // Convinience operator, calls setHex(hex)
         Color &operator=(hex_t hex);
 
-        // Hex value for RGBA, with first 8 bytes ignored
+        // Hex value for RGB, with first 8 bytes ignored
         void setHex(hex_t hex);
+        // Same as above, but including an additional alpha value
         void setHex(hex_t hex, value_t alpha);
-        // Color 0-255
+
+        // Color values represented in a conventional 0-255
         void setVal(value_t red, value_t green, value_t blue);
+        // Same as above, but including an additional alpha value
         void setVal(value_t red, value_t green, value_t blue, value_t alpha);
+        // Same value type as the last two, except set only the alpha
         void setValAlpha(value_t alpha);
-        // Proportions, 0-1 representing percent of 255
+
+        // Proportions, 0-1 representing a percent% of 255
         void setProp(prop_t red, prop_t green, prop_t blue);
+        // Same as above, but including an additional alpha value
         void setProp(prop_t red, prop_t green, prop_t blue, prop_t alpha);
+        // Same value type as the last two, except set only the alpha
         void setPropAlpha(prop_t alpha);
 
+        // An alternative to using the assignment operator (=)
         void set(const Color &other);
 
+        // Get RGBA data in conventional 0-255 format
         // Any parameter as `nullptr` is ignored
         void getVal(value_t *red, value_t *green, value_t *blue, value_t *alpha) const;
+        // Get RGB (no alpha) as a hexidecimal value (represented in base 10 obv.)
+        hex_t getHex() const;
 
-        // Get pointer to pointer data, array of length 4
+        // Get pointer to data, array of length 4 in RGBA format
+        // Note that this data is tied to the color object, and will destruct when it does.
         prop_t *get();
 
         // In `percent`, 1 is 100%
