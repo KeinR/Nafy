@@ -14,6 +14,41 @@
 #include "../text/Text.h"
 #include "../text/TextCrawl.h"
 
+#include "../math/Polygon.h"
+#include "../math/Circle.h"
+#include "../math/Bounds.h"
+
+/*
+* A pretty intense abstraction, ButtonBase is a template that is typedef'd
+* to Button and CrawlButton, both wrapping a TextRec and a TextRecCrawl respectively.
+* It extends the renderable class so that it can function as a renderable node, and
+* mouseMoveCallback and mouseClickCallback so that it can fulfill the functions of a button.
+* 
+* Button (Both Button and CrawlButton) functions by taking user events and invoking user-provided
+* callbacks (onClick, onEnter, etc.) depending on the position of the mouse and its state.
+* It implements a lot of the setters and getters of its wrapped class because it needs to adjust its
+* node locations.
+* The nodes are how the button keeps track of the corners of its displayed area. It detects with the
+* conventional hitbox, however since TextRec*s can have curved corners, it must also determine if the
+* user is hovering over or has clicked the button by taking the hypotenuse of the triangle made from
+* the mouse to the inner corner. The inner corner is found by going the distance of the corner radius
+* into the heart of the button - like if the button were an actual circle, it'd be it's center.
+* I may be a little unclear, so here's a diagram:
+* 
+* Here we have a button with rounded corners
+*   ________
+*  /        \ <- here's one such corner (pretend it's actually rounded)
+*  |        |
+*  |    -> _| The place where those two lines meet (kinda' pointed at by the arrow) is the "inner corner",
+*  \_______|/
+* 
+* The button takes the distance from that point, and checks if the distance between that and the mouse
+* is less than the radius of the corner.
+* 
+* It's worthy to note that the button doesn't do anything when it's clicked, etc. so as to provide the user
+* with the most control (aside from perhaps later, mouse detection will be done in the render loop, TODO) 
+*/
+
 // TODO: Abstract this to where it's just detecting moust clicks
 
 namespace nafy {
@@ -25,16 +60,16 @@ namespace nafy {
     private:
         T display;
 
+        // Should the button detect user input and dispatch the events to its callbacks?
         bool enabled;
 
-        struct vec2 {
-            int x;
-            int y;
-        };
-        vec2 nodes[4];
-        int rightmost;
-        int downmost;
+        // Cached data relating to the position of the nodes.
+        // Used to detect if the user is hovering over or pressing the button
+        Circle nodes[4];
+        Polygon boxes[5];
+        Bounds bounds;
 
+        // User-defined callbacks
         press_callback_func onClick;
         press_callback_func onRelease;
         move_callback_func onEnter;
@@ -44,18 +79,21 @@ namespace nafy {
         bool hovering;
 
         void init();
-        void updateNodesX();
-        void updateNodesY();
+        // Updates the x & y values of all nodes (calls updateNodesX() and updateNodesY())
         void updateNodes();
+        // Does this button contain that point?
         bool containPoint(double xPos, double yPos);
+        // Disable checking of mouse input events by removing itself from the Context's dispatch
         void disable();
+        // Enable checking of mouse input events by adding itself from the Context's dispatch
         void enable();
         void steal(ButtonBase &other);
         void copy(const ButtonBase &other);
     public:
         // Takes current context defaults
         ButtonBase();
-        // Alternatively, set the font and shaders 
+        // Alternatively, set the font and shaders.
+        // These are passed along to the wrapped TextRec*
         ButtonBase(const Font::type &textFont, const shader_t &textShader, const shader_t &shapeShader);
         ~ButtonBase();
         ButtonBase(ButtonBase &&other);
@@ -63,30 +101,39 @@ namespace nafy {
         ButtonBase &operator=(ButtonBase &&other);
         ButtonBase &operator=(const ButtonBase &other);
 
+        // Set callbacks
         void setOnClick(const press_callback_func &callback);
         void setOnRelease(const press_callback_func &callback);
         void setOnEnter(const move_callback_func &callback);
         void setOnLeave(const move_callback_func &callback);
 
+        // Get callbacks
         press_callback_func getOnClick();
         press_callback_func getOnRelease();
         move_callback_func getOnEnter();
         move_callback_func getOnLeave();
 
+        // Generic setters
         void setX(int value);
         void setY(int value);
         void setWidth(unsigned int value);
         void setHeight(unsigned int value);
+        // Margin is the distance between the edge of
+        // the inner text and the outer edge of the rectangle in
+        // TextRec*
         void setMargin(unsigned int value);
 
+        // Generic getters
         int getX();
         int getY();
         unsigned int getWidth();
         unsigned int getHeight();
         unsigned int getMargin();
 
+        // Corner radius setters
+        // Set the corner radius for all corners
         void setCornerRadius(unsigned int radius);
-        // By index; going clockwise, starting from top-left inclusive
+        // Set by index; going clockwise, starting from top-left inclusive
         void setCornerRadius(int index, unsigned int radius);
         // One corner at a time
         void setCornerRadiusTopLeft(unsigned int radius);
@@ -94,6 +141,7 @@ namespace nafy {
         void setCornerRadiusBottomRight(unsigned int radius);
         void setCornerRadiusBottomLeft(unsigned int radius);
 
+        // Corner radius getters
         void getCornerRadii(unsigned int data[4]);
         unsigned int getCornerRadius(int index);
         unsigned int getCornerRadiusTopLeft();
@@ -101,23 +149,34 @@ namespace nafy {
         unsigned int getCornerRadiusBottomRight();
         unsigned int getCornerRadiusBottomLeft();
 
+        // Set/get the enabled status, ie, if it will
+        // process and dispatch events, of the button
         void setEnabled(bool value);
         bool isEnabled();
 
+        // Is the mouse hovering over this button?
         bool isHovering();
 
+        // Simulate a mouse press and release on this button,
+        // calling the onClick and onRelease functions
         void trigger();
+        // Calls generate() on TextRec, important to finalize the display
+        // Will also properly center the Textrec* if the wrapped text's textAlign
+        // is set to Font::textAlign::center
         void generate();
+        // Renders the display
         void render() override;
     
+        // Input callbacks for the Context to call
         void mouseMoved(double mouseX, double mouseY) override;
         void mouseClicked(bool isPressed, int button, int mods) override;
 
-        // wrapped in display
+        // wrapped in display, defined here for convinience
         Color &getColor();
         Rectangle &getBox();
         S &getText();
 
+        // Get the wrapped display
         T &getDisplay();
     };
 

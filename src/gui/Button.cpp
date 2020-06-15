@@ -14,8 +14,8 @@ void nafy::ButtonBase<T,S>::init() {
     enable();
     setWidth(100);
     setHeight(50);
-    updateNodesX();
-    updateNodesY();
+    updateNodes();
+    // I think that button text is usually centered, right?
     display.getText().setAlign(Font::textAlign::center);
 }
 
@@ -32,8 +32,8 @@ nafy::ButtonBase<T,S>::ButtonBase(const Font::type &textFont, const shader_t &te
 }
 template<class T, class S>
 nafy::ButtonBase<T,S>::~ButtonBase() {
-    getContext()->removeMousePosCallback(this);
-    getContext()->removeMouseButtonCallback(this);
+    // Ensure that there are no pointers to this Button anywhere
+    disable();
 }
 
 template<class T, class S>
@@ -95,54 +95,100 @@ void nafy::ButtonBase<T,S>::disable() {
 }
 template<class T, class S>
 void nafy::ButtonBase<T,S>::enable() {
-    enabled = true;
     getContext()->addMousePosCallback(*this);
     getContext()->addMouseButtonCallback(*this);
-}
-
-template<class T, class S>
-void nafy::ButtonBase<T,S>::updateNodesY() {
-    Rectangle &box = display.getBox();
-
-    // Top left
-    nodes[0].y = display.getY() + box.getCornerRadiusTopLeft();
-
-    // Top right
-    nodes[1].y = display.getY() + box.getCornerRadiusTopRight();
-
-    downmost = display.getY() + display.getHeight();
-
-    // Bottom right
-    nodes[2].y = downmost - box.getCornerRadiusBottomRight();
-
-    // Bottom left
-    nodes[3].y = downmost - box.getCornerRadiusBottomLeft();
-}
-
-template<class T, class S>
-void nafy::ButtonBase<T,S>::updateNodesX() {
-    Rectangle &box = display.getBox();
-
-    // Top left
-    nodes[0].x = display.getX() + box.getCornerRadiusTopLeft();
-
-    rightmost = display.getX() + display.getWidth();
-
-    // Top right
-    nodes[1].x = rightmost - box.getCornerRadiusTopRight();
-
-    // Bottom right
-    nodes[2].x = rightmost - box.getCornerRadiusBottomRight();
-
-    // Bottom left
-    nodes[3].x = display.getX() + box.getCornerRadiusBottomLeft();
-
+    enabled = true;
 }
 
 template<class T, class S>
 void nafy::ButtonBase<T,S>::updateNodes() {
-    updateNodesX();
-    updateNodesY();
+    // std::cout << "Called" << std::endl;
+    Rectangle &box = display.getBox();
+
+    // Top left
+    nodes[0].x = display.getX() + box.getCornerRadiusTopLeft();
+    nodes[0].y = display.getY() + box.getCornerRadiusTopLeft();
+
+    // Rightmost bound of button
+    const float rightmost = display.getX() + display.getWidth();
+    // Lower bound of button
+    const float downmost = display.getY() + display.getHeight();
+
+    // Top right
+    nodes[1].x = rightmost - box.getCornerRadiusTopRight();
+    nodes[1].y = display.getY() + box.getCornerRadiusTopRight();
+
+    // Bottom right
+    nodes[2].x = rightmost - box.getCornerRadiusBottomRight();
+    nodes[2].y = downmost - box.getCornerRadiusBottomRight();
+
+    // Bottom left
+    nodes[3].x = display.getX() + box.getCornerRadiusBottomLeft();
+    nodes[3].y = downmost - box.getCornerRadiusBottomLeft();
+
+    // Set radii
+    for (int i = 0; i < 4; i++) {
+        nodes[i].radius = display.getCornerRadius(i);
+    }
+
+    // Bounds, used to efficiently determine if the mouse is close enough to
+    // warrent more intense calculations
+
+    bounds.set(display.getX(), display.getY(), rightmost, downmost);
+
+    // Update data for the inner polygons
+
+    constexpr int pointsLen = 8;
+    float points[pointsLen];
+
+    // Center block
+    for (int i = 0; i < 4; i++) {
+        const int index = i * 2;
+        points[index] = nodes[i].x;
+        points[index+1] = nodes[i].y;
+    }
+    boxes[0] = Polygon(points, pointsLen);
+
+    // Leftmost
+    points[0] = display.getX();
+    points[1] = nodes[0].y;
+    points[2] = display.getX();
+    points[3] = nodes[3].y;
+    points[4] = nodes[3].x;
+    points[5] = nodes[3].y;
+    points[6] = nodes[0].x;
+    points[7] = nodes[0].y;
+    boxes[1] = Polygon(points, pointsLen);
+    // Topmost
+    points[0] = nodes[0].x;
+    points[1] = nodes[0].y;
+    points[2] = nodes[0].x;
+    points[3] = display.getY();
+    points[4] = nodes[1].x;
+    points[5] = display.getY();
+    points[6] = nodes[1].x;
+    points[7] = nodes[1].y;
+    boxes[2] = Polygon(points, pointsLen);
+    // Rightmost
+    points[0] = nodes[1].x;
+    points[1] = nodes[1].y;
+    points[2] = rightmost;
+    points[3] = nodes[1].y;
+    points[4] = rightmost;
+    points[5] = nodes[2].y;
+    points[6] = nodes[2].x;
+    points[7] = nodes[2].y;
+    boxes[3] = Polygon(points, pointsLen);
+    // Bottommost
+    points[0] = nodes[2].x;
+    points[1] = nodes[2].y;
+    points[2] = nodes[2].x;
+    points[3] = downmost;
+    points[4] = nodes[3].x;
+    points[5] = downmost;
+    points[6] = nodes[3].x;
+    points[7] = nodes[3].y;
+    boxes[4] = Polygon(points, pointsLen);
 }
 
 template<class T, class S>
@@ -186,22 +232,22 @@ nafy::ButtonBase<T,S>::move_callback_func nafy::ButtonBase<T,S>::getOnLeave() {
 template<class T, class S>
 void nafy::ButtonBase<T,S>::setX(int value) {
     display.setX(value);
-    updateNodesX();
+    updateNodes();
 }
 template<class T, class S>
 void nafy::ButtonBase<T,S>::setY(int value) {
     display.setY(value);
-    updateNodesY();
+    updateNodes();
 }
 template<class T, class S>
 void nafy::ButtonBase<T,S>::setWidth(unsigned int value) {
     display.setWidth(value);
-    updateNodesX();
+    updateNodes();
 }
 template<class T, class S>
 void nafy::ButtonBase<T,S>::setHeight(unsigned int value) {
     display.setHeight(value);
-    updateNodesY();
+    updateNodes();
 }
 template<class T, class S>
 void nafy::ButtonBase<T,S>::setMargin(unsigned int value) {
@@ -263,6 +309,8 @@ void nafy::ButtonBase<T,S>::setCornerRadiusBottomLeft(unsigned int radius) {
 
 template<class T, class S>
 void nafy::ButtonBase<T,S>::setEnabled(bool value) {
+    // It'd be a waste to remove ourselves from
+    // the Context's callback vector twice
     if (enabled != value) {
         if (enabled) {
             hovering = false;
@@ -315,6 +363,7 @@ nafy::Color &nafy::ButtonBase<T,S>::getColor() {
 
 template<class T, class S>
 void nafy::ButtonBase<T,S>::trigger() {
+    // I think it's convincing enough
     if (onClick) {
         onClick(this, GLFW_MOUSE_BUTTON_LEFT, 0);
     }
@@ -326,7 +375,7 @@ void nafy::ButtonBase<T,S>::trigger() {
 template<class T, class S>
 void nafy::ButtonBase<T,S>::generate() {
     display.generate();
-    // True center
+    // If the text is already centered horizontally, center it vertically as well
     if (display.getText().getAlign() == Font::textAlign::center) {
         display.getText().setY(getY() + (getHeight() - display.getText().getHeight()) / 2);
     }
@@ -338,15 +387,26 @@ void nafy::ButtonBase<T,S>::render() {
 
 template<class T, class S>
 bool nafy::ButtonBase<T,S>::containPoint(double xPos, double yPos) {
-    // More likely the mouse is somewhere here
-    if ((xPos >= nodes[0].x && xPos <= nodes[2].x && yPos >= display.getY() && yPos <= downmost) || // Big center
-        (xPos >= display.getX() && xPos <= rightmost && yPos >= nodes[0].y && yPos <= nodes[2].y) // Rotate that center
-        ) {
-        return true;
-    }
-    for (int i = 0; i < 4; i++) {
-        if (std::hypot(xPos - nodes[i].x, yPos - nodes[i].y) < display.getBox().getCornerRadius(i)) {
-            return true;
+    // O(1)
+    if (bounds.hasPoint(xPos, yPos)) {
+        // O(5n + 4)
+
+        // Circles
+        // O(4)
+        for (int i = 0; i < 4; i++) {
+            // O(1)
+            if (nodes[i].hasPoint(xPos, yPos)) {
+                return true;
+            }
+        }
+
+        // Polygons
+        // O(5n)
+        for (int i = 0; i < 5; i++) {
+            // O(n)
+            if (boxes[i].hasPoint(xPos, yPos)) {
+                return true;
+            }
         }
     }
     return false;
