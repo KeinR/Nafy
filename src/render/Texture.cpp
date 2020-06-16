@@ -7,9 +7,11 @@
 
 #include "../core/glfw.h"
 
+// def'd to be extra safe
 #define TEXTURE_TYPE GL_TEXTURE_2D
 #define TEXTURE_PIXEL_TYPE GL_UNSIGNED_BYTE
 
+// Default parameters
 constexpr nafy::Texture::tparam defaultParams{
     GL_CLAMP_TO_BORDER,
     GL_CLAMP_TO_BORDER,
@@ -45,6 +47,8 @@ void nafy::Texture::steal(Texture &other) {
 }
 
 void nafy::Texture::copy(const Texture &other) {
+    // Get metadata from other's texture buffer and
+    // copy the texture data in other's buffer to this's
     other.bind();
     GLint width, height, format;
     glGetTexLevelParameteriv(TEXTURE_TYPE, 0, GL_TEXTURE_WIDTH, &width);
@@ -95,9 +99,11 @@ void nafy::Texture::setDefaultParams() {
 void nafy::Texture::setParams(const tparam &params) {
     bind();
 
+    // x/y wrap parameter
     glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_WRAP_S, params.xWrap);
     glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_WRAP_T, params.yWrap);
 
+    // min/max filtering parameter
     glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_MIN_FILTER, params.minFilter);
     glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_MAG_FILTER, params.maxFilter);
 }
