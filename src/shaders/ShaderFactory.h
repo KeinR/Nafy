@@ -6,6 +6,12 @@
 
 #include "Shader.h"
 
+/*
+* Used to construct shaders from raw data.
+* Useful when you need to construct copies of the
+* same shader, likely due to working in multible contexts.
+*/
+
 namespace nafy {
     class ShaderFactory {
         int vertLength;
@@ -13,11 +19,14 @@ namespace nafy {
         std::shared_ptr<char> vertData;
         std::shared_ptr<char> fragData;
     public:
+        // Default initialize. Do note that the
+        // shader factory will be ill formed, and that
+        // any calls to make(...) will fail!
         ShaderFactory();
         // Throws instance of `nafy::error` if file load failed
         // Note: calls getPath on given paths
         ShaderFactory(const std::string &vertexPath, const std::string &fragmentPath);
-        // Throws instance of `nafy::gl_error` if shader link/compilation failed
+        // Throws instance of `gl_error` if shader link/compilation failed
         // `uniforms` are parameters for how to initialize the shader
         shader_t make(Shader::uni_t uniforms = Shader::uni::NONE);
     };

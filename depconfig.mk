@@ -22,7 +22,7 @@ bin/gui.Image.o: src/gui/Image.cpp src/core/Cache.h src/core/Context.h src/core/
 bin/gui.Node.o: src/gui/Node.cpp src/gui/Node.h src/gui/renderable.h
 bin/gui.Rectangle.o: src/gui/Rectangle.cpp src/core/Context.h src/core/TextLibrary.h src/core/callback.h src/core/error.h src/core/glfw.h src/env/defs.h src/env/env.h src/game/BasicEvent.h src/game/FuncEvent.h src/game/Scene.h src/game/sceneEvent.h src/gui/Button.h src/gui/Color.h src/gui/Image.h src/gui/Node.h src/gui/Rectangle.h src/gui/TextRec.h src/gui/View.h src/gui/renderable.h src/math/Bounds.h src/math/Circle.h src/math/Line.h src/math/Point.h src/math/Polygon.h src/render/Buffer.h src/render/Model.h src/render/Texture.h src/shaders/Shader.h src/text/Font.h src/text/FontFactory.h src/text/Text.h src/text/TextCrawl.h src/text/ftype.h
 bin/gui.renderable.o: src/gui/renderable.cpp src/gui/renderable.h
-bin/gui.TextRec.o: src/gui/TextRec.cpp src/gui/Color.h src/gui/Image.h src/gui/Rectangle.h src/gui/TextRec.h src/gui/renderable.h src/render/Buffer.h src/render/Model.h src/render/Texture.h src/shaders/Shader.h src/text/Font.h src/text/Text.h src/text/TextCrawl.h src/text/ftype.h
+bin/gui.TextRec.o: src/gui/TextRec.cpp src/core/glfw.h src/gui/Color.h src/gui/Image.h src/gui/Rectangle.h src/gui/TextRec.h src/gui/renderable.h src/render/Buffer.h src/render/Model.h src/render/Texture.h src/shaders/Shader.h src/text/Font.h src/text/Text.h src/text/TextCrawl.h src/text/ftype.h
 bin/gui.View.o: src/gui/View.cpp src/gui/Node.h src/gui/View.h src/gui/renderable.h
 bin/math.Bounds.o: src/math/Bounds.cpp src/math/Bounds.h
 bin/math.Circle.o: src/math/Circle.cpp src/math/Circle.h

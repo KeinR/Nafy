@@ -10,10 +10,12 @@
 #include "../env/env.h"
 #include "../core/error.h"
 
-// keyword: filename. Searches for file in resources/shaders
-// C-string, std::string, doesn't matter much here I don't think
-// static GLuint makeProgram(const char *vertexFilename, const char *fragmentFilename);
+// Compiles then given shader and returns a handle to the OpenGL object
+// Throws an instance of gl_error if failed
 static GLuint compileShader(GLenum type, const char *data, int length);
+// Links two shaders (vertex and fragment) and returns the resulting
+// shader program.
+// Throws an instance of gl_error if failed
 static GLuint linkShaders(GLuint vertObject, GLuint fragObject);
 
 nafy::ShaderFactory::ShaderFactory(): vertLength(0), fragLength(0) {
@@ -42,9 +44,11 @@ nafy::shader_t nafy::ShaderFactory::make(Shader::uni_t uniforms) {
 GLuint compileShader(GLenum type, const char *data, int length) {
     GLuint shader;
     shader = glCreateShader(type);
+    // Load shader source code
     glShaderSource(shader, 1, &data, &length);
+    // Compile code
     glCompileShader(shader);
-    // Debug
+    // Check for failure
     int success;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success) {
@@ -67,6 +71,7 @@ GLuint linkShaders(GLuint vertObject, GLuint fragObject) {
     glAttachShader(shaderProgram, vertObject);
     glAttachShader(shaderProgram, fragObject);
     glLinkProgram(shaderProgram);
+    // Check for failure
     int success;
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success) {
