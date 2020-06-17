@@ -4,6 +4,8 @@
 /*
 * Text configurations.
 * Include what is needed in order to make compatable
+* I originally had this because I wanted text to be standalone,
+* however that's not working out so well.
 */
 
 // The name of the mat4 model and sampler2D in the text shader(s)

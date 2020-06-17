@@ -18,6 +18,11 @@ static GLuint compileShader(GLenum type, const char *data, int length);
 // Throws an instance of gl_error if failed
 static GLuint linkShaders(GLuint vertObject, GLuint fragObject);
 
+// Because shared pointer only uses delete... That was a close memory leak.
+static void deleteCharArray(char *data) {
+    delete[] data;
+}
+
 nafy::ShaderFactory::ShaderFactory(): vertLength(0), fragLength(0) {
 }
 nafy::ShaderFactory::ShaderFactory(const std::string &vertexPath, const std::string &fragmentPath) {
@@ -29,8 +34,8 @@ nafy::ShaderFactory::ShaderFactory(const std::string &vertexPath, const std::str
     if (!loadFile(getPath(fragmentPath), &fd, fragLength)) {
         throw error("Failed to load fragment shader file");
     }
-    vertData.reset(vd);
-    fragData.reset(fd);
+    vertData.reset(vd, deleteCharArray);
+    fragData.reset(fd, deleteCharArray);
 }
 nafy::shader_t nafy::ShaderFactory::make(Shader::uni_t uniforms) {
     if (!vertData || !fragData) {

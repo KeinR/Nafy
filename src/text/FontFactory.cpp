@@ -20,13 +20,16 @@ FontFactory::FontFactory(const std::string &path) {
         return;
     }
 
+    // Get file length
     file.seekg(0, file.end);
     const int length = file.tellg();
     file.seekg(0, file.beg);
 
-    buffer.reset(new unsigned char[length]);
+    buffer.reset(new unsigned char[length], [](unsigned char *data)->void{
+        delete[] data;
+    });
 
-    file.read((char *)buffer.get(), length);
+    file.read(reinterpret_cast<char*>(buffer.get()), length);
 
     if (!file.good()) {
         error = "Failed to read from file";

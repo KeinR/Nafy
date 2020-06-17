@@ -419,6 +419,8 @@ Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator 
                             if (*newI == space) {
                                 ++newI;
                                 resume = newI;
+                                // For each part that the frame has been shifted,
+                                // transfer the corresponding character width
                                 for (int fi; stop > newI;) {
                                     --stop;
                                     fi = stop - start;
@@ -426,6 +428,7 @@ Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator 
                                     width += metrics[fi].advance + metrics[fi].kern;
                                 }
                                 stop = newI;
+                                // If there's a space that should be deleted
                                 if (stop <= begin || *(stop-1) != space) {
                                     --stop;
                                     int fi = stop - start;
@@ -440,6 +443,7 @@ Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator 
                 ofs_type xOffset = compOffset(metrics[begin - start].lsb, align, thisWidth, wrappingWidth);
                 lines.push_back(consLine(begin, stop, xOffset, thisWidth)); // negate to get positive, shift 6 times to obtain 26.6, and shift 7th time to muntiply by 2
                 begin = resume;
+                // Init the width with the lsb of the first char
                 width += compXOfs(metrics[resume - start].lsb);
             } else {
                 width += move;
@@ -460,6 +464,7 @@ Font::glyph_str Font::indexString(std::string::const_iterator start, const std::
     index.reserve(end - start);
     for (; start < end; ++start) {
         if (*start == '\n') {
+            // If it's a newline, we have a special value for it...
             index.push_back(newline);
         } else {
             index.push_back(FT_Get_Char_Index(face, *start));
@@ -471,9 +476,13 @@ Font::glyph_str Font::indexString(std::string::const_iterator start, const std::
 std::vector<Font::line_iterator> Font::breakupLines(line_iterator start, const line_iterator &end, float lineSpacingMod, map_size maxHeight) {
     std::vector<Font::line_iterator> result;
 
+    // The ammount at the foot of the lines that can be deducted due to how there doesn't need to
+    // be spacing for the next line
     const map_size deduction = rto32(std::round(face->size->metrics.height * (lineSpacingMod - 1)));
+    // Distance per line
     const map_size descent = rto32(std::round(face->size->metrics.height * lineSpacingMod));
 
+    // Increase the max height
     maxHeight += deduction;
 
     while (start < end) {
@@ -495,6 +504,8 @@ std::vector<Font::line_iterator> Font::breakupLines(line_iterator start, const l
 }
 
 Font::line_iterator Font::truncLines(line_iterator start, const line_iterator &end, float lineSpacingMod, map_size maxHeight) {
+    // Same deal as breakupLines(...), except this one returns on the first instance of height exceeding
+    // the max height
 
     const int deduction = rto32(std::round(face->size->metrics.height * (lineSpacingMod - 1)));
     const int descent = rto32(std::round(face->size->metrics.height * lineSpacingMod));
@@ -514,25 +525,31 @@ Font::line_iterator Font::truncLines(line_iterator start, const line_iterator &e
 }
 
 Font::map_size Font::getBitmapHeight(const line_iterator &start, const line_iterator &end, float lineSpacingMod) {
+    // The ammount at the foot of the lines that can be deducted due to
+    // how there doesn't need to be spacing for the next line
     const int deduction = rto32(std::round(face->size->metrics.height * (lineSpacingMod - 1)));
+    // Distance per line
     const int descent = rto32(std::round(face->size->metrics.height * lineSpacingMod));
     return (end - start) * descent - deduction;
 }
 
 Font::map_size Font::getBitmapWidth(const line_iterator &start, const line_iterator &end) {
+    // Search through the lines and find the greatest width
     map_size width = 0;
     for (line_iterator it = start; it < end; it++) {
         if (it->width > width) {
             width = it->width;
         }
     }
-    return rto32(width); // Because the width stored in the lines is 26.6
+    // Round off the width from 26.6 to 32
+    return rto32(width);
 }
 
 void Font::getLinesRenderData(const line_iterator &start, const line_iterator &end, int channels, float lineSpacingMod, map_size &lineHeight, map_size &width, map_size &height, int &offset, int &fall) {
     if (start >= end) {
         return;
     }
+    // The ascent of the first line
     const Font::map_size cap = stringAscent(start->start, start->end);
     // https://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html#ft_size_metrics
     // "The height in 26.6 fractional pixels, rounded to an integer value"
@@ -544,9 +561,9 @@ void Font::getLinesRenderData(const line_iterator &start, const line_iterator &e
     lineHeight = rto32(descent);
     // bitmap width
     width = getBitmapWidth(start, end);
-    // The deduction saves a little bit of memory; deduct the foot of empty space at the bottom of the line
+    // This deduction saves a little bit of memory; deduct the foot of empty space at the bottom of the line
     height = rto32((end - start - 1) * descent + cap + stringDescent((end-1)->start, (end-1)->end));
-    // Start offset
+    // Start bitmap offset
     offset = (height - rto32(descent + cap)) * width * channels;
     // Offset deduction per line
     fall = width * channels * lineHeight;

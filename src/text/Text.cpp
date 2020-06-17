@@ -46,7 +46,10 @@ void Text::textCopy(const Text &other) {
 
 void Text::textCopyIL(const Text &other) {
     // https://stackoverflow.com/questions/11021764/does-moving-a-vector-invalidate-iterators
-    // Fucking committees
+    // So iterators _might_ be invalidated...
+    // I saw another post saying that they aren't as long as
+    // the allocaters are the same or something, but I'm just
+    // going to stay on the safe side.
     index = other.index;
     lines = other.lines;
     for (Font::line &ln : lines) {
@@ -68,6 +71,7 @@ void Text::textCopyPOD(const Text &other) {
 
 Text::Text(const Text &other) {
     textCopy(other);
+    // Only render the bimap if there are lines to render
     if (lines.size()) {
         loadStops();
     }
@@ -105,6 +109,9 @@ nafy::shader_t Text::getShader() {
 }
 
 void Text::clear() {
+    // Clear the image of all data,
+    // and wipe the lines so that no mistakes are
+    // made
     image.setImage(GL_RGBA, 0, 0, nullptr);
     image.setWidth(0);
     image.setHeight(0);
@@ -116,6 +123,10 @@ void Text::generate() {
         clear();
         return;
     }
+    // Determine if the string contains only whitespace.
+    // If so, a clear() would have the same effect,
+    // and would prevent a crash fron allocating a zero
+    // length array later on in Font.
     for (std::string::size_type i = 0;; i++) {
         if (i >= str.size()) {
             clear();
@@ -126,6 +137,7 @@ void Text::generate() {
         }
     }
 
+    // Setup font for rendering operations
     configureFont();
     index = font->indexString(str.cbegin(), str.cend());
     if (wrappingWidth) {
@@ -137,12 +149,17 @@ void Text::generate() {
             stops.push_back(lines.cend());
         }
     } else {
+        // If wrapping width has been turned off (set to zero), then
+        // make a dummy line from the entire index.
         lines.clear();
         lines.push_back(font->makeLine(index.cbegin(), index.cend()));
+        // If wrapping width is disabled, then overflow height is
+        // irrelevant because the line height is constant.
         stops.clear();
         stops.push_back(lines.cend());
     }
 
+    // Render lines up until the first stop
     loadLines(lines.cbegin(), stops[0]);
 }
 
