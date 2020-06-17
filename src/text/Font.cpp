@@ -42,7 +42,6 @@ inline static int compOffset(int lsb, Font::textAlign align, unsigned int &width
     return xOffset;
 }
 
-
 // Start struct constructors
 
 Font::renderConf::renderConf():
@@ -281,8 +280,8 @@ void Font::renderGlyphTo(glyph_type glyph, glyph_type next, const renderConf &re
                 // hence why there's only one check.
                 if (face->glyph->bitmap.buffer[srcIndex]) {
                     // The insertion index.
-                    // Overly convoluted because we need to flip the texture
-                    // vertically for OpenGL.
+                    // Flipts the texture because OpenGL operates
+                    // with 0,0 at the lower left corner.
                     // 
                     // (
                     //     (ix + x) // Add pixel x offset to the pen x offset 
@@ -378,14 +377,18 @@ Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator 
     for (glyph_iterator it = start; it < end; ++it) {
         // Forced line break, indicated by newline control value (see file header)
         if (*it == newline) {
-            glyph_iterator stop = it;
-            glyph_iterator resume = it;
-            while (--stop >= start && *stop == space);
-            stop++;
-            while (++resume < end && *resume == space);
+
+            // The range that will be ignored
+            glyph_iterator stop = it; // exclusive
+            glyph_iterator resume = it+1; // inclusive
+
+            // compXOfs(...) -> Get the lsb from the glyph at the start of the line.
+            // This is important because we need to shift the pen at the start so that characters
+            // like j, which write to the left of the pen (at least with Arial...) don't cause a
+            // buffer underflow or poor text quality
             lines.push_back(consLine(begin, stop, compXOfs(metrics[begin - start].lsb), width));
             begin = resume;
-            width = 0;
+            width = compXOfs(metrics[resume - start].lsb);
         } else {
             int i = it - start;
             const int move = metrics[i].advance + metrics[i].kern;
@@ -393,33 +396,29 @@ Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator 
                 glyph_iterator stop = it;
                 glyph_iterator resume = it;
                 unsigned int thisWidth = width;
+                // Check if we should do soft or hard wrap - 
+                // if there's a space char here, there's no harm in doing a hard wrap.
+                // Same for if there was space previously
                 if (*it == space) {
-                    // Check if the space can become analagous for a newline char:
-                    // it has no adjacent spaces.
-                    if (it - 1 >= start && *(it - 1) != space && it + 1 < end) {
-                        const unsigned int c = *(it + 1);
-                        if (c == newline) {
-                            ++it;
-                            resume = it;
-                            width = 0;
-                        } else if (c != space) {
-                            ++resume;
-                            width = 0;
-                        } else {
-                            width = move;
-                        }
+                    if ((it <= begin || *(it-1) != space) && (it+1 >= end || *(it+1) != space)) {
+                        // If there's no space preceeding or suceedings this one, ignore it
+                        ++resume;
+                        // Don't take the extra advance from the current space, because we ignore it
+                        width = 0;
                     } else {
                         width = move;
                     }
                 } else {
                     width = move;
-                    if (spaceLast && *it != space) {
+                    if (spaceLast) {
+                        // Given that there was a space before this char that can
+                        // be wrapped to...
                         spaceLast = false;
+                        // Backtrack to the last space for soft wrap
                         for (glyph_iterator newI = stop; newI >= start; --newI) {
                             if (*newI == space) {
-                                resume = newI + 1;
-                                for (; newI >= start && *newI == space; --newI);
-                                ++newI; // because it's exclusive
+                                ++newI;
+                                resume = newI;
                                 for (int fi; stop > newI;) {
                                     --stop;
                                     fi = stop - start;
@@ -427,6 +426,11 @@ Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator 
                                     width += metrics[fi].advance + metrics[fi].kern;
                                 }
                                 stop = newI;
+                                if (stop <= begin || *(stop-1) != space) {
+                                    --stop;
+                                    int fi = stop - start;
+                                    thisWidth -= metrics[fi].advance + metrics[fi].kern;
+                                }
                                 break;
                             }
                         }
