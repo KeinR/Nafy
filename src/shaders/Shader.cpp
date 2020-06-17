@@ -166,11 +166,11 @@ nafy::uniform_t nafy::Shader::uniNxColor() const noexcept {
 }
 
 nafy::uniform_t nafy::Shader::uniSampler0() const {
-    return assertUni(uniNxSampler0(), "sampler0; " SAMPLER0_NAME);
+    return assertUni(uniNxSampler0(), "sampler0" SAMPLER0_NAME);
 }
 nafy::uniform_t nafy::Shader::uniModel() const {
-    return assertUni(uniNxModel(), "model; " MODEL_NAME);
+    return assertUni(uniNxModel(), "model" MODEL_NAME);
 }
 nafy::uniform_t nafy::Shader::uniColor() const {
-    return assertUni(uniNxColor(), "color; " COLOR_NAME);
+    return assertUni(uniNxColor(), "color" COLOR_NAME);
 }

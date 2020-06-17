@@ -22,14 +22,14 @@ int main() {
         Context ctx(600, 400, "test");
         ctx.activate();
 
-        Device device;
-        AudioContext ac(device);
-        ac.bind();
-        // WavStream stream("test.wav");
-        VorbisStream stream("test.ogg");
-        Speaker speaker;
-        speaker.setGain(1);
-        speaker.setPitch(1);
+        // Device device;
+        // AudioContext ac(device);
+        // ac.bind();
+        // // WavStream stream("test.wav");
+        // VorbisStream stream("test.ogg");
+        // Speaker speaker;
+        // speaker.setGain(1);
+        // speaker.setPitch(1);
         // speaker.setBuffer(buffer);
 
         Scene sc;
@@ -37,15 +37,15 @@ int main() {
         sc <<
         "Hello\2 ga\nmers~" <<
         "I like cheese" <<
-        [&speaker, &stream]() -> void {
+        []() -> void {
             std::cout << "go play" << std::endl;
-            speaker.playStream(stream);
+            // speaker.playStream(stream);
             std::cout << "ah yes" << std::endl;
         } <<
         "Did you know that?" <<
         BasicEvent(
-            [&speaker](Context *ctx, Scene *sc)->void{
-                speaker.setTime(0);
+            [](Context *ctx, Scene *sc)->void{
+                // speaker.setTime(0);
                 std::cout << "He he init" << std::endl;
             },
             [](Context *ctx, Scene *sc)->bool{

@@ -48,7 +48,7 @@ namespace nafy {
             static constexpr uni_t color = 1 << 2;
 
             // These are all checked in the constructor,
-            // and if one failes, a an instance of gl_error
+            // and if one failes, an instance of gl_error
             // is thrown
         };
     private:

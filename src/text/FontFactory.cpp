@@ -53,5 +53,5 @@ const char *FontFactory::getError() const {
 Font::type FontFactory::make(FT_Library library, FT_Error &error) const {
     FT_Face face;
     error = FT_New_Memory_Face(library, buffer.get(), size, 0, &face);
-    return std::shared_ptr<Font>(new Font(face, buffer));
+    return std::make_shared<Font>(face, buffer);
 }

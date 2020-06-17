@@ -10,7 +10,7 @@
 #include "../env/env.h"
 #include "../core/error.h"
 
-// Compiles then given shader and returns a handle to the OpenGL object
+// Compiles the given shader and returns a handle to the OpenGL object.
 // Throws an instance of gl_error if failed
 static GLuint compileShader(GLenum type, const char *data, int length);
 // Links two shaders (vertex and fragment) and returns the resulting
@@ -33,6 +33,9 @@ nafy::ShaderFactory::ShaderFactory(const std::string &vertexPath, const std::str
     fragData.reset(fd);
 }
 nafy::shader_t nafy::ShaderFactory::make(Shader::uni_t uniforms) {
+    if (!vertData || !fragData) {
+        throw gl_error("nafy::ShaderFactory::make: Not initialized");
+    }
     GLuint vertShader = compileShader(GL_VERTEX_SHADER, vertData.get(), vertLength);
     GLuint fragShader = compileShader(GL_FRAGMENT_SHADER, fragData.get(), fragLength);
     GLuint shaderProgram = linkShaders(vertShader, fragShader);
