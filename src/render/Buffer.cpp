@@ -153,10 +153,10 @@ void nafy::Buffer::setIndices(int count, unsigned int *data) {
     bindElem();
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
 }
-void nafy::Buffer::setParam(unsigned int index, int size, std::size_t stride, const void *offset) {
+void nafy::Buffer::setParam(unsigned int index, int size, int stride, int offset) {
     bind();
     // Load the settings
-    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, offset);
+    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
     // Apply the settings
     glEnableVertexAttribArray(index);
 }

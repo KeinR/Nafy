@@ -75,7 +75,7 @@ namespace nafy {
         // Set indices for element array buffer
         void setIndices(int count, unsigned int *data);
         // Set parameter for vertex array object
-        void setParam(unsigned int index, int size, std::size_t stride, const void *offset);
+        void setParam(unsigned int index, int size, int stride, int offset);
 
         // Render the indices
         void render() override;

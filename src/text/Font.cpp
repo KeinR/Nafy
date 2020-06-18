@@ -441,7 +441,7 @@ Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator 
                 }
 
                 ofs_type xOffset = compOffset(metrics[begin - start].lsb, align, thisWidth, wrappingWidth);
-                lines.push_back(consLine(begin, stop, xOffset, thisWidth)); // negate to get positive, shift 6 times to obtain 26.6, and shift 7th time to muntiply by 2
+                lines.push_back(consLine(begin, stop, xOffset, thisWidth));
                 begin = resume;
                 // Init the width with the lsb of the first char
                 width += compXOfs(metrics[resume - start].lsb);

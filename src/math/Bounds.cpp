@@ -1,7 +1,5 @@
 #include "Bounds.h"
 
-#include <limits>
-
 nafy::Bounds::Bounds(): Bounds(0, 0, 0, 0) {
 }
 nafy::Bounds::Bounds(float minX, float minY, float maxX, float maxY):

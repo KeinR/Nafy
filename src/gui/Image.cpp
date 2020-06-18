@@ -32,10 +32,10 @@ namespace cache {
             // Initialize the vertex array object
             // First parameter, two values, four steps to get to the next one, starts at index 0
             // The position data
-            buffer.setParam(0, 2, 4 * sizeof(float), (void*)0);
+            buffer.setParam(0, 2, 4, 0);
             // Second parameter, two values, four steps to get to the next one, starts at index 2
             // The texture coordinates
-            buffer.setParam(1, 2, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+            buffer.setParam(1, 2, 4, 2);
         });
 
         buffer->setVerticies(16, vertices);

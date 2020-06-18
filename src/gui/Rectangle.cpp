@@ -12,7 +12,9 @@
 
 // Initializes the buffer's vertex object with the proper configurations
 static void initBuffer(nafy::Buffer &buffer) {
-    buffer.setParam(0, 2, 2 * sizeof(float), (void*)0);
+    // Initialize the vertex array object
+    // First parameter, two values, two steps to get to the next one, starts at index 0
+    buffer.setParam(0, 2, 2, 0);
 }
 
 void nafy::Rectangle::generateBuffers() {
