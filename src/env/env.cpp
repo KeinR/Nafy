@@ -8,6 +8,7 @@
 #include "defs.h"
 #include "../core/error.h"
 #include "../audio/oal.h"
+#include "../gui/EventDispatch.h"
 
 // Location of executable relative to the call dir
 // So, if foo/fa/ding.exe was called from a terminal opened in
@@ -24,16 +25,6 @@ static nafy::Context *currentContext = nullptr;
 // glfw cursors
 static GLFWcursor *cursor_hand = nullptr;
 
-// A window and context associated together.
-// The `parent` will called for all of the `window`'s
-// input events
-struct call {
-    GLFWwindow *window;
-    nafy::Context *parent;
-};
-
-static std::vector<call> callbacks;
-
 // Private functions
 // Terminate glfw
 static void deInit();
@@ -41,13 +32,6 @@ static void deInit();
 static GLFWwindow *init(int width, int height, const char *title);
 // Initialze window settings
 static void initWindow(GLFWwindow *window);
-// Due to the nature of glfw, it only accepts global function pointers or
-// captureless lambdas... Therefore, all events are processed by these, and each time
-// we must iterate through the `callbacks` vector to find a window and it's associated
-// context to dispatch the events properly
-static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-static void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
-static void keyActionCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 GLFWwindow *init(int width, int height, const char *title) {
     glfwInit();
@@ -91,36 +75,9 @@ void deInit() {
 
 void initWindow(GLFWwindow *window) {
     // Set the window's callbacks to the global ones
-    glfwSetMouseButtonCallback(window, mouseButtonCallback);
-    glfwSetCursorPosCallback(window, mouseMoveCallback);
-    glfwSetKeyCallback(window, keyActionCallback);
-}
-
-void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-    for (call &c : callbacks) {
-        if (c.window == window) {
-            c.parent->mouseButtonCallback(button, action, mods);
-            break;
-        }
-    }
-}
-
-void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
-    for (call &c : callbacks) {
-        if (c.window == window) {
-            c.parent->mousePosCallback(xpos, ypos);
-            break;
-        }
-    }
-}
-
-void keyActionCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    for (call &c : callbacks) {
-        if (c.window == window) {
-            c.parent->keyActionCallback(key, scancode, action, mods);
-            break;
-        }
-    }
+    glfwSetMouseButtonCallback(window, nafy::mouseButtonCallback);
+    glfwSetCursorPosCallback(window, nafy::mouseMoveCallback);
+    glfwSetKeyCallback(window, nafy::keyActionCallback);
 }
 
 GLFWwindow *nafy::plusContext(int width, int height, const char *title) {
@@ -147,19 +104,6 @@ void nafy::setContext(Context *ctx) {
 
 nafy::Context *nafy::getContext() {
     return currentContext;
-}
-
-void nafy::registerCallbacks(GLFWwindow *window, Context *ctx) {
-    callbacks.push_back({window, ctx});
-}
-
-void nafy::deleteCallbacks(Context *ctx) {
-    for (std::vector<call>::iterator it = callbacks.begin(); it != callbacks.end(); ++it) {
-        if (it->parent == ctx) {
-            callbacks.erase(it);
-            break;
-        }
-    }
 }
 
 void nafy::setCallPath(const char *path) {

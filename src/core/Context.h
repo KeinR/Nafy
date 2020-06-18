@@ -14,7 +14,7 @@
 #include "../gui/View.h"
 #include "../gui/Button.h"
 #include "../gui/Image.h"
-#include "callback.h"
+#include "../gui/EventDispatch.h"
 #include "TextLibrary.h"
 
 #include "../text/ftype.h"
@@ -70,6 +70,8 @@ namespace nafy {
         // Main window
         GLFWwindow *window;
 
+        EventDispatch dispatch;
+
         // Default shaders
         struct {
             shader_t sprite;
@@ -94,11 +96,6 @@ namespace nafy {
 
         // How long until the game loops next
         float frameCooldown;
-
-        // Input callbacks
-        std::vector<mouseMoveCallback*> cursorPosCallbacks;
-        std::vector<mouseClickCallback*> cursorButtonCallbacks;
-        std::vector<keyCallback*> keyCallbacks;
 
         // Current background - the "clear color" that the screen is set to at the start of each frame
         Color *background;
@@ -131,21 +128,11 @@ namespace nafy {
         Context &operator=(const Context &other) = delete;
         Context &operator=(Context &&other) = default;
 
-        // Callbacks used internally.
-        // When constructed, the context associates itself with
+        // When constructed, the context associates an event dispatch with
         // the main window's events, so that these functions get called on such events.
-        // Of course, if you feel the need to simulate a key press etc, feel free to call use these.
-        void mousePosCallback(double x, double y);
-        void mouseButtonCallback(int button, int action, int mods);
-        void keyActionCallback(int key, int scancode, int action, int mods);
-
-        // Adds or removes respective callbacks
-        void addMousePosCallback(mouseMoveCallback &callback);
-        void addMouseButtonCallback(mouseClickCallback &callback);
-        void addKeyCallback(keyCallback &callback);
-        void removeMousePosCallback(mouseMoveCallback *callback);
-        void removeMouseButtonCallback(mouseClickCallback *callback);
-        void removeKeyCallback(keyCallback *callback);
+        // Of course, if you feel the need to simulate a key press etc, feel free to call
+        // the dispatch'd overridden functions.
+        EventDispatch &getDispatch();
 
         // Sets context to current.
         // This is done in the context constructor.

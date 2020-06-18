@@ -10,6 +10,7 @@
 #include "../core/callback.h"
 #include "TextRec.h"
 #include "Color.h"
+#include "EventDispatch.h"
 
 #include "../text/Text.h"
 #include "../text/TextCrawl.h"
@@ -62,7 +63,11 @@ namespace nafy {
         typedef std::function<void(ButtonBase<T,S> *caller)> move_callback_func;
         typedef std::function<void(ButtonBase<T,S> *caller, int button, int mods)> press_callback_func;
     private:
+        // The visible display
         T display;
+
+        // The EventDispatch that dispatches events to the button
+        EventDispatch *dispatch;
 
         // Should the button detect user input and dispatch the events to its callbacks?
         bool enabled;
@@ -102,16 +107,21 @@ namespace nafy {
     public:
         // Takes default sprite shader, prim shader, and font from the current context.
         ButtonBase();
-        // Alternatively, specify them yourself.
+        // Set the dispatch
+        ButtonBase(EventDispatch &dispatch);
+        // Alternatively, specify all yourself.
         // These are passed along to the wrapped TextRec*
         // textShader requirements: model, sampler0
         // shapeShader requirements: model, color
-        ButtonBase(const Font::type &textFont, const shader_t &textShader, const shader_t &shapeShader);
+        ButtonBase(EventDispatch &dispatch, const Font::type &textFont, const shader_t &textShader, const shader_t &shapeShader);
         ~ButtonBase();
         ButtonBase(ButtonBase &&other);
         ButtonBase(const ButtonBase &other);
         ButtonBase &operator=(ButtonBase &&other);
         ButtonBase &operator=(const ButtonBase &other);
+
+        void setDispatch(EventDispatch &dispatch);
+        EventDispatch *getDispatch();
 
         // Set callbacks
         void setOnClick(const press_callback_func &callback);

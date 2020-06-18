@@ -20,20 +20,27 @@ void nafy::ButtonBase<T,S>::init() {
 }
 
 template<class T, class S>
-nafy::ButtonBase<T,S>::ButtonBase() {
+nafy::ButtonBase<T,S>::ButtonBase(): dispatch(&getContext()->getDispatch()) {
     init();
 }
 
 template<class T, class S>
-nafy::ButtonBase<T,S>::ButtonBase(const Font::type &textFont, const shader_t &textShader, const shader_t &shapeShader):
-    display(TextCrawl(textFont, textShader), Rectangle(shapeShader)) {
+nafy::ButtonBase<T,S>::ButtonBase(EventDispatch &dispatch): dispatch(&dispatch) {
+    init();
+}
+
+template<class T, class S>
+nafy::ButtonBase<T,S>::ButtonBase(EventDispatch &dispatch, const Font::type &textFont, const shader_t &textShader, const shader_t &shapeShader):
+    display(TextCrawl(textFont, textShader), Rectangle(shapeShader)), dispatch(&dispatch) {
 
     init();
 }
 template<class T, class S>
 nafy::ButtonBase<T,S>::~ButtonBase() {
     // Ensure that there are no pointers to this Button anywhere
-    disable();
+    if (enabled) {
+        disable();
+    }
 }
 
 template<class T, class S>
@@ -90,13 +97,13 @@ nafy::ButtonBase<T,S> &nafy::ButtonBase<T,S>::operator=(const ButtonBase &other)
 template<class T, class S>
 void nafy::ButtonBase<T,S>::disable() {
     enabled = false;
-    getContext()->removeMousePosCallback(this);
-    getContext()->removeMouseButtonCallback(this);
+    dispatch->removeMousePosCallback(this);
+    dispatch->removeMouseButtonCallback(this);
 }
 template<class T, class S>
 void nafy::ButtonBase<T,S>::enable() {
-    getContext()->addMousePosCallback(*this);
-    getContext()->addMouseButtonCallback(*this);
+    dispatch->addMousePosCallback(*this);
+    dispatch->addMouseButtonCallback(*this);
     enabled = true;
 }
 
@@ -189,6 +196,15 @@ void nafy::ButtonBase<T,S>::updateNodes() {
     points[6] = nodes[3].x;
     points[7] = nodes[3].y;
     boxes[4] = Polygon(points, pointsLen);
+}
+
+template<class T, class S>
+void nafy::ButtonBase<T,S>::setDispatch(EventDispatch &dispatch) {
+    this->dispatch = &dispatch;
+}
+template<class T, class S>
+nafy::EventDispatch *nafy::ButtonBase<T,S>::getDispatch() {
+    return dispatch;
 }
 
 template<class T, class S>

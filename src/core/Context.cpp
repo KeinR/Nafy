@@ -47,7 +47,7 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
 
     setFPS(60);
 
-    registerCallbacks(window, this);
+    dispatch.setAsRoot(window);
 
     views.reset(new views_s());
 
@@ -175,7 +175,6 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
 }
 
 nafy::Context::~Context() {
-    deleteCallbacks(this);
     minusContext(window);
 }
 
@@ -185,62 +184,8 @@ void nafy::Context::runFrame() {
     }
 }
 
-void nafy::Context::mousePosCallback(double x, double y) {
-    for (mouseMoveCallback *&callback : cursorPosCallbacks) {
-        callback->mouseMoved(x, y);
-    }
-}
-
-void nafy::Context::mouseButtonCallback(int button, int action, int mods) {
-    const bool isPressed = action == GLFW_PRESS; // Makes it easier on the called
-    for (mouseClickCallback *&callback : cursorButtonCallbacks) {
-        callback->mouseClicked(isPressed, button, mods);
-    }
-}
-
-void nafy::Context::keyActionCallback(int key, int scancode, int action, int mods) {
-    for (keyCallback *&callback : keyCallbacks) {
-        callback->keyAction(key, scancode, action, mods);
-    }
-}
-
-void nafy::Context::addMousePosCallback(mouseMoveCallback &callback) {
-    cursorPosCallbacks.push_back(&callback);
-}
-
-void nafy::Context::addMouseButtonCallback(mouseClickCallback &callback) {
-    cursorButtonCallbacks.push_back(&callback);
-}
-
-void nafy::Context::addKeyCallback(keyCallback &callback) {
-    keyCallbacks.push_back(&callback);
-}
-
-void nafy::Context::removeMousePosCallback(mouseMoveCallback *callback) {
-    for (std::vector<mouseMoveCallback*>::const_iterator it = cursorPosCallbacks.cbegin(); it != cursorPosCallbacks.cend(); ++it) {
-        if (*it == callback) {
-            cursorPosCallbacks.erase(it);
-            break;
-        }
-    }
-}
-
-void nafy::Context::removeMouseButtonCallback(mouseClickCallback *callback) {
-    for (std::vector<mouseClickCallback*>::const_iterator it = cursorButtonCallbacks.cbegin(); it != cursorButtonCallbacks.cend(); ++it) {
-        if (*it == callback) {
-            cursorButtonCallbacks.erase(it);
-            break;
-        }
-    }
-}
-
-void nafy::Context::removeKeyCallback(keyCallback *callback) {
-    for (std::vector<keyCallback*>::const_iterator it = keyCallbacks.cbegin(); it != keyCallbacks.cend(); ++it) {
-        if (*it == callback) {
-            keyCallbacks.erase(it);
-            break;
-        }
-    }
+nafy::EventDispatch &nafy::Context::getDispatch() {
+    return dispatch;
 }
 
 void nafy::Context::activate() {

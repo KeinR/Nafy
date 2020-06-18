@@ -22,10 +22,6 @@ namespace nafy {
     void setContext(Context *ctx);
     // Get current context
     Context *getContext();
-    // Associates input events for `window` with `ctx`
-    void registerCallbacks(GLFWwindow *window, Context *ctx);
-    // Removes associations involving `ctx`
-    void deleteCallbacks(Context *ctx);
 
     // Get the current context window's width and height - needed
     // by some classes (Model) to position accordingly
