@@ -488,7 +488,7 @@ std::vector<Font::line_iterator> Font::breakupLines(line_iterator start, const l
     while (start < end) {
         for (map_size height = 0;; height += descent) {
             if (height <= maxHeight) {
-                start++;
+                ++start;
                 if (start >= end) {
                     result.push_back(end);
                     break;
@@ -514,7 +514,7 @@ Font::line_iterator Font::truncLines(line_iterator start, const line_iterator &e
 
     for (unsigned int height = 0;; height += descent) {
         if (height <= maxHeight) {
-            start++;
+            ++start;
             if (start >= end) {
                 return end;
             }
@@ -536,7 +536,7 @@ Font::map_size Font::getBitmapHeight(const line_iterator &start, const line_iter
 Font::map_size Font::getBitmapWidth(const line_iterator &start, const line_iterator &end) {
     // Search through the lines and find the greatest width
     map_size width = 0;
-    for (line_iterator it = start; it < end; it++) {
+    for (line_iterator it = start; it < end; ++it) {
         if (it->width > width) {
             width = it->width;
         }
