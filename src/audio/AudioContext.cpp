@@ -52,6 +52,6 @@ nafy::AudioContext &nafy::AudioContext::operator=(const AudioContext &other) {
     return *this;
 }
 
-bool nafy::AudioContext::bind() {
+bool nafy::AudioContext::bind() const {
     return alcMakeContextCurrent(handle);
 }

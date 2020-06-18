@@ -39,7 +39,7 @@ namespace nafy {
         // Binds the context, causing all speakers etc. to be created inside this context.
         // See https://www.openal.org/documentation/OpenAL_Programmers_Guide.pdf#page=8
         // Returns false on failure.
-        bool bind();
+        bool bind() const;
     };
 };
 
