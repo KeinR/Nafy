@@ -1,5 +1,7 @@
 #include "ButtonPrompt.h"
 
+#include <iostream>
+
 #include "../env/env.h"
 
 nafy::ButtonPrompt::elementData::elementData(const std::string &str, const callback_func &func): str(str), func(func) {
@@ -7,8 +9,11 @@ nafy::ButtonPrompt::elementData::elementData(const std::string &str, const callb
 
 nafy::ButtonPrompt::ButtonPrompt(): ButtonPrompt({.5, .5, .2, 1}, 0, nullptr) {
 }
-nafy::ButtonPrompt::ButtonPrompt(const Color &color, unsigned int cornerRadius, View *gview):
-    view(gview == nullptr ? &getContext()->getGameView() : gview), added(false), shouldStop(true) {
+nafy::ButtonPrompt::ButtonPrompt(const Color &color, unsigned int cornerRadius, EventDispatch *parent):
+    dispatch(parent == nullptr ? getContext()->getGameDispatch() : *parent),
+    shouldStop(true)
+{
+    dispatch.addRenderCallback(*this);
     setCornerRadius(cornerRadius);
     setSpacing(5);
     setWidth(100);
@@ -16,81 +21,13 @@ nafy::ButtonPrompt::ButtonPrompt(const Color &color, unsigned int cornerRadius, 
     setMargin(5);
     setColor(color);
 }
-nafy::ButtonPrompt::~ButtonPrompt() {
-    leaveView();
-}
-
-void nafy::ButtonPrompt::steal(ButtonPrompt &other) {
-    copyPOD(other);
-    setView(*other.view);
-    color = std::move(other.color);
-    colorLight = std::move(other.colorLight);
-    elements = std::move(other.elements);
-    if (other.added) {
-        joinView();
-    }
-}
-void nafy::ButtonPrompt::copy(const ButtonPrompt &other) {
-    copyPOD(other);
-    setView(*other.view);
-    color = other.color;
-    colorLight = other.colorLight;
-    elements = other.elements;
-    if (other.added) {
-        joinView();
-    }
-}
-void nafy::ButtonPrompt::copyPOD(const ButtonPrompt &other) {
-    cornerRadius = other.cornerRadius;
-    spacing = other.spacing;
-    width = other.width;
-    height = other.height;
-    shouldStop = other.shouldStop;
-}
-
-nafy::ButtonPrompt::ButtonPrompt(ButtonPrompt &&other) {
-    added = false;
-    steal(other);
-}
-nafy::ButtonPrompt::ButtonPrompt(const ButtonPrompt &other) {
-    added = false;
-    copy(other);
-}
-nafy::ButtonPrompt &nafy::ButtonPrompt::operator=(ButtonPrompt &&other) {
-    steal(other);
-    return *this;
-}
-nafy::ButtonPrompt &nafy::ButtonPrompt::operator=(const ButtonPrompt &other) {
-    copy(other);
-    return *this;
-}
-
-void nafy::ButtonPrompt::leaveView() {
-    if (added) {
-        added = false;
-        view->remove(this);
-    }
-}
-
-void nafy::ButtonPrompt::joinView() {
-    if (!added) {
-        view->add(this);
-        added = true;
-    }
-}
 
 void nafy::ButtonPrompt::activate() {
-    joinView();
-    for (Button &val : elements) {
-        val.setEnabled(true);
-    }
+    dispatch.setToggled(true);
     shouldStop = false;
 }
 void nafy::ButtonPrompt::deactivate() {
-    leaveView();
-    for (Button &val : elements) {
-        val.setEnabled(false);
-    }
+    dispatch.setToggled(false);
     shouldStop = true;
 }
 
@@ -129,9 +66,8 @@ void nafy::ButtonPrompt::setColor(const Color &color) {
     colorLight = color.brighten(0.3);
 }
 
-void nafy::ButtonPrompt::setView(View &gview) {
-    leaveView();
-    view = &gview;
+void nafy::ButtonPrompt::setDispatch(EventDispatch &parent) {
+    dispatch.setParent(parent);
 }
 void nafy::ButtonPrompt::setCornerRadius(unsigned int cornerRadius) {
     this->cornerRadius = cornerRadius;
@@ -140,7 +76,7 @@ void nafy::ButtonPrompt::add(const std::string &str, const callback_func &func) 
     add(elementData(str, func));
 }
 void nafy::ButtonPrompt::add(const elementData &cb) {
-    Button button;
+    Button button(dispatch);
     button.getText().setAlign(Font::textAlign::center);
     button.getText().setString(cb.str);
     // Take func by value because cb is likely on stack
@@ -148,14 +84,8 @@ void nafy::ButtonPrompt::add(const elementData &cb) {
     button.setOnClick([this, func](Button *caller, int button, int mods)->void{
         releaseCursor();
         func();
-        // Now it is possible...
-        // The user, if they beat the next frame, could click
-        // another button...
-        // But that's very unlikely to happen unless they're using some program
-        // Also, NB: This'll happen on a different thread
         this->shouldStop = true;
     });
-    button.setEnabled(false);
     elements.push_back(std::move(button));
 }
 void nafy::ButtonPrompt::generate() {

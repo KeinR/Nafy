@@ -9,6 +9,7 @@
 
 template<class T, class S>
 void nafy::ButtonBase<T,S>::init() {
+    enabled = true;
     hovering = false;
     setCornerRadius(0);
     enable();
@@ -20,7 +21,7 @@ void nafy::ButtonBase<T,S>::init() {
 }
 
 template<class T, class S>
-nafy::ButtonBase<T,S>::ButtonBase(): dispatch(&getContext()->getDispatch()) {
+nafy::ButtonBase<T,S>::ButtonBase(): dispatch(nullptr) {
     init();
 }
 
@@ -52,6 +53,7 @@ void nafy::ButtonBase<T,S>::steal(ButtonBase &other) {
     onLeave = std::move(other.onLeave);
     hovering = other.hovering;
 
+    doSetDispatch(other.dispatch);
     setEnabled(other.enabled);
 
     // Just to be safe - re-calculate the cache
@@ -66,6 +68,7 @@ void nafy::ButtonBase<T,S>::copy(const ButtonBase &other) {
     onLeave = other.onLeave;
     hovering = other.hovering;
 
+    doSetDispatch(other.dispatch);
     setEnabled(other.enabled);
 
     updateNodes();
@@ -96,20 +99,21 @@ nafy::ButtonBase<T,S> &nafy::ButtonBase<T,S>::operator=(const ButtonBase &other)
 
 template<class T, class S>
 void nafy::ButtonBase<T,S>::disable() {
-    enabled = false;
-    dispatch->removeMousePosCallback(this);
-    dispatch->removeMouseButtonCallback(this);
+    if (dispatch != nullptr) {
+        dispatch->removeMousePosCallback(this);
+        dispatch->removeMouseButtonCallback(this);
+    }
 }
 template<class T, class S>
 void nafy::ButtonBase<T,S>::enable() {
-    dispatch->addMousePosCallback(*this);
-    dispatch->addMouseButtonCallback(*this);
-    enabled = true;
+    if (dispatch != nullptr) {
+        dispatch->addMousePosCallback(*this);
+        dispatch->addMouseButtonCallback(*this);
+    }
 }
 
 template<class T, class S>
 void nafy::ButtonBase<T,S>::updateNodes() {
-    // std::cout << "Called" << std::endl;
     Rectangle &box = display.getBox();
 
     // Top left
@@ -199,8 +203,19 @@ void nafy::ButtonBase<T,S>::updateNodes() {
 }
 
 template<class T, class S>
+void nafy::ButtonBase<T,S>::doSetDispatch(EventDispatch *dis) {
+    if (enabled) {
+        disable();
+    }
+    this->dispatch = dis;
+    if (enabled) {
+        enable();
+    }
+}
+
+template<class T, class S>
 void nafy::ButtonBase<T,S>::setDispatch(EventDispatch &dispatch) {
-    this->dispatch = &dispatch;
+    doSetDispatch(&dispatch);
 }
 template<class T, class S>
 nafy::EventDispatch *nafy::ButtonBase<T,S>::getDispatch() {
@@ -334,6 +349,7 @@ void nafy::ButtonBase<T,S>::setEnabled(bool value) {
         } else {
             enable();
         }
+        enabled = value;
     }
 }
 
@@ -432,7 +448,6 @@ bool nafy::ButtonBase<T,S>::containPoint(double xPos, double yPos) {
 
 template<class T, class S>
 void nafy::ButtonBase<T,S>::mouseMoved(double mouseX, double mouseY) {
-    if (!enabled) return; // TODO: This is stupid!
     const bool inside = containPoint(mouseX, mouseY);
     if (hovering) {
         if (!inside) {
@@ -450,7 +465,6 @@ void nafy::ButtonBase<T,S>::mouseMoved(double mouseX, double mouseY) {
 }
 template<class T, class S>
 void nafy::ButtonBase<T,S>::mouseClicked(bool isPressed, int button, int mods) {
-    if (!enabled) return; // TODO: This is stupid!
     double mouseX, mouseY;
     glfwGetCursorPos(glfwGetCurrentContext(), &mouseX, &mouseY);
     if (containPoint(mouseX, mouseY)) {

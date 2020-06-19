@@ -41,7 +41,7 @@ namespace nafy {
         struct views_s {
             // View 1: The first screen, the home screen
             struct home_s {
-                View view;
+                EventDispatch dispatch;
                 Color background;
                 Text title;
                 Button startGame;
@@ -50,7 +50,7 @@ namespace nafy {
             // The run of the game itself, this is (hopefully) what the user
             // most of their time on
             struct game_s {
-                View view;
+                EventDispatch dispatch;
                 Color background;
                 TextRec speaker;
                 CrawlButton crawl;
@@ -58,7 +58,7 @@ namespace nafy {
 
             // View 2: The menu screen, brought up mid-game to view options
             struct menu_s {
-                View view;
+                EventDispatch dispatch;
                 Rectangle bg;
                 Text topTitle;
                 Button resumeGame;
@@ -99,8 +99,6 @@ namespace nafy {
 
         // Current background - the "clear color" that the screen is set to at the start of each frame
         Color *background;
-        // The currently rendering view
-        View *view;
 
         // Views and their renderables owned by this Context
         // Really just for convinience
@@ -157,7 +155,7 @@ namespace nafy {
         void stop();
 
         // Sets the current rendered view
-        void setView(View &view);
+        void setDispatch(EventDispatch &dis);
         // Set the frame clear color
         void setBackground(Color &color);
 
@@ -207,7 +205,7 @@ namespace nafy {
 
         // These two are really just for conviniences sake
         TextCrawl &getCrawl();
-        View &getGameView();
+        EventDispatch &getGameDispatch();
         bool shouldStop();
 
         // Stop the scene execution (setGameRunning(false)) if `obj` is equal to `current`

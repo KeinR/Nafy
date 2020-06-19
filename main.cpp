@@ -76,15 +76,19 @@ int main() {
         img.setY(0);
         img.setWidth(600);
         img.setHeight(400);
-        View &game = ctx.getViewsRef().game.view;
-        game.addAt(&img, 0);
+        EventDispatch::renders_cont_t &game = ctx.getViewsRef().game.dispatch.getRenderCallbacks();
+        game.insert(game.begin(), &img);
 
         Image *img2 = new Image();
         delete img2;
 
         ctx.setSpeaker("Youmu");
 
-        ctx.start();
+        try {
+            ctx.start();
+        } catch (std::exception &e) {
+            std::cerr << "ERROR IN START: " << e.what() << std::endl;
+        }
     } catch (std::exception &e) {
         std::cerr << "ERROR: " << e.what() << std::endl;
     }

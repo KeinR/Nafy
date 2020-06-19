@@ -74,14 +74,12 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
     home.startGame.setX((winWidth - home.startGame.getWidth()) / 2);
     home.startGame.setOnClick([this](Button *caller, int button, int mods) -> void {
         // Change view to game view
-        this->setView(this->getViewsRef().game.view);
+        this->setDispatch(this->getViewsRef().game.dispatch);
         this->setBackground(this->getViewsRef().game.background);
         // Disable button so that it can't be pressed despite being invisable
-        this->getViewsRef().home.startGame.setEnabled(false);
         this->setGameRunning(true);
         // set cursor to normal (TODO: This is a bad way of doing this!)
         releaseCursor();
-        this->getViewsRef().game.crawl.setEnabled(true); // TODO: This is stupid!
     });
     home.startGame.setOnEnter([](Button *caller) -> void {
         setCursorHand();
@@ -94,8 +92,10 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
     home.startGame.setCornerRadius(10);
     home.startGame.generate();
 
-    home.view.add(&home.title);
-    home.view.add(&home.startGame);
+    home.startGame.setDispatch(home.dispatch);
+    home.startGame.setEnabled(true);
+    home.dispatch.addRenderCallback(home.title);
+    home.dispatch.addRenderCallback(home.startGame);
 
     // Setup game screen
 
@@ -120,7 +120,6 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
             this->setUserAdvance(true);
         }
     });
-    game.crawl.setEnabled(false);
     game.crawl.generate();
     // The aforementioned "speaker box", displays the name of
     // whoever's currently speaking
@@ -136,8 +135,9 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
     game.speaker.getText().setAlign(Font::textAlign::center);
     game.speaker.generate();
 
-    game.view.add(&game.crawl);
-    game.view.add(&game.speaker);
+    game.crawl.setDispatch(game.dispatch);
+    game.dispatch.addRenderCallback(game.crawl);
+    game.dispatch.addRenderCallback(game.speaker);
 
     // Init the "dropdown" menu, this is shown when the user presses escape.
     // It acts as a nexus of sorts that allows the user to go to the main menu,
@@ -155,22 +155,22 @@ nafy::Context::Context(int winWidth, int winHeight, const char *winTitle):
     menu.resumeGame.setX((winWidth - menu.resumeGame.getText().getWidth() - MARGIN) / 2);
     menu.resumeGame.setY(50);
     menu.resumeGame.setMargin(MARGIN);
-    menu.resumeGame.setEnabled(false);
     menu.toMenu.getText().setString("Main menu");
     menu.toMenu.getText().generate();
     menu.toMenu.setX((winWidth - menu.toMenu.getText().getWidth() - MARGIN) / 2);
     menu.toMenu.setY(70);
     menu.toMenu.setMargin(MARGIN);
-    menu.toMenu.setEnabled(false);
     #undef MARGIN
 
-    menu.view.add(&menu.topTitle);
-    menu.view.add(&menu.resumeGame);
-    menu.view.add(&menu.toMenu);
+    menu.resumeGame.setDispatch(menu.dispatch);
+    menu.toMenu.setDispatch(menu.dispatch);
+    menu.dispatch.addRenderCallback(menu.topTitle);
+    menu.dispatch.addRenderCallback(menu.resumeGame);
+    menu.dispatch.addRenderCallback(menu.toMenu);
 
     // Start off at home
     setBackground(home.background);
-    setView(home.view);
+    setDispatch(home.dispatch);
 
 }
 
@@ -232,7 +232,7 @@ void nafy::Context::resume() {
         );
         glClear(GL_COLOR_BUFFER_BIT);
 
-        view->render();
+        dispatch.render();
 
         glfwSwapBuffers(window);
         
@@ -276,8 +276,11 @@ void nafy::Context::setGameRunning(bool value) {
     runGameAction = value;
 }
 
-void nafy::Context::setView(View &view) {
-    this->view = &view;
+void nafy::Context::setDispatch(EventDispatch &dis) {
+    dispatch.clearAll();
+    dispatch.addChild(dis);
+    dis.setToggled(true);
+    dispatch.setToggled(true);
 }
 void nafy::Context::setBackground(Color &color) {
     background = &color;
@@ -345,8 +348,8 @@ TextCrawl &nafy::Context::getCrawl() {
     return views->game.crawl.getDisplay().getText();
 }
 
-nafy::View &nafy::Context::getGameView() {
-    return views->game.view;
+nafy::EventDispatch &nafy::Context::getGameDispatch() {
+    return views->game.dispatch;
 }
 
 bool nafy::Context::shouldStop() {

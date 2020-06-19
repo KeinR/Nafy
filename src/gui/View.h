@@ -10,11 +10,9 @@
 namespace nafy {
     class View: public renderable {
     public:
-        typedef std::shared_ptr<Node> node_t;
-        typedef std::vector<node_t> array_t;
-        typedef array_t::size_type position_t;
         typedef renderable* ptr_t;
-        typedef std::shared_ptr<renderable> shared_t;
+        typedef std::vector<ptr_t> array_t;
+        typedef array_t::size_type position_t;
     private:
         array_t nodes;
     public:
@@ -26,10 +24,8 @@ namespace nafy {
         // an addition or removal at any index less than or equal to it
         // which would change the actual index of the element.
         void add(ptr_t rend);
-        void add(shared_t rend);
         // Inserts renderable at `index`
         void addAt(ptr_t rend, position_t index);
-        void addAt(shared_t rend, position_t index);
         // Remove using the iterator returned from the add() function
         // (fast, O(vectorSize - 1 - pos + erased))
         void remove(position_t pos);

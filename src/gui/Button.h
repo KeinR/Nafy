@@ -102,6 +102,7 @@ namespace nafy {
         void disable();
         // Enable checking of mouse input events by adding itself from the Context's dispatch
         void enable();
+        void doSetDispatch(EventDispatch *dis);
         void steal(ButtonBase &other);
         void copy(const ButtonBase &other);
     public:

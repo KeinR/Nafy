@@ -7,6 +7,7 @@
 
 #include "../gui/View.h"
 #include "../gui/Button.h"
+#include "../gui/EventDispatch.h"
 #include "../gui/renderable.h"
 
 /*
@@ -34,7 +35,7 @@ namespace nafy {
         };
         enum com { done };
     private:
-        View *view;
+        EventDispatch dispatch;
 
         // Global settings, set every generate()
         unsigned int cornerRadius;
@@ -72,12 +73,7 @@ namespace nafy {
         // (context.views.game.view)
         ButtonPrompt();
         // If view nullptr, selects the view for the game view from the current context
-        ButtonPrompt(const Color &color, unsigned int cornerRadius = 0, View *view = nullptr);
-        ~ButtonPrompt() override;
-        ButtonPrompt(ButtonPrompt &&other);
-        ButtonPrompt(const ButtonPrompt &other);
-        ButtonPrompt &operator=(ButtonPrompt &&other);
-        ButtonPrompt &operator=(const ButtonPrompt &other);
+        ButtonPrompt(const Color &color, unsigned int cornerRadius = 0, EventDispatch *source = nullptr);
 
         ButtonPrompt &setSpacing(unsigned int value);
         ButtonPrompt &setWidth(unsigned int value);
@@ -91,7 +87,7 @@ namespace nafy {
 
         void setColor(const Color &color);
         // Removes from current view and adds to new one
-        void setView(View &view);
+        void setDispatch(EventDispatch &source);
         // Sets it for all current and future buttons
         void setCornerRadius(unsigned int cornerRadius);
         // Add a button

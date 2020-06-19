@@ -148,8 +148,6 @@ void Font::stringMetrics(glyph_iterator start, const glyph_iterator &end, map_si
             if (face->glyph->metrics.horiBearingX < preHorizontalOffset) {
                 preHorizontalOffset = face->glyph->metrics.horiBearingX;
             }
-            std::cout << "face->glyph->bitmap_left = " << face->glyph->bitmap_left << std::endl;
-            std::cout << "face->glyph->metrics.horiBearingX = " << face->glyph->metrics.horiBearingX << std::endl;
             if (start + 1 < end) {
                 FT_Vector kerning;
                 FT_Get_Kerning(face, g, getGlyph(*(start + 1)), FT_KERNING_UNFITTED, &kerning);
@@ -368,7 +366,6 @@ Font::line_str Font::getLines(const glyph_iterator &start, const glyph_iterator 
     wrappingWidth <<= 6; // Convert to 26.6 format for compatability; NOTE this could cause problems with values over 2^26-1
     std::vector<char_metrics> metrics = measureString(start, end);
     unsigned int width = compXOfs(metrics[0].lsb); // TODO: Change data type to something more reasonable, and std::max(width, 0)
-    std::cout << "width = " << width << std::endl;
     // Was there a space not involved in a line break recently?
     // This determines if we do hard or soft wrap.
     bool spaceLast = false;

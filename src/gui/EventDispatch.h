@@ -5,9 +5,12 @@
 
 #include "../core/callback.h"
 #include "../core/glfw.h"
+#include "../core/error.h"
+#include "renderable.h"
 
 /*
-* Handles the dispatching of events
+* Handles the dispatching of events.
+* Sho
 */
 
 namespace nafy {
@@ -21,12 +24,23 @@ namespace nafy {
     void mouseMoveCallback(GLFWwindow *window, double xpos, double ypos);
     void keyActionCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
-    class EventDispatch: public mouseMoveCallback, public mouseClickCallback, public keyCallback {
+    class EventDispatch: public mouseMoveCallback, public mouseClickCallback, public keyCallback, public renderable {
+    public:
+        typedef std::vector<mouseMoveCallback*> move_cont_t;
+        typedef std::vector<mouseClickCallback*> click_cont_t;
+        typedef std::vector<keyCallback*> key_cont_t;
+        typedef std::vector<renderable*> renders_cont_t;
+    public: // TEMP
+        // If `this` is recieving events from `parent`.
+        // Does nothing if a parent is not set.
         bool toggled;
+        // The parent, forwards events to `this`
+        // A parent is always optional
         EventDispatch *parent;
-        std::vector<mouseMoveCallback*> moveCallbacks;
-        std::vector<mouseClickCallback*> clickCallbacks;
-        std::vector<keyCallback*> keyCallbacks;
+        move_cont_t move;
+        click_cont_t click;
+        key_cont_t key;
+        renders_cont_t renders;
         // Adds or removes the EventDispatch from `parent`'s monitors
         // depending on the value of `toggled`
         // Note that this shouldn't be called more than once per state of `toggled`,
@@ -41,6 +55,21 @@ namespace nafy {
         void addToParent();
         // Removes `this` as root for all windows it was root for
         void unroot();
+
+
+        template<typename T>
+        void addTo(std::vector<T> &cb, T val);
+        template<typename T>
+        void removeFrom(std::vector<T> &cb, T val);
+        template<typename T, typename F, typename... Args>
+        void dispatch(std::vector<T> &cb, F func, Args... args);
+
+        void doSetParent(EventDispatch *parent);
+
+        void copy(const EventDispatch &other);
+        void steal(EventDispatch &other);
+
+        EventDispatch(bool toggled, EventDispatch *parent);
     public:
         // Default initialize to false and nullptr
         EventDispatch();
@@ -48,22 +77,48 @@ namespace nafy {
         EventDispatch(EventDispatch &parent);
         EventDispatch(bool toggled);
         EventDispatch(bool toggled, EventDispatch &parent);
+        EventDispatch(EventDispatch &&other);
+        EventDispatch(const EventDispatch &other);
         ~EventDispatch();
+        EventDispatch &operator=(EventDispatch &&other);
+        EventDispatch &operator=(const EventDispatch &other);
 
+        // These are the internal callbacks, and SHOULD NOT
+        // be called recursively, so as to prevent a deadlock.
+        // "recursively", as in, from a callback that one of these called.
         void mouseMoved(double mouseX, double mouseY) override;
         void mouseClicked(bool isPressed, int button, int mods) override;
         void keyAction(int key, int scancode, int action, int mods) override;
+        void render() override;
 
+        // Add/remove an event callback.
         void addMousePosCallback(mouseMoveCallback &callback);
         void addMouseButtonCallback(mouseClickCallback &callback);
         void addKeyCallback(keyCallback &callback);
+        void addRenderCallback(renderable &callback);
         void removeMousePosCallback(mouseMoveCallback *callback);
         void removeMouseButtonCallback(mouseClickCallback *callback);
         void removeKeyCallback(keyCallback *callback);
+        void removeRenderCallback(renderable *callback);
+
+        // Removes all callbacks
+        void clearAll();
+        // Adds `child` to all dispatches
+        void addChild(EventDispatch &child);
+        // Removes `child` from all dispatches
+        void removeChild(EventDispatch *child);
+
+        move_cont_t &getMoveCallbacks();
+        click_cont_t &getClickCallbacks();
+        key_cont_t &getKeyCallbacks();
+        renders_cont_t &getRenderCallbacks();
 
         // Set the event dispatch that `this` will take events from
         // note that this is not necessary
         void setParent(EventDispatch &parent);
+        // Sets `parent` to nullptr
+        void resetParent();
+        EventDispatch *getParent();
 
         // Sets this dispatch as the window's root
         void setAsRoot(GLFWwindow *window);
