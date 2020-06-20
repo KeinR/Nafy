@@ -1,0 +1,70 @@
+KEY:
+- = Normal priority
+x = Put it off for now
+~ = Normal priority, but there are a few things that need to be done first
+< = lower priority
+> = higher priority
+? = not reproducable / wtf?
+
+----------------------------------------------------------
+
+- Background image for rectangle
+- boarder for rectangle
+x JavaScript interpreter, provide API access to drawing etc.
+- story stuff needs work
+x refactor errors
+< Make methods const-qualified
+- refactor env/*
+x Context make new windows for user
+- Cap margin
+- Margin specific to sides
+- Images for rectangle
+< Menu
+< Saving
+- Toggle kerning
+<< Auto-bind audio context
+> Easy branching and returning for scenes
+- Speaker must be re-generated
+> Slows down on periods, should only do so on elipsise
+<< Completely implement Window and use it for something
+- When iterating over glyphs, just take the next one and put it in a function scoped var instead of using a temp iterator
+>> Update button hover in render loop, that way don't need to releaesButton(), etc.--- env.h:55
+~ save/load
+- Finish drop down menu
+- Error hooks
+< Cause all errors to have an error code...?
+< Move TextLibrary to text/
+- In env, use contextCount instead of isInit
+- ButtonPrompt doesn't account for absured numbers of buttons (orders them on top of one-another...)
+- ButtonPrompt doesn't actually set its values to its buttons 
+- game/ButtonPrompt.h:64 - That's not the default color...
+<< textBuffer in Scene to gradually generate text
+- TextString doesn't actually wait longer on ellipsis, and it shouldn't
+- Change Font to ignore \r, \t and other forms of whitespace (although perhaps make \t stand for 3-4 spaces?)
+- Have TextString sync it's skip logic with Font's skipping of spaces and newlines
+- Set color for ButtonPrompt's buttons upon creation to allow for more customization by the user?
+> aside from perhaps later, mouse detection will be done in the render loop, TODO
+- Control groups with buttons, get default etc..
+	- game.crawl.setEnabled(false);
+- Setters for Bounds
+- Image.cpp -> decode image from memory
+- Image.cpp -> getImageFormat() -> Perhaps it should return a reserved OpenGL enum instead
+- Would having a shared pointer to just the image data be a better idea?
+>>> Perhaps later refactor to where renderable -> node, so that node will always have a visibility function
+- Triangle class
+x Have the corners for Rectangle be rendered independntly....?
+< Text shader and Shape shader setters in button
+- Shader for ButtonPrompt
+< Fully implement Window
+- Polygon renderer
+> Getter/setter by index for corner radii
+< Control text color through uniforms
+- Cache glyph values with map
+- Soft and hard line wrap to Font
+- Font: char_metrics should be glyph_metrics ("That name's off...")
+> In Font: Remove consLine and substitute it with a constructor for line
+>> Exception handling for font
+- Would advance y really move the text vertically?
+>>> (in Font) unsigned int width in font should be int width........................... Then, it should be the max of that and 0. Make it actually be of ofs_type
+- In renderLines(...), can easially just deduct fall from the bitmap + start offset
+>>> Combine metrics advance with the kern

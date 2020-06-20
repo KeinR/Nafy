@@ -15,9 +15,6 @@ DB_BUILD := $(DEV_BUILD)
 build-dev: $(MAIN) $(objects)
 	$(DEV_BUILD) -g
 
-build-debug: $(MAIN) $(objects)
-	$(DB_BUILD) -g
-
 # build-release: $(DEPS)
 # 	$(REL_BUILD)
 

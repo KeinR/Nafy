@@ -70,17 +70,17 @@ int main() {
 
         sc << prompt;
 
-        Image img;
-        img.loadImage("img.jpg");
-        img.setX(0);
-        img.setY(0);
-        img.setWidth(600);
-        img.setHeight(400);
-        EventDispatch::renders_cont_t &game = ctx.getViewsRef().game.dispatch.getRenderCallbacks();
-        game.insert(game.begin(), &img);
+        // Image img;
+        // img.loadImage("img.jpg");
+        // img.setX(0);
+        // img.setY(0);
+        // img.setWidth(600);
+        // img.setHeight(400);
+        // EventDispatch::renders_cont_t &game = ctx.getViewsRef().game.dispatch.getRenderCallbacks();
+        // game.insert(game.begin(), &img);
 
-        Image *img2 = new Image();
-        delete img2;
+        // Image *img2 = new Image();
+        // delete img2;
 
         ctx.setSpeaker("Youmu");
 
