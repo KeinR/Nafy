@@ -64,15 +64,15 @@ problems I encountered / features.
 There's a weird demo in `main.cpp`.
 
 Need:
-    - Libraries (see `Libraries`)
-        - Add archives to linker path and include dirs to the include path
-        - Note that in `globals.mk`, there's `pkg-config --cflags freetype2`.
+- Libraries (see `Libraries`)
+    - Add archives to linker path and include dirs to the include path
+    - Note that in `globals.mk`, there's `pkg-config --cflags freetype2`.
         if you don't have a linux-like system and/or you didn't "install" freetype,
         then you have to remove that and replace it with the include dir of your freetype
         installation.
-    - GNU GCC (or something else if you can get it to work)
-    - GNU make
-    - OpenGL 3.3+ (shouldn't be an issue, but I thought I'd mention it)
+- GNU GCC (or something else if you can get it to work)
+- GNU make
+- OpenGL 3.3+ (shouldn't be an issue, but I thought I'd mention it)
 
 The building is simple enough. Enter the root dir in terminal and type `make build-dev`,
 or `make run` if you want to run it right away.
